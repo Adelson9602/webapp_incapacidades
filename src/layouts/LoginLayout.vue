@@ -120,9 +120,10 @@ import { controlError } from 'src/helpers/controlError';
 import { LocalStorage, useQuasar } from 'quasar';
 import { encryptJSON } from '../helpers/encrypt';
 import { auth } from '../requests';
+import { api } from 'boot/axios';
 
 export default {
-  // name: 'LayoutName',
+  name: 'LayoutLogin',
 
   setup() {
     const $q = useQuasar();
@@ -134,17 +135,15 @@ export default {
     const onSubmit = async () => {
       try {
         loading.value = true;
-        const resLogin = await auth
+        const { data, headers } = await auth
           .postLogin({
             usuario: usuario.value,
             password: password.value,
           })
-          .then((response) => response.data);
-
-        console.log(resLogin);
+          .then((response) => response);
 
         let actions = [];
-        resLogin.forEach((empresa) => {
+        data.forEach((empresa) => {
           actions.push({
             label: empresa.nombreSistema,
             img: empresa.urlLogo,
@@ -152,13 +151,12 @@ export default {
           });
         });
         $q.bottomSheet({
-          // message: 'Por favor, seleccione una empresa',
-          title: 'Por favor, seleccione una empresa',
+          // title: 'Por favor, seleccione una empresa',
+          message: 'Por favor, seleccione una empresa',
           grid: true,
           actions,
         }).onOk((action) => {
-          const empresa = resLogin.find((e) => e.idEmpresa == action.id);
-          console.log(empresa);
+          const empresa = data.find((e) => e.idEmpresa == action.id);
           LocalStorage.set('dataUsuario', encryptJSON(empresa));
           LocalStorage.set('token', headers['auth-token']);
           api.defaults.headers.common['x-access-token'] = headers['auth-token'];

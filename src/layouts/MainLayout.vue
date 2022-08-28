@@ -141,6 +141,15 @@
           </q-item>
 
           <q-separator class="q-mt-md q-mb-lg" />
+          <q-item v-ripple clickable @click="logout">
+            <q-item-section avatar>
+              <q-icon color="grey" name="logout" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>Cerrar sesión</q-item-label>
+            </q-item-section>
+          </q-item>
+          <q-separator class="q-mt-md q-mb-lg" />
 
           <div class="q-px-md text-grey-9">
             <div class="row items-center q-gutter-x-sm q-gutter-y-xs">
@@ -179,19 +188,33 @@
 <script>
 import { ref } from 'vue';
 import { fabAccusoft } from '@quasar/extras/fontawesome-v6';
+import { useQuasar, LocalStorage } from 'quasar';
+import { useRouter } from 'vue-router';
+
 export default {
   name: 'MyLayout',
   setup() {
+    const $q = useQuasar();
+    const router = useRouter();
     const leftDrawerOpen = ref(false);
     const search = ref('');
     function toggleLeftDrawer() {
       leftDrawerOpen.value = !leftDrawerOpen.value;
     }
+    const logout = () => {
+      $q.loading.show({
+        message: 'Cerrando sesión...',
+      });
+      setTimeout(() => {
+        LocalStorage.remove('dataUsuario');
+        router.push('/');
+        $q.loading.hide();
+      }, 1000);
+    };
     return {
       fabAccusoft,
       leftDrawerOpen,
       search,
-      toggleLeftDrawer,
       links1: [
         { icon: 'home', text: 'Home' },
         { icon: 'whatshot', text: 'Trending' },
@@ -230,6 +253,8 @@ export default {
         { text: 'Policy & Safety' },
         { text: 'Test new features' },
       ],
+      toggleLeftDrawer,
+      logout,
     };
   },
 };

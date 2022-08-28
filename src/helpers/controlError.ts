@@ -1,6 +1,6 @@
 import { Notify } from 'quasar';
 /* eslint-disable */
-const controlError = (e) => {
+const controlError = (e: any) => {
   let icon = 'error';
   let type = 'negative';
   console.error(e);
