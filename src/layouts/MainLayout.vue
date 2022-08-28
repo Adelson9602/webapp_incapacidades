@@ -94,7 +94,13 @@
     >
       <q-scroll-area class="fit">
         <q-list padding>
-          <q-item v-for="link in links1" :key="link.text" v-ripple clickable>
+          <q-item
+            v-for="link in links1"
+            :key="link.text"
+            v-ripple
+            clickable
+            :to="link.route"
+          >
             <q-item-section avatar>
               <q-icon color="grey" :name="link.icon" />
             </q-item-section>
@@ -105,7 +111,13 @@
 
           <q-separator class="q-my-md" />
 
-          <q-item v-for="link in links2" :key="link.text" v-ripple clickable>
+          <q-item
+            v-for="link in links2"
+            :key="link.text"
+            v-ripple
+            clickable
+            :to="link.route"
+          >
             <q-item-section avatar>
               <q-icon color="grey" :name="link.icon" />
             </q-item-section>
@@ -120,7 +132,13 @@
             More from Youtube
           </q-item-label>
 
-          <q-item v-for="link in links3" :key="link.text" v-ripple clickable>
+          <q-item
+            v-for="link in links3"
+            :key="link.text"
+            v-ripple
+            clickable
+            :to="link.route"
+          >
             <q-item-section avatar>
               <q-icon color="grey" :name="link.icon" />
             </q-item-section>
@@ -131,9 +149,17 @@
 
           <q-separator class="q-my-md" />
 
-          <q-item v-for="link in links4" :key="link.text" v-ripple clickable>
+          <q-item
+            v-for="link in links4"
+            :key="link.text"
+            v-ripple
+            clickable
+            :to="link.route"
+            active-class="custom-color"
+            class="item"
+          >
             <q-item-section avatar>
-              <q-icon color="grey" :name="link.icon" />
+              <q-icon :name="link.icon" />
             </q-item-section>
             <q-item-section>
               <q-item-label>{{ link.text }}</q-item-label>
@@ -207,7 +233,7 @@ export default {
       });
       setTimeout(() => {
         LocalStorage.remove('dataUsuario');
-        router.push('/');
+        router.push('');
         $q.loading.hide();
       }, 1000);
     };
@@ -216,36 +242,36 @@ export default {
       leftDrawerOpen,
       search,
       links1: [
-        { icon: 'home', text: 'Home' },
-        { icon: 'whatshot', text: 'Trending' },
-        { icon: 'subscriptions', text: 'Subscriptions' },
+        { icon: 'home', text: 'Home', route: '/inicio' },
+        { icon: 'whatshot', text: 'Usuarios', route: '/users' },
+        { icon: 'subscriptions', text: 'Subscriptions', route: '' },
       ],
       links2: [
-        { icon: 'folder', text: 'Library' },
-        { icon: 'restore', text: 'History' },
-        { icon: 'watch_later', text: 'Watch later' },
-        { icon: 'thumb_up_alt', text: 'Liked videos' },
+        { icon: 'folder', text: 'Library', route: '' },
+        { icon: 'restore', text: 'History', route: '' },
+        { icon: 'watch_later', text: 'Watch later', route: '' },
+        { icon: 'thumb_up_alt', text: 'Liked videos', route: '' },
       ],
       links3: [
         { icon: fabAccusoft, text: 'YouTube Premium' },
         { icon: 'local_movies', text: 'Movies & Shows' },
-        { icon: 'videogame_asset', text: 'Gaming' },
-        { icon: 'live_tv', text: 'Live' },
+        { icon: 'videogame_asset', text: 'Gaming', route: '' },
+        { icon: 'live_tv', text: 'Live', route: '' },
       ],
       links4: [
-        { icon: 'settings', text: 'Settings' },
-        { icon: 'flag', text: 'Report history' },
-        { icon: 'help', text: 'Help' },
-        { icon: 'feedback', text: 'Send feedback' },
+        { icon: 'settings', text: 'Settings', route: 'settings' },
+        { icon: 'flag', text: 'Report history', route: '' },
+        { icon: 'help', text: 'Help', route: '' },
+        { icon: 'feedback', text: 'Send feedback', route: '' },
       ],
       buttons1: [
-        { text: 'About' },
-        { text: 'Press' },
-        { text: 'Copyright' },
-        { text: 'Contact us' },
-        { text: 'Creators' },
-        { text: 'Advertise' },
-        { text: 'Developers' },
+        { text: 'About', route: '' },
+        { text: 'Press', route: '' },
+        { text: 'Copyright', route: '' },
+        { text: 'Contact us', route: '' },
+        { text: 'Creators', route: '' },
+        { text: 'Advertise', route: '' },
+        { text: 'Developers', route: '' },
       ],
       buttons2: [
         { text: 'Terms' },
@@ -281,4 +307,8 @@ export default {
     font-size: .75rem
     &:hover
       color: #000
+.item
+  color: grey
+.custom-color
+  color: $primary !important
 </style>
