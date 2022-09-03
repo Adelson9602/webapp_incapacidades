@@ -1,5 +1,19 @@
 <template>
   <div>
+    <transition
+      appear
+      enter-active-class="animated fadeIn"
+      leave-active-class="animated fadeOut"
+    >
+      <div v-show="isLoading">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent vel
+        magna eu risus laoreet tristique. Nulla ut fermentum elit, nec consequat
+        augue. Morbi et dolor nec metus tincidunt pellentesque. Nullam non
+        semper ante. Fusce pellentesque sagittis felis quis porta. Aenean
+        condimentum neque sed erat suscipit malesuada. Nulla eget rhoncus enim.
+        Duis dictum interdum eros.
+      </div>
+    </transition>
     <q-form @submit="onSubmit" class="q-gutter-md">
       <div class="row">
         <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
@@ -107,14 +121,19 @@
           </q-input>
         </div>
       </div>
-      <div>
-        <q-btn label="Submit" type="submit" color="primary" />
+      <div class="row justify-end">
         <q-btn
-          label="Reset"
+          label="Limpiar formulario"
           type="reset"
           color="primary"
           flat
           class="q-ml-sm"
+        />
+        <q-btn
+          icon="save"
+          label="Crear usuario"
+          type="submit"
+          color="primary"
         />
       </div>
     </q-form>
@@ -122,16 +141,42 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, onMounted } from 'vue';
+import { get } from 'src/requests';
+import { useQuasar } from 'quasar';
 export default defineComponent({
   name: 'ComponentCreateUser',
   setup() {
+    const $q = useQuasar();
     const text = ref('');
     const isPwd = ref(false);
+    const isLoading = ref(false);
+
+    const getData = async () => {
+      isLoading.value = true;
+      try {
+        const resRols = await get
+          .getRols()
+          .then((response: any) => response.data);
+        console.log(resRols);
+
+        const resDocuments = await get
+          .getDocumentsType()
+          .then((response: any) => response.data);
+        console.log(resDocuments);
+      } catch (error) {
+        console.error(error);
+      }
+    };
 
     const onSubmit = () => {
       console.log('HOla');
     };
+
+    onMounted(() => {
+      getData();
+    });
+
     return {
       text,
       options: ['Google', 'Facebook', 'Twitter', 'Apple', 'Oracle'],
@@ -146,6 +191,7 @@ export default defineComponent({
         },
       ],
       isPwd,
+      isLoading,
       onSubmit,
     };
   },

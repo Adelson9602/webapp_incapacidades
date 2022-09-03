@@ -1,5 +1,17 @@
-import { boot } from 'quasar/wrappers';
+import { api } from 'boot/axios';
+import { LocalStorage } from 'quasar';
+import { decryptJSON } from 'src/helpers/encrypt';
 
-export default boot(async (/* { app, router, ... } */) => {
-  // something to do
-});
+const getRols = async () => {
+  console.log(decryptJSON(LocalStorage.getItem('dataUsuario') || ''))
+  return await api.get('rols')
+}
+
+const getDocumentsType = async () => {
+  return await api.get('documents_type')
+}
+
+export default {
+  getRols,
+  getDocumentsType
+}

@@ -3,6 +3,13 @@ export interface Todo {
   content: string;
 }
 
-export interface Meta {
-  totalCount: number;
+export interface Persona {
+  primerNombre: string;
+  segundoNombre: string;
+  primerApellido: string;
+  segundoApellido: string;
+  documentoPersona: number;
+  genero: string;
+  fkIdTipoDocumento: number;
+  fechaNacimiento: string;
 }

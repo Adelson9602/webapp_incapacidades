@@ -157,11 +157,12 @@ export default {
           actions,
         }).onOk((action) => {
           const empresa = data.find((e) => e.idEmpresa == action.id);
+          console.log(empresa);
           LocalStorage.set('dataUsuario', encryptJSON(empresa));
           LocalStorage.set('token', headers['auth-token']);
           api.defaults.headers.common['x-access-token'] = headers['auth-token'];
 
-          router.push('inicio');
+          // router.push('inicio');
           $q.notify({
             message: 'Bienvenido',
             type: 'positive',
