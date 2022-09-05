@@ -1,14 +1,12 @@
 import { api } from 'boot/axios';
-import { LocalStorage } from 'quasar';
-import { decryptJSON } from 'src/helpers/encrypt';
+import { Roles, DocumentType } from 'src/models/get.model';
 
 const getRols = async () => {
-  console.log(decryptJSON(LocalStorage.getItem('dataUsuario') || ''))
-  return await api.get('rols')
+  return await api.get<Roles[]>('rols')
 }
 
 const getDocumentsType = async () => {
-  return await api.get('documents_type')
+  return await api.get<DocumentType[]>('documents_type')
 }
 
 export default {

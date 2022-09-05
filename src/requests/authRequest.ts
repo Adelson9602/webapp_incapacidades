@@ -1,5 +1,5 @@
 import { api } from 'boot/axios';
-import { User, Cliente, Menu } from '../models/auth.model'
+import { User, Cliente, Menu } from '../models/auth.models'
 
 const postLogin = async (data: User) => {
   return await api.post<Cliente[]>('/login', data);

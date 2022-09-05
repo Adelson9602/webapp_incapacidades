@@ -1,8 +1,9 @@
 import { api } from 'boot/axios';
-import { User } from '../models/auth.model'
+import { CreateUser } from '../models/post.models'
+import { User } from '../models/auth.models'
 
-const createUser = async (data: User) => {
-  return await api.get('/select_modulos_frontend');
+const createUser = async (data: CreateUser) => {
+  return await api.post('/user', data);
 };
 
 const updateRecovery = async (data: User) => {

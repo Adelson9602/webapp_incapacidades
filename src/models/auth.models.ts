@@ -33,7 +33,10 @@ export interface Cliente {
   direccion: string;
   telefono: string;
   email: string;
-  dataUser?: UserData;
+  dataUser: UserData;
+  label?: string; //Se usan solo en el login, menu de empresas
+  img?: string; //Se usan solo en el login, menu de empresas
+  id?: number; //Se usan solo en el login, menu de empresas
 }
 
 export interface Menu {

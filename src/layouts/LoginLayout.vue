@@ -29,6 +29,7 @@
                     :rules="[(val) => !!val || 'Ingrese su usuario']"
                     type="text"
                     label="Usuario"
+                    mask="############################################"
                   >
                     <template v-slot:prepend>
                       <img src="img/icons/user.png" class="custom-icons" />
@@ -113,7 +114,7 @@
   </q-layout>
 </template>
 
-<script>
+<script lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { controlError } from 'src/helpers/controlError';
@@ -121,6 +122,7 @@ import { LocalStorage, useQuasar } from 'quasar';
 import { encryptJSON } from '../helpers/encrypt';
 import { auth } from '../requests';
 import { api } from 'boot/axios';
+import { Cliente } from '../models/auth.models';
 
 export default {
   name: 'LayoutLogin',
@@ -129,47 +131,48 @@ export default {
     const $q = useQuasar();
     const router = useRouter();
     const loading = ref(false);
-    const usuario = ref('');
-    const password = ref('');
+    const usuario = ref<string>('');
+    const password = ref<string>('');
+    const msgError = ref<string>('');
 
     const onSubmit = async () => {
       try {
         loading.value = true;
         const { data, headers } = await auth
           .postLogin({
-            usuario: usuario.value,
+            usuario: +usuario.value,
             password: password.value,
           })
           .then((response) => response);
 
-        let actions = [];
+        let actions: Cliente[] = [];
         data.forEach((empresa) => {
-          actions.push({
-            label: empresa.nombreSistema,
-            img: empresa.urlLogo,
-            id: empresa.idEmpresa,
-          });
+          empresa.label = empresa.nombreSistema;
+          empresa.img = empresa.urlLogo;
+          empresa.id = empresa.idEmpresa;
+          actions.push(empresa);
         });
         $q.bottomSheet({
           // title: 'Por favor, seleccione una empresa',
           message: 'Por favor, seleccione una empresa',
           grid: true,
           actions,
-        }).onOk((action) => {
-          const empresa = data.find((e) => e.idEmpresa == action.id);
-          console.log(empresa);
-          LocalStorage.set('dataUsuario', encryptJSON(empresa));
+        }).onOk((action: Cliente) => {
+          LocalStorage.set(
+            'dataUsuario',
+            encryptJSON(JSON.parse(JSON.stringify(action)))
+          );
           LocalStorage.set('token', headers['auth-token']);
           api.defaults.headers.common['x-access-token'] = headers['auth-token'];
 
-          // router.push('inicio');
+          router.push('inicio');
           $q.notify({
             message: 'Bienvenido',
             type: 'positive',
             position: 'bottom-right',
           });
         });
-      } catch (error) {
+      } catch (error: any) {
         if (error.response && error.response.status == 401) {
           return (msgError.value = error.response.data.message);
         }

@@ -1,7 +1,3 @@
-export interface Todo {
-  id: number;
-  content: string;
-}
 
 export interface Persona {
   primerNombre: string;
@@ -12,4 +8,12 @@ export interface Persona {
   genero: string;
   fkIdTipoDocumento: number;
   fechaNacimiento: string;
+}
+
+export interface CreateUser extends Persona{
+  password: string;
+  usuario: number;
+  fkIdRol: number;
+  estadoUsuario: number;
+  fotoPerfil: string;
 }

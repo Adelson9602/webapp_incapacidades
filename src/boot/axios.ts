@@ -1,6 +1,8 @@
 import { boot } from 'quasar/wrappers';
 import axios from 'axios';
 import { LocalStorage } from 'quasar';
+import { Cliente } from 'src/models/auth.models';
+import { decryptJSON } from 'src/helpers/encrypt';
 
 // Be careful when using SSR for cross-request state pollution
 // due to creating a Singleton instance here;
@@ -12,8 +14,11 @@ const api = axios.create({ baseURL: process.env.__URLAPI__ });
 
 export default boot(({ app }) => {
   // for use inside Vue files (Options API) through this.$axios and this.$api
-  const token = LocalStorage.getItem('token');
-  api.defaults.headers.common['x-access-token'] = token || '';
+  const token = LocalStorage.getItem('token') as unknown as string;
+  const empresa = decryptJSON(JSON.parse(JSON.stringify(LocalStorage.getItem('dataUsuario')))) as unknown as Cliente;
+
+  api.defaults.headers.common['x-access-token'] = token;
+  api.defaults.headers.common['base'] = empresa.nombreBase;
 
   app.config.globalProperties.$axios = axios;
   // ^ ^ ^ this will allow you to use this.$axios (for Vue Options API form)

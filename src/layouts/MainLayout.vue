@@ -233,7 +233,7 @@ export default {
       });
       setTimeout(() => {
         LocalStorage.remove('dataUsuario');
-        router.push('');
+        router.push('/login');
         $q.loading.hide();
       }, 1000);
     };
