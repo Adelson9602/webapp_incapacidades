@@ -46,7 +46,7 @@
               :options="optionsDocumentTypes"
               label="Tipo documento"
               option-label="nombreTipoDocumento"
-              option-value="idRol"
+              option-value="idTipoDocumento"
               map-options
               emit-value
             />
@@ -63,7 +63,7 @@
           <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
             <q-input
               filled
-              v-model="text"
+              v-model="person.fechaNacimiento"
               mask="date"
               :rules="['date']"
               label="Fecha nacimiento"
@@ -75,7 +75,7 @@
                     transition-show="scale"
                     transition-hide="scale"
                   >
-                    <q-date v-model="text">
+                    <q-date v-model="person.fechaNacimiento">
                       <div class="row items-center justify-end">
                         <q-btn
                           v-close-popup
@@ -110,7 +110,9 @@
               label="Rol"
               filled
               option-label="nombreRol"
-              option-value="idTipoDocumento"
+              option-value="idRol"
+              map-options
+              emit-value
             />
           </div>
           <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
@@ -198,11 +200,12 @@ import { get, post } from 'src/requests';
 import { useQuasar } from 'quasar';
 import { Roles } from 'src/models/get.model';
 import { CreateUser } from 'src/models/post.models';
+import { controlError } from 'src/helpers/controlError';
 export default defineComponent({
   name: 'ComponentCreateUser',
-  setup() {
+  emits: ['onReload'],
+  setup(props, { emit }) {
     const $q = useQuasar();
-    const text = ref('');
     const isPwd = ref(false);
     const isLoading = ref(false);
     const isVisibleForm = ref(false);
@@ -248,6 +251,7 @@ export default defineComponent({
     const onSubmit = async () => {
       isLoading.value = true;
       try {
+        person.value.usuario = person.value.documentoPersona;
         const resCreate = await post
           .createUser(person.value)
           .then((response) => response.data);
@@ -257,8 +261,10 @@ export default defineComponent({
           type: 'positive',
           position: 'bottom-right',
         });
+
+        emit('onReload');
       } catch (error) {
-        console.error(error);
+        controlError(error);
       } finally {
         isLoading.value = false;
       }
@@ -269,15 +275,13 @@ export default defineComponent({
     });
 
     return {
-      text,
-      options: ['Google', 'Facebook', 'Twitter', 'Apple', 'Oracle'],
       optionsGenres: [
         {
-          label: 'Masculino',
+          label: 'MASCULINO',
           value: 'M',
         },
         {
-          label: 'Fémenino',
+          label: 'FEMENINO',
           value: 'F',
         },
       ],

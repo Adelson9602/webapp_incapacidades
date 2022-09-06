@@ -19,7 +19,7 @@
           <general-table-component />
         </q-tab-panel>
         <q-tab-panel name="createUser">
-          <create-user-component />
+          <create-user-component @on-reload="onReload" />
         </q-tab-panel>
       </q-tab-panels>
     </q-card>
@@ -39,8 +39,20 @@ export default defineComponent({
   },
   setup() {
     const tab = ref('users');
+
+    const onReload = () => {
+      tab.value = 'users';
+    };
+    const getData = () => {
+      try {
+      } catch (error) {
+        console.log(error);
+      } finally {
+      }
+    };
     return {
       tab,
+      onReload,
     };
   },
 });
