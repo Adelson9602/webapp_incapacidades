@@ -10,10 +10,12 @@ export interface Persona {
   fechaNacimiento: string;
 }
 
-export interface CreateUser extends Persona{
+export interface UserData extends Persona{
   password: string;
   usuario: number;
   fkIdRol: number;
   estadoUsuario: number;
   fotoPerfil: string;
+  title?: string; // Titulo en la tabla
+  rowKey?: number; // Idenfiticador único en la tabla
 }

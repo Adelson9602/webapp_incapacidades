@@ -10,9 +10,9 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true },
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '/inicio', component: () => import('pages/IndexPage.vue'), meta: { requiresAuth: true }, },
-      { path: '/users', component: () => import('src/pages/UsersPage.vue'), meta: { requiresAuth: true }, },
-      { path: '/settings', component: () => import('src/pages/SettingsPage.vue'), meta: { requiresAuth: true }, },
+      { path: 'inicio', component: () => import('pages/IndexPage.vue'), meta: { requiresAuth: true }, },
+      { path: 'users', component: () => import('src/pages/UsersPage.vue'), meta: { requiresAuth: true }, },
+      { path: 'settings', component: () => import('src/pages/SettingsPage.vue'), meta: { requiresAuth: true }, },
     ],
   },
 

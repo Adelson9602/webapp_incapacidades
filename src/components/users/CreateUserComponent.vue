@@ -5,7 +5,7 @@
       enter-active-class="animated fadeIn"
       leave-active-class="animated fadeOut"
     >
-      <q-form @submit="onSubmit" class="q-gutter-md" v-show="isVisibleForm">
+      <q-form @submit="onSubmit" class="q-gutter-md">
         <div class="row">
           <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
             <q-input
@@ -13,6 +13,11 @@
               type="text"
               label="Primer nombre"
               filled
+              @update:model-value="
+                (val) => {
+                  person.primerNombre = `${val}`.toUpperCase();
+                }
+              "
             />
           </div>
           <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
@@ -21,6 +26,11 @@
               type="text"
               label="Segundo nombre"
               filled
+              @update:model-value="
+                (val) => {
+                  person.segundoNombre = `${val}`.toUpperCase();
+                }
+              "
             />
           </div>
           <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
@@ -29,6 +39,11 @@
               type="text"
               label="Primer apellido"
               filled
+              @update:model-value="
+                (val) => {
+                  person.primerApellido = `${val}`.toUpperCase();
+                }
+              "
             />
           </div>
           <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
@@ -37,6 +52,11 @@
               type="text"
               label="Segundo apellido"
               filled
+              @update:model-value="
+                (val) => {
+                  person.segundoApellido = `${val}`.toUpperCase();
+                }
+              "
             />
           </div>
           <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
@@ -195,24 +215,28 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue';
+import { defineComponent, ref, onMounted, PropType, toRefs } from 'vue';
 import { get, post } from 'src/requests';
 import { useQuasar } from 'quasar';
 import { Roles } from 'src/models/get.model';
-import { CreateUser } from 'src/models/post.models';
+import { UserData } from 'src/models/post.models';
 import { controlError } from 'src/helpers/controlError';
+import { decryptedAES } from 'src/helpers/encrypt';
 export default defineComponent({
   name: 'ComponentCreateUser',
   emits: ['onReload'],
+  props: {
+    userEdit: Object as PropType<UserData>,
+  },
   setup(props, { emit }) {
     const $q = useQuasar();
     const isPwd = ref(false);
     const isLoading = ref(false);
-    const isVisibleForm = ref(false);
     const optionsRoles = ref<Roles[]>();
     const optionsDocumentTypes = ref<Roles[]>();
     const confirmPassword = ref<string>('');
-    const person = ref<CreateUser>({
+    const { userEdit } = toRefs(props);
+    const person = ref<UserData>({
       documentoPersona: 0,
       fechaNacimiento: '',
       fkIdTipoDocumento: 0,
@@ -225,13 +249,13 @@ export default defineComponent({
       usuario: 0,
       estadoUsuario: 1,
       fkIdRol: 0,
-      fotoPerfil: 'foto perfil',
+      fotoPerfil: '',
     });
 
     const getData = async () => {
       isLoading.value = true;
-      isVisibleForm.value = false;
       try {
+        person.value.fotoPerfil = `https://ui-avatars.com/api/?name=${person.value.primerNombre}&background=00ab55&color=fff&rounded=true`;
         const resRols = await get.getRols().then((response) => response.data);
         optionsRoles.value = [...resRols];
 
@@ -239,8 +263,9 @@ export default defineComponent({
           .getDocumentsType()
           .then((response: any) => response.data);
         optionsDocumentTypes.value = [...resDocuments];
-
-        isVisibleForm.value = true;
+        if (userEdit.value) {
+          assingData(userEdit.value);
+        }
       } catch (error: any) {
         console.error(error);
       } finally {
@@ -268,6 +293,25 @@ export default defineComponent({
       } finally {
         isLoading.value = false;
       }
+    };
+
+    const assingData = (data: UserData) => {
+      console.log(data.password);
+      person.value = {
+        documentoPersona: data.documentoPersona,
+        fechaNacimiento: data.fechaNacimiento,
+        fkIdTipoDocumento: data.fkIdTipoDocumento,
+        genero: data.genero,
+        primerApellido: data.primerApellido,
+        primerNombre: data.primerNombre,
+        segundoApellido: data.segundoApellido,
+        segundoNombre: data.segundoNombre,
+        password: decryptedAES(data.password),
+        usuario: data.usuario,
+        estadoUsuario: data.estadoUsuario,
+        fkIdRol: data.fkIdRol,
+        fotoPerfil: data.fotoPerfil,
+      };
     };
 
     onMounted(() => {
@@ -299,7 +343,6 @@ export default defineComponent({
       optionsDocumentTypes,
       isPwd,
       isLoading,
-      isVisibleForm,
       person,
       confirmPassword,
       onSubmit,

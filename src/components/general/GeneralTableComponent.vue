@@ -1,14 +1,16 @@
 <template>
   <div class="q-pa-md">
     <q-table
-      grid
-      title="Treats"
+      :grid="grid"
+      :title="title"
       :rows="rows"
       :columns="columns"
-      row-key="name"
+      row-key="rowKey"
+      flat
       :filter="filter"
-      hide-header
+      :hide-header="grid ? true : false"
       :pagination="pagination"
+      @input="updateModel($event)"
     >
       <template v-slot:top-right>
         <q-input
@@ -28,73 +30,176 @@
       <!-- Modo grid -->
       <template v-slot:item="props">
         <div class="q-pa-xs col-xs-12 col-sm-6 col-md-4 col-lg-3">
-          <q-card flat bordered>
+          <q-card>
+            <q-card-section class="q-pb-none">
+              <div class="text-overline">{{ props.row.title }}</div>
+            </q-card-section>
+            <q-separator />
             <q-card-section horizontal>
-              <q-card-section class="col-6 flex flex-center">
+              <q-card-section class="col-5 flex flex-center" v-if="avatar">
                 <q-img
                   class="rounded-borders"
-                  src="https://cdn.quasar.dev/img/parallax2.jpg"
+                  :src="props.row.avatar"
+                  height="100px"
+                  fit="contain"
                 />
               </q-card-section>
 
-              <q-card-section class="q-pt-xs">
-                <div class="text-overline">{{ props.row.name }}</div>
-                <div class="text-h5 q-mt-sm q-mb-xs">Title</div>
+              <q-card-section class="q-pa-none">
                 <div class="text-caption text-grey">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                  <q-list dense>
+                    <q-item
+                      v-for="(col, key) in dataFiltered(props.cols)"
+                      :key="key"
+                    >
+                      <q-item-section>
+                        <q-item-label class="text-black">
+                          {{ col.label }}
+                        </q-item-label>
+                        <q-item-label>{{ col.value }}</q-item-label>
+                      </q-item-section>
+                    </q-item>
+                  </q-list>
                 </div>
               </q-card-section>
             </q-card-section>
 
             <q-separator />
 
-            <q-card-actions>
-              <q-btn flat round icon="event" />
-              <q-btn flat> 7:30PM </q-btn>
-              <q-btn flat color="primary"> Reserve </q-btn>
+            <q-card-actions align="right">
+              <q-btn
+                unelevated
+                dense
+                class="custom-btn primary no-shadow"
+                size="md"
+                label="Editar"
+                no-caps
+                @click="onEdit(props.row)"
+              />
+              <q-btn
+                unelevated
+                dense
+                class="custom-btn primary no-shadow"
+                size="md"
+                label="Inhabilitar"
+                no-caps
+                @click="onStatus(props.row)"
+              />
+              <q-btn
+                unelevated
+                dense
+                class="custom-btn primary no-shadow"
+                size="md"
+                label="Detalle"
+                no-caps
+                @click="onDetail(props.row)"
+              />
             </q-card-actions>
           </q-card>
         </div>
+      </template>
+
+      <template v-slot:header="props">
+        <q-tr :props="props">
+          <q-th
+            v-for="col in dataFiltered(props.cols)"
+            :key="col.name"
+            :props="props"
+          >
+            {{ col.label }}
+          </q-th>
+          <q-th auto-width />
+        </q-tr>
+      </template>
+
+      <template v-slot:body="props">
+        <q-tr :props="props">
+          <q-td
+            v-for="col in dataFiltered(props.cols)"
+            :key="col.name"
+            :props="props"
+          >
+            <div v-if="col.label != 'ESTADO'">{{ col.value }}</div>
+            <q-badge
+              v-else
+              :color="assingColor(props.row)"
+              :label="col.value == 1 ? 'ACTIVO' : 'INACTIVO'"
+              class="q-pa-sm text-center"
+            />
+          </q-td>
+          <q-td auto-width>
+            <div class="full-width q-gutter-sm">
+              <q-btn
+                unelevated
+                dense
+                round
+                class="custom-btn primary no-shadow"
+                size="md"
+                icon="fa-solid fa-pen-to-square"
+                no-caps
+                @click="onEdit(props.row)"
+              >
+                <q-tooltip> Editar </q-tooltip>
+              </q-btn>
+              <q-btn
+                unelevated
+                dense
+                round
+                class="custom-btn warning no-shadow"
+                size="md"
+                icon="fa-solid fa-power-off"
+                no-caps
+                @click="onStatus(props.row)"
+              >
+                <q-tooltip> Cambiar estado </q-tooltip>
+              </q-btn>
+              <q-btn
+                unelevated
+                dense
+                round
+                class="custom-btn primary no-shadow"
+                size="md"
+                icon="fa-solid fa-eye"
+                no-caps
+                @click="onDetail(props.row)"
+              >
+                <q-tooltip> Ver detalle </q-tooltip>
+              </q-btn>
+            </div>
+          </q-td>
+        </q-tr>
       </template>
     </q-table>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { useQuasar } from 'quasar';
 import { ref, computed, watch } from 'vue';
 
-const deserts = [
-  'Frozen Yogurt',
-  'Ice cream sandwich',
-  'Eclair',
-  'Cupcake',
-  'Gingerbread',
-  'Jelly bean',
-  'Lollipop',
-  'Honeycomb',
-  'Donut',
-  'KitKat',
-];
-
-const rows = [];
-
-deserts.forEach((name) => {
-  for (let i = 0; i < 24; i++) {
-    rows.push({
-      name: name + ' (' + i + ')',
-      calories: 20 + Math.ceil(50 * Math.random()),
-    });
-  }
-});
-
-rows.sort(() => -1 + Math.floor(3 * Math.random()));
-
 export default {
-  setup() {
+  props: {
+    rows: {
+      type: Array,
+      require: true,
+    },
+    columns: {
+      type: Array,
+      require: true,
+    },
+    title: String,
+    avatar: {
+      type: Boolean,
+      default: false,
+    },
+    grid: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  emits: ['onEdit', 'onDetail', 'onStatus', 'input'],
+  setup(props: any, { emit }: any) {
     const $q = useQuasar();
-
     function getItemsPerPage() {
       if ($q.screen.lt.sm) {
         return 3;
@@ -121,26 +226,52 @@ export default {
       }
     );
 
-    return {
-      rows,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const upDateVmodel = ($event: any) => {
+      emit('input', $event);
+    };
 
+    const onEdit = (row: any) => {
+      emit('onEdit', row);
+    };
+
+    const onStatus = (row: any) => {
+      emit('onStatus', row);
+    };
+
+    const onDetail = (row: any) => {
+      emit('onDetail', row);
+    };
+
+    const dataFiltered = (data: any) => {
+      return data.filter((col: any) => col.label !== 'TITLE');
+    };
+
+    const assingColor = (data: any) => {
+      if (data.estadoUsuario == 1) {
+        return 'green';
+      } else {
+        return 'negative';
+      }
+    };
+
+    return {
       filter,
       pagination,
-
-      columns: [
-        { name: 'name', label: 'Name', field: 'name' },
-        { name: 'calories', label: 'Calories (g)', field: 'calories' },
-      ],
-
       cardContainerClass: computed(() => {
         return $q.screen.gt.xs
           ? 'grid-masonry grid-masonry--' + ($q.screen.gt.sm ? '3' : '2')
           : null;
       }),
-
       rowsPerPageOptions: computed(() => {
         return $q.screen.gt.xs ? ($q.screen.gt.sm ? [3, 6, 9] : [3, 6]) : [3];
       }),
+      upDateVmodel,
+      onEdit,
+      onStatus,
+      onDetail,
+      dataFiltered,
+      assingColor,
     };
   },
 };

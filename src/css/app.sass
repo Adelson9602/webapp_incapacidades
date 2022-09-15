@@ -3,7 +3,50 @@
   border-radius: 20px
 
 .shadow-positive
-  box-shadow: 0px 3px 10px 0px #00da78
+  box-shadow: rgb(0 171 85 / 24%) 0px 8px 16px 0px
+
+.custom-btn
+  display: inline-flex
+  align-items: center
+  justify-content: center
+  position: relative
+  box-sizing: border-box
+  -webkit-tap-highlight-color: transparent
+  outline: 0px
+  border: 0px
+  // margin: 0px
+  cursor: pointer
+  user-select: none
+  vertical-align: middle
+  appearance: none
+  text-decoration: none
+  font-weight: 700
+  line-height: 1.71429
+  // font-size: 0.9375rem
+  text-transform: capitalize
+  font-family: "Public Sans", sans-serif
+  min-width: 64px
+  // padding: 8px 22px
+  border-radius: 8px
+  color: rgb(255, 255, 255)
+  // height: 48px
+  transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms, border-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms
+
+.custom-btn.primary
+  background-color: $primary
+  box-shadow: rgb(0 171 85 / 24%) 0px 8px 16px 0px
+
+.custom-btn.secondary
+  background-color: $secondary
+  box-shadow: rgb(0 171 85 / 24%) 0px 8px 16px 0px
+
+.custom-btn.warning
+  background-color: $warning
+  box-shadow: rgb(0 171 85 / 24%) 0px 8px 16px 0px
+
+.custom-btn.negative
+  background-color: $negative
+  box-shadow: rgb(0 171 85 / 24%) 0px 8px 16px 0px
 
 .custom-icons
   height: 20px
