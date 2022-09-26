@@ -6,15 +6,17 @@
         <q-btn
           color="primary"
           icon="add"
-          label="agregar rol"
-          @click="dialogRol = true"
+          label="agregar estado incapacidad"
+          @click="dialog = true"
         />
-        <q-dialog v-model="dialogRol" persistent>
+        <q-dialog v-model="dialog" persistent>
           <q-card style="width: 450px; max-width: 90vw">
             <q-bar dark class="bg-primary text-white">
               <q-btn dense flat round icon="list" color="white" />
               <div class="col text-center text-weight-bold">
-                {{ rol.idRol ? 'Editar ' : 'Agregar ' }}rol
+                {{
+                  disabilityState.idEstadoIncapacidad ? 'Editar ' : 'Agregar '
+                }}tipo incapacidad
               </div>
               <q-btn
                 dense
@@ -33,11 +35,11 @@
                 ref="myForm"
               >
                 <q-input
-                  v-model="rol.nombreRol"
+                  v-model="disabilityState.nombreEstadoIncapacidad"
                   outlined
                   type="text"
-                  label="Nombre del rol"
-                  :rules="[(val) => !!val || 'Nombre rol es requerido']"
+                  label="Estado incapacidad"
+                  :rules="[(val) => !!val || 'Estado incapacidad es requerido']"
                 />
                 <div class="row justify-end">
                   <q-btn label="Guardar" type="submit" color="primary" />
@@ -56,7 +58,7 @@
       </q-card-section>
       <general-table-component
         :columns="columns"
-        title="Roles del sistema"
+        title="Estados de incapacidad"
         :rows="rows"
         :avatar="false"
         :grid="true"
@@ -68,7 +70,7 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue';
-import { Rols } from 'src/models/generals.models';
+import { StateDisability } from 'src/models/generals.models';
 import GeneralTableComponent from 'src/components/general/GeneralTableComponent.vue';
 import { get, post } from 'src/requests';
 import { controlError } from 'src/helpers/controlError';
@@ -76,46 +78,48 @@ import { useQuasar } from 'quasar';
 
 const columns = [
   {
-    name: 'idRol',
-    label: 'ID ROL',
+    name: 'idEstadoIncapacidad',
+    label: 'ID ESTADO INCAPACIDAD',
     align: 'center',
     sortable: true,
-    field: 'idRol',
+    field: 'idEstadoIncapacidad',
   },
   {
-    name: 'nombreRol',
-    label: 'ROL',
+    name: 'nombreEstadoIncapacidad',
+    label: 'ESTADO INCAPACIDAD',
     align: 'center',
     sortable: true,
-    field: 'nombreRol',
+    field: 'nombreEstadoIncapacidad',
   },
 ];
 export default defineComponent({
-  name: 'PageRols',
+  name: 'PageDisabilityState',
   components: {
     GeneralTableComponent,
   },
   setup() {
     const $q = useQuasar();
-    const rows = ref<Rols[]>([]);
+    const rows = ref<StateDisability[]>([]);
     const isLoading = ref(false);
-    const dialogRol = ref(false);
+    const dialog = ref(false);
     const myForm = ref<any>(null);
-    const rol = ref({
-      idRol: 0,
-      nombreRol: '',
+    const disabilityState = ref({
+      idEstadoIncapacidad: 0,
+      nombreEstadoIncapacidad: '',
     });
 
     const getData = async () => {
       isLoading.value = true;
       try {
-        const resRols = await get.getRols().then((response) => response.data);
+        const resDisabilityState = await get
+          .getStateDisability()
+          .then((response) => response.data);
         rows.value = [
-          ...resRols.map((rol) => {
-            rol.title = rol.nombreRol;
-            rol.btnEdit = true;
-            rol.btnDetail = true;
-            return rol;
+          ...resDisabilityState.map((disabilityState) => {
+            disabilityState.title = disabilityState.nombreEstadoIncapacidad;
+            disabilityState.btnEdit = true;
+            disabilityState.btnDetail = true;
+            return disabilityState;
           }),
         ];
       } catch (error) {
@@ -128,21 +132,21 @@ export default defineComponent({
     const onSubmit = async () => {
       isLoading.value = true;
       try {
-        const resRols = await post
-          .createRol(rol.value)
+        const resDisabilityState = await post
+          .createStateDisability(disabilityState.value)
           .then((response) => response.data);
 
         $q.notify({
-          message: resRols.message,
+          message: resDisabilityState.message,
           type: 'positive',
           position: 'bottom-right',
         });
         setTimeout(() => getData(), 200);
-        rol.value = {
-          idRol: 0,
-          nombreRol: '',
+        disabilityState.value = {
+          idEstadoIncapacidad: 0,
+          nombreEstadoIncapacidad: '',
         };
-        dialogRol.value = false;
+        dialog.value = false;
       } catch (error) {
         controlError(error);
       } finally {
@@ -151,17 +155,17 @@ export default defineComponent({
     };
 
     const onReset = () => {
-      rol.value = {
-        idRol: 0,
-        nombreRol: '',
+      disabilityState.value = {
+        idEstadoIncapacidad: 0,
+        nombreEstadoIncapacidad: '',
       };
       myForm.value.resetValidation();
-      dialogRol.value = false;
+      dialog.value = false;
     };
 
-    const onEdit = (row: Rols) => {
-      rol.value = row;
-      dialogRol.value = true;
+    const onEdit = (row: StateDisability) => {
+      disabilityState.value = row;
+      dialog.value = true;
     };
 
     onMounted(() => getData());
@@ -169,8 +173,8 @@ export default defineComponent({
     return {
       columns,
       rows,
-      dialogRol,
-      rol,
+      dialog,
+      disabilityState,
       myForm,
       onSubmit,
       onReset,

@@ -6,15 +6,16 @@
         <q-btn
           color="primary"
           icon="add"
-          label="agregar rol"
-          @click="dialogRol = true"
+          label="agregar tipo documento"
+          @click="dialog = true"
         />
-        <q-dialog v-model="dialogRol" persistent>
+        <q-dialog v-model="dialog" persistent>
           <q-card style="width: 450px; max-width: 90vw">
             <q-bar dark class="bg-primary text-white">
               <q-btn dense flat round icon="list" color="white" />
               <div class="col text-center text-weight-bold">
-                {{ rol.idRol ? 'Editar ' : 'Agregar ' }}rol
+                {{ documentType.idTipoDocumento ? 'Editar ' : 'Agregar ' }}tipo
+                documento
               </div>
               <q-btn
                 dense
@@ -33,11 +34,13 @@
                 ref="myForm"
               >
                 <q-input
-                  v-model="rol.nombreRol"
+                  v-model="documentType.nombreTipoDocumento"
                   outlined
                   type="text"
-                  label="Nombre del rol"
-                  :rules="[(val) => !!val || 'Nombre rol es requerido']"
+                  label="Nombre tipo de documento"
+                  :rules="[
+                    (val) => !!val || 'Nombre tipo documento es requerido',
+                  ]"
                 />
                 <div class="row justify-end">
                   <q-btn label="Guardar" type="submit" color="primary" />
@@ -56,7 +59,7 @@
       </q-card-section>
       <general-table-component
         :columns="columns"
-        title="Roles del sistema"
+        title="Tipos de documento"
         :rows="rows"
         :avatar="false"
         :grid="true"
@@ -68,7 +71,7 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue';
-import { Rols } from 'src/models/generals.models';
+import { DocumentType } from 'src/models/generals.models';
 import GeneralTableComponent from 'src/components/general/GeneralTableComponent.vue';
 import { get, post } from 'src/requests';
 import { controlError } from 'src/helpers/controlError';
@@ -76,46 +79,48 @@ import { useQuasar } from 'quasar';
 
 const columns = [
   {
-    name: 'idRol',
-    label: 'ID ROL',
+    name: 'idTipoDocumento',
+    label: 'ID TIPO DOCUMENTO',
     align: 'center',
     sortable: true,
-    field: 'idRol',
+    field: 'idTipoDocumento',
   },
   {
-    name: 'nombreRol',
-    label: 'ROL',
+    name: 'nombreTipoDocumento',
+    label: 'TIPO DOCUMENTO',
     align: 'center',
     sortable: true,
-    field: 'nombreRol',
+    field: 'nombreTipoDocumento',
   },
 ];
 export default defineComponent({
-  name: 'PageRols',
+  name: 'PageTypeDocument',
   components: {
     GeneralTableComponent,
   },
   setup() {
     const $q = useQuasar();
-    const rows = ref<Rols[]>([]);
+    const rows = ref<DocumentType[]>([]);
     const isLoading = ref(false);
-    const dialogRol = ref(false);
+    const dialog = ref(false);
     const myForm = ref<any>(null);
-    const rol = ref({
-      idRol: 0,
-      nombreRol: '',
+    const documentType = ref({
+      idTipoDocumento: 0,
+      nombreTipoDocumento: '',
     });
 
     const getData = async () => {
       isLoading.value = true;
       try {
-        const resRols = await get.getRols().then((response) => response.data);
+        const resTypeDoc = await get
+          .getDocumentsType()
+          .then((response) => response.data);
         rows.value = [
-          ...resRols.map((rol) => {
-            rol.title = rol.nombreRol;
-            rol.btnEdit = true;
-            rol.btnDetail = true;
-            return rol;
+          ...resTypeDoc.map((documentType) => {
+            documentType.title = documentType.nombreTipoDocumento;
+            documentType.btnEdit = true;
+            documentType.btnDetail = true;
+            return documentType;
           }),
         ];
       } catch (error) {
@@ -128,21 +133,21 @@ export default defineComponent({
     const onSubmit = async () => {
       isLoading.value = true;
       try {
-        const resRols = await post
-          .createRol(rol.value)
+        const resTypeDoc = await post
+          .createDocumentType(documentType.value)
           .then((response) => response.data);
 
         $q.notify({
-          message: resRols.message,
+          message: resTypeDoc.message,
           type: 'positive',
           position: 'bottom-right',
         });
         setTimeout(() => getData(), 200);
-        rol.value = {
-          idRol: 0,
-          nombreRol: '',
+        documentType.value = {
+          idTipoDocumento: 0,
+          nombreTipoDocumento: '',
         };
-        dialogRol.value = false;
+        dialog.value = false;
       } catch (error) {
         controlError(error);
       } finally {
@@ -151,17 +156,17 @@ export default defineComponent({
     };
 
     const onReset = () => {
-      rol.value = {
-        idRol: 0,
-        nombreRol: '',
+      documentType.value = {
+        idTipoDocumento: 0,
+        nombreTipoDocumento: '',
       };
       myForm.value.resetValidation();
-      dialogRol.value = false;
+      dialog.value = false;
     };
 
-    const onEdit = (row: Rols) => {
-      rol.value = row;
-      dialogRol.value = true;
+    const onEdit = (row: DocumentType) => {
+      documentType.value = row;
+      dialog.value = true;
     };
 
     onMounted(() => getData());
@@ -169,8 +174,8 @@ export default defineComponent({
     return {
       columns,
       rows,
-      dialogRol,
-      rol,
+      dialog,
+      documentType,
       myForm,
       onSubmit,
       onReset,

@@ -14,6 +14,9 @@
         <q-tab name="users" label="Usuarios" />
         <q-tab name="createUser" label="Crear usuario" />
       </q-tabs>
+
+      <q-separator />
+
       <q-tab-panels v-model="tab" animated>
         <q-tab-panel name="users">
           <general-table-component
@@ -194,7 +197,7 @@ export default defineComponent({
             position: 'bottom-right',
           });
 
-          setTimeout(() => getData(), 300);
+          setTimeout(() => getData(), 200);
         } catch (error) {
           controlError(error);
         } finally {

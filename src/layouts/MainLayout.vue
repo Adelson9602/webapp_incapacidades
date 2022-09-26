@@ -244,12 +244,16 @@ export default {
       links1: [
         { icon: 'home', text: 'Home', route: '/inicio' },
         { icon: 'whatshot', text: 'Usuarios', route: '/users' },
-        { icon: 'subscriptions', text: 'Roles', route: '/rols' },
       ],
       links2: [
-        { icon: 'folder', text: 'Library', route: '' },
-        { icon: 'restore', text: 'History', route: '' },
-        { icon: 'watch_later', text: 'Watch later', route: '' },
+        { icon: 'subscriptions', text: 'Roles', route: '/rols' },
+        { icon: 'folder', text: 'Tipo documentos', route: '/document_type' },
+        {
+          icon: 'restore',
+          text: 'Estado incapacidad',
+          route: '/disability_state',
+        },
+        { icon: 'watch_later', text: 'Ubicación', route: '/ubication' },
         { icon: 'thumb_up_alt', text: 'Liked videos', route: '' },
       ],
       links3: [
