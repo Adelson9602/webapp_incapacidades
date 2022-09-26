@@ -1,9 +1,8 @@
 import { api } from 'boot/axios';
-import { UserData } from 'src/models/auth.models';
-import { Roles, DocumentType } from 'src/models/get.model';
+import { Rols, DocumentType, UserData } from 'src/models/generals.models';
 
 const getRols = async () => {
-  return await api.get<Roles[]>('rols')
+  return await api.get<Rols[]>('rols')
 }
 
 const getDocumentsType = async () => {

@@ -1,7 +1,7 @@
 <template>
   <q-page padding>
     <!-- content -->
-    <q-card class="my-card" flat>
+    <q-card flat>
       <q-tabs
         v-model="tab"
         dense
@@ -39,7 +39,7 @@
 import { defineComponent, onMounted, ref } from 'vue';
 import GeneralTableComponent from 'components/general/GeneralTableComponent.vue';
 import CreateUserComponent from 'components/users/CreateUserComponent.vue';
-import { UserData } from 'src/models/post.models';
+import { UserData } from 'src/models/generals.models';
 import { controlError } from 'src/helpers/controlError';
 import { get, post } from 'src/requests';
 import { useQuasar } from 'quasar';
@@ -145,6 +145,9 @@ export default defineComponent({
         rows.value = [
           ...resRols.map((item) => {
             item.title = `${item.primerApellido} ${item.segundoApellido} ${item.primerNombre} ${item.segundoNombre}`;
+            item.btnEdit = true;
+            item.btnStatus = true;
+            item.btnDetail = true;
             return item;
           }),
         ];
@@ -200,9 +203,7 @@ export default defineComponent({
       });
     };
 
-    onMounted(() => {
-      getData();
-    });
+    onMounted(() => getData());
     return {
       tab,
       isLoading,

@@ -218,8 +218,7 @@
 import { defineComponent, ref, onMounted, PropType, toRefs } from 'vue';
 import { get, post } from 'src/requests';
 import { useQuasar } from 'quasar';
-import { Roles } from 'src/models/get.model';
-import { UserData } from 'src/models/post.models';
+import { UserData, Rols } from 'src/models/generals.models';
 import { controlError } from 'src/helpers/controlError';
 import { decryptedAES } from 'src/helpers/encrypt';
 export default defineComponent({
@@ -232,8 +231,8 @@ export default defineComponent({
     const $q = useQuasar();
     const isPwd = ref(false);
     const isLoading = ref(false);
-    const optionsRoles = ref<Roles[]>();
-    const optionsDocumentTypes = ref<Roles[]>();
+    const optionsRoles = ref<Rols[]>();
+    const optionsDocumentTypes = ref<Rols[]>();
     const confirmPassword = ref<string>('');
     const { userEdit } = toRefs(props);
     const person = ref<UserData>({

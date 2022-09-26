@@ -75,6 +75,7 @@
                 label="Editar"
                 no-caps
                 @click="onEdit(props.row)"
+                v-if="props.row.btnEdit"
               />
               <q-btn
                 unelevated
@@ -84,6 +85,7 @@
                 label="Inhabilitar"
                 no-caps
                 @click="onStatus(props.row)"
+                v-if="props.row.btnStatus"
               />
               <q-btn
                 unelevated
@@ -93,6 +95,7 @@
                 label="Detalle"
                 no-caps
                 @click="onDetail(props.row)"
+                v-if="props.row.btnDetail"
               />
             </q-card-actions>
           </q-card>
@@ -138,6 +141,7 @@
                 icon="fa-solid fa-pen-to-square"
                 no-caps
                 @click="onEdit(props.row)"
+                v-if="props.row.btnEdit"
               >
                 <q-tooltip> Editar </q-tooltip>
               </q-btn>
@@ -150,6 +154,7 @@
                 icon="fa-solid fa-power-off"
                 no-caps
                 @click="onStatus(props.row)"
+                v-if="props.row.btnStatus"
               >
                 <q-tooltip> Cambiar estado </q-tooltip>
               </q-btn>
@@ -162,6 +167,7 @@
                 icon="fa-solid fa-eye"
                 no-caps
                 @click="onDetail(props.row)"
+                v-if="props.row.btnDetail"
               >
                 <q-tooltip> Ver detalle </q-tooltip>
               </q-btn>

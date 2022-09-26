@@ -244,7 +244,7 @@ export default {
       links1: [
         { icon: 'home', text: 'Home', route: '/inicio' },
         { icon: 'whatshot', text: 'Usuarios', route: '/users' },
-        { icon: 'subscriptions', text: 'Subscriptions', route: '' },
+        { icon: 'subscriptions', text: 'Roles', route: '/rols' },
       ],
       links2: [
         { icon: 'folder', text: 'Library', route: '' },

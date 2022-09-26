@@ -1,4 +1,4 @@
-import { UserData } from './post.models';
+import { UserData } from './generals.models';
 
 export interface User {
   usuario: number;

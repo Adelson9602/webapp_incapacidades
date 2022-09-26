@@ -164,6 +164,7 @@ export default {
           );
           LocalStorage.set('token', headers['auth-token']);
           api.defaults.headers.common['x-access-token'] = headers['auth-token'];
+          api.defaults.headers.common['base'] = action.nombreBase;
 
           router.push('inicio');
           $q.notify({

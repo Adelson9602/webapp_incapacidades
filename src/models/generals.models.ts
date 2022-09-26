@@ -1,4 +1,10 @@
 
+export interface ActionsUser {
+  btnEdit?: boolean;
+  btnStatus?: boolean;
+  btnDetail?: boolean;
+}
+
 export interface Persona {
   primerNombre: string;
   segundoNombre: string;
@@ -10,7 +16,7 @@ export interface Persona {
   fechaNacimiento: string;
 }
 
-export interface UserData extends Persona{
+export interface UserData extends Persona, ActionsUser{
   password: string;
   usuario: number;
   fkIdRol: number;
@@ -18,4 +24,15 @@ export interface UserData extends Persona{
   fotoPerfil: string;
   title?: string; // Titulo en la tabla
   rowKey?: number; // Idenfiticador único en la tabla
+}
+
+export interface Rols extends ActionsUser {
+  idRol: number;
+  nombreRol: string;
+  title?: string;
+}
+
+export interface DocumentType {
+  idTipoDocumento: number;
+  nombreTipoDocumento: string;
 }
