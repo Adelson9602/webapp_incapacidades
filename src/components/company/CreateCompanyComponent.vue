@@ -197,8 +197,12 @@ export default defineComponent({
       telefonoFijo: '',
       fkIdCiudad: null,
       oldNit: '', // Se asigna valor solo cuando se esta editando el nit
-      idDepartamento: 0, // Se envia al server pero no se tiene en cuenta
-      nombreDepartamento: '', // Se envia al server pero no se tiene en cuenta
+      fkidContacto: null,
+      nombreCiudad: '',
+      fkIdDepartamento: null,
+      nombreDepartamento: '',
+      fkNit: '',
+      nombreTipoEmpresa: '',
     });
     const compnayType = ref<TypeCompany[]>();
     const optionsCompanyType = ref<TypeCompany[]>();
@@ -229,7 +233,7 @@ export default defineComponent({
         // Si se esta editando se asignan los datos de la empresa a editar
         if (companyEdit.value) {
           departmentSelected.value = department.value.find(
-            (d) => d.idDepartamento === companyEdit.value?.idDepartamento
+            (d) => d.idDepartamento === companyEdit.value?.fkIdDepartamento
           );
           company.value = {
             nit: companyEdit.value.nit,
@@ -242,8 +246,13 @@ export default defineComponent({
             celular: companyEdit.value.celular,
             telefonoFijo: companyEdit.value.telefonoFijo,
             fkIdCiudad: companyEdit.value.fkIdCiudad,
-            idDepartamento: 0, // Se envia al server pero no se tiene en cuenta
-            nombreDepartamento: '', // Se envia al server pero no se tiene en cuenta
+            oldNit: companyEdit.value.oldNit,
+            fkidContacto: companyEdit.value.fkidContacto,
+            nombreCiudad: companyEdit.value.nombreCiudad,
+            fkIdDepartamento: companyEdit.value.fkIdDepartamento,
+            nombreDepartamento: companyEdit.value.nombreDepartamento,
+            fkNit: companyEdit.value.fkNit,
+            nombreTipoEmpresa: companyEdit.value.nombreTipoEmpresa,
           };
         }
       } catch (error) {

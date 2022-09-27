@@ -143,8 +143,24 @@ export interface DepartemtAndCity extends Department {
   cities: City[]
 }
 
-export interface InformationCompany extends Company, Contact, ContactCompany, ActionsUser, Department {
-  // Se crea esta interfaz solo para unir propiedades de otras interfaces
+export interface InformationCompany extends ActionsUser {
+  nit: string;
+  oldNit?: string;
+  razonSocial: string;
+  fkIdTipoEmpresa: number | null;
+  nombreTipoEmpresa: string;
+  fkNit: string;
+  idContacto: number | null;
+  fkidContacto: number | null;
+  direccion: string;
+  barrio: string;
+  correo: string;
+  celular: string;
+  telefonoFijo: string;
+  fkIdCiudad: number | null;
+  nombreCiudad: string;
+  fkIdDepartamento: number | null;
+  nombreDepartamento: string;
   title?: string;
 }
 
