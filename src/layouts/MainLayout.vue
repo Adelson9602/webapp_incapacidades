@@ -109,10 +109,14 @@
             </q-item-section>
           </q-item>
 
-          <q-separator class="q-my-md" />
+          <q-separator class="q-mt-md q-mb-xs" />
+
+          <q-item-label header class="text-weight-bold text-uppercase">
+            PRINCIPALES DEL SISTEMA
+          </q-item-label>
 
           <q-item
-            v-for="link in links2"
+            v-for="link in links3"
             :key="link.text"
             v-ripple
             clickable
@@ -126,14 +130,14 @@
             </q-item-section>
           </q-item>
 
-          <q-separator class="q-mt-md q-mb-xs" />
+          <q-separator class="q-my-md" />
 
           <q-item-label header class="text-weight-bold text-uppercase">
-            More from Youtube
+            DATOS MAESTROS
           </q-item-label>
 
           <q-item
-            v-for="link in links3"
+            v-for="link in links2"
             :key="link.text"
             v-ripple
             clickable
@@ -246,18 +250,22 @@ export default {
         { icon: 'whatshot', text: 'Usuarios', route: '/users' },
       ],
       links2: [
-        { icon: 'subscriptions', text: 'Roles', route: '/rols' },
+        { icon: 'admin_panel_settings', text: 'Roles', route: '/rols' },
         { icon: 'folder', text: 'Tipo documentos', route: '/document_type' },
         {
-          icon: 'restore',
+          icon: 'hourglass_empty',
           text: 'Estado incapacidad',
           route: '/disability_state',
         },
-        { icon: 'watch_later', text: 'Ubicación', route: '/ubication' },
-        { icon: 'thumb_up_alt', text: 'Liked videos', route: '' },
+        { icon: 'location_on', text: 'Ubicación', route: '/ubication' },
+        { icon: 'groups', text: 'Cargos', route: '/position' },
       ],
       links3: [
-        { icon: fabAccusoft, text: 'YouTube Premium' },
+        {
+          icon: 'fa-solid fa-building',
+          text: 'Empresas',
+          route: 'company',
+        },
         { icon: 'local_movies', text: 'Movies & Shows' },
         { icon: 'videogame_asset', text: 'Gaming', route: '' },
         { icon: 'live_tv', text: 'Live', route: '' },

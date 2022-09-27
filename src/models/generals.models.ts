@@ -50,29 +50,26 @@ export interface TypeCompany {
   nombreTipoEmpresa: string;
 }
 
-export interface Compnay {
-  nit: string;
-  newNit?: string;
-  razonSocial: string;
-  fkIdTipoEmpresa: number;
-  // Datos que retorna cuando se haga el inner join con tabla tipoEmpresa
-  nombreTipoEmpresa?: string;
-  idTipoEmpresa?: number;
-}
-
 export interface Contact {
-  idContacto: number;
+  idContacto: number | null;
   direccion: string;
   barrio: string;
   correo: string;
   celular: string;
   telefonoFijo: string;
-  fkIdCiudad: number;
+  fkIdCiudad: number | null;
 }
 
 export interface ContactCompany {
-  fkNit: number;
-  fkidContacto: number;
+  fkNit?: string;
+  fkidContacto?: number;
+}
+
+export interface Company {
+  nit: string;
+  oldNit?: string;
+  razonSocial: string;
+  fkIdTipoEmpresa: number | null;
 }
 
 export interface ContactPerson {
@@ -90,9 +87,10 @@ export interface DisabilityType {
   codigoDianostico: string;
 }
 
-export interface Position {
+export interface Position extends ActionsUser {
   idCargo: number;
   nombreCargo: string;
+  title?: string;
 }
 
 export interface Employe {
@@ -143,6 +141,11 @@ export interface City extends ActionsUser {
 
 export interface DepartemtAndCity extends Department {
   cities: City[]
+}
+
+export interface InformationCompany extends Company, Contact, ContactCompany, ActionsUser, Department {
+  // Se crea esta interfaz solo para unir propiedades de otras interfaces
+  title?: string;
 }
 
 export interface InabilityType {

@@ -58,7 +58,6 @@
         :columns="columns"
         title="Roles del sistema"
         :rows="rows"
-        :avatar="false"
         :grid="true"
         @on-edit="onEdit"
       />
@@ -114,7 +113,6 @@ export default defineComponent({
           ...resRols.map((rol) => {
             rol.title = rol.nombreRol;
             rol.btnEdit = true;
-            rol.btnDetail = true;
             return rol;
           }),
         ];

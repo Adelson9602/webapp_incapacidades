@@ -10,7 +10,6 @@
       :filter="filter"
       :hide-header="grid ? true : false"
       :pagination="pagination"
-      @input="updateModel($event)"
     >
       <template v-slot:top-right>
         <q-input
@@ -31,10 +30,12 @@
       <template v-slot:item="props">
         <div class="q-pa-xs col-xs-12 col-sm-6 col-md-4 col-lg-3">
           <q-card>
-            <q-card-section class="q-pb-none">
-              <div class="text-overline">{{ props.row.title }}</div>
+            <q-card-section class="q-pb-xs">
+              <div class="text-overline ellipsis" style="line-height: 1.5">
+                {{ props.row.title }}
+              </div>
             </q-card-section>
-            <q-separator />
+            <q-separator v-if="props.row.title" />
             <q-card-section horizontal>
               <q-card-section class="col-5 flex flex-center" v-if="avatar">
                 <q-img
@@ -49,7 +50,7 @@
                 <div class="text-caption text-grey">
                   <q-list dense>
                     <q-item
-                      v-for="(col, key) in dataFiltered(props.cols)"
+                      v-for="(col, key) in dataFiltered(props.cols, props.row)"
                       :key="key"
                     >
                       <q-item-section>
@@ -105,7 +106,7 @@
       <template v-slot:header="props">
         <q-tr :props="props">
           <q-th
-            v-for="col in dataFiltered(props.cols)"
+            v-for="col in dataFiltered(props.cols, props.row)"
             :key="col.name"
             :props="props"
           >
@@ -118,7 +119,7 @@
       <template v-slot:body="props">
         <q-tr :props="props">
           <q-td
-            v-for="col in dataFiltered(props.cols)"
+            v-for="col in dataFiltered(props.cols, props.row)"
             :key="col.name"
             :props="props"
           >
@@ -162,7 +163,7 @@
                 unelevated
                 dense
                 round
-                class="custom-btn primary no-shadow"
+                class="custom-btn secondary no-shadow"
                 size="md"
                 icon="fa-solid fa-eye"
                 no-caps
@@ -181,7 +182,7 @@
 
 <script lang="ts">
 import { useQuasar } from 'quasar';
-import { ref, computed, watch } from 'vue';
+import { ref, watch } from 'vue';
 
 export default {
   props: {
@@ -249,8 +250,13 @@ export default {
       emit('onDetail', row);
     };
 
-    const dataFiltered = (data: any) => {
-      return data.filter((col: any) => col.label !== 'TITLE');
+    const dataFiltered = (cols: any, row: any) => {
+      if (row) {
+        return cols.filter(
+          (col: any) => col.label !== 'TITLE' && col.value !== row.title
+        );
+      }
+      return cols.filter((col: any) => col.label !== 'TITLE');
     };
 
     const assingColor = (data: any) => {
@@ -264,14 +270,6 @@ export default {
     return {
       filter,
       pagination,
-      cardContainerClass: computed(() => {
-        return $q.screen.gt.xs
-          ? 'grid-masonry grid-masonry--' + ($q.screen.gt.sm ? '3' : '2')
-          : null;
-      }),
-      rowsPerPageOptions: computed(() => {
-        return $q.screen.gt.xs ? ($q.screen.gt.sm ? [3, 6, 9] : [3, 6]) : [3];
-      }),
       upDateVmodel,
       onEdit,
       onStatus,

@@ -61,7 +61,6 @@
         :columns="columns"
         title="Tipos de documento"
         :rows="rows"
-        :avatar="false"
         :grid="true"
         @on-edit="onEdit"
       />
@@ -119,7 +118,6 @@ export default defineComponent({
           ...resTypeDoc.map((documentType) => {
             documentType.title = documentType.nombreTipoDocumento;
             documentType.btnEdit = true;
-            documentType.btnDetail = true;
             return documentType;
           }),
         ];

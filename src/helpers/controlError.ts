@@ -15,6 +15,8 @@ const controlError = (e: any) => {
     } else if (e.message.includes('is not defined')) {
       const variableUndefined = e.message.split(' ')[0];
       e.message = 'Variable ' + variableUndefined + ' no esta definida';
+    } else if(e.response){
+      e.message = e.response.data.message
     }
     Notify.create({
       message: e.message,

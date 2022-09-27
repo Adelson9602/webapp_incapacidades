@@ -75,7 +75,6 @@
           <general-table-component
             :columns="columns"
             :rows="rows"
-            :avatar="false"
             :grid="true"
             @on-edit="onEdit"
           />
@@ -159,7 +158,6 @@
           <general-table-component
             :columns="columnsCity"
             :rows="rowsCity"
-            :avatar="false"
             :grid="true"
             @on-edit="onEditCity"
           />
@@ -253,7 +251,6 @@ export default defineComponent({
           ...resDeparment.map((department) => {
             department.title = department.nombreDepartamento;
             department.btnEdit = true;
-            department.btnDetail = true;
             return department;
           }),
         ];
