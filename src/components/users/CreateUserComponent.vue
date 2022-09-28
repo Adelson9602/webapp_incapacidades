@@ -236,18 +236,18 @@ export default defineComponent({
     const confirmPassword = ref<string>('');
     const { userEdit } = toRefs(props);
     const person = ref<UserData>({
-      documentoPersona: 0,
+      documentoPersona: null,
       fechaNacimiento: '',
-      fkIdTipoDocumento: 0,
+      fkIdTipoDocumento: null,
       genero: '',
       primerApellido: '',
       primerNombre: '',
       segundoApellido: '',
       segundoNombre: '',
       password: '',
-      usuario: 0,
+      usuario: null,
       estadoUsuario: 1,
-      fkIdRol: 0,
+      fkIdRol: null,
       fotoPerfil: '',
     });
 

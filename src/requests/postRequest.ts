@@ -1,5 +1,5 @@
 import { api } from 'boot/axios';
-import { UserData, Rols, DocumentType, StateDisability, Department, City, Position, InformationCompany } from '../models/generals.models'
+import { UserData, Rols, DocumentType, StateDisability, Department, City, Position, InformationCompany, InformationEmploye } from '../models/generals.models'
 import { User } from '../models/auth.models'
 
 const createUser = async (data: UserData) => {
@@ -38,6 +38,10 @@ const createCompany = async (data: InformationCompany) => {
   return await api.post('/company', data);
 }
 
+const createPerson = async (data: InformationEmploye) => {
+  return await api.post('/person', data);
+}
+
 export default {
   createUser,
   updateRecovery,
@@ -47,5 +51,6 @@ export default {
   createDepartament,
   createCity,
   createPosition,
-  createCompany
+  createCompany,
+  createPerson
 };

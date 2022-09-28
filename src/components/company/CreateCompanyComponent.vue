@@ -146,7 +146,6 @@
           :rules="[(val) => !!val || 'Teléfono es requerido']"
         />
       </div>
-      <div class="col-xs-12 col-sm-6 col-md-3 q-pa-sm"></div>
       <div class="col-xs-12 row justify-end">
         <q-btn
           label="Limpiar formulario"

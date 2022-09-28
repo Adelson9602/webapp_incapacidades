@@ -10,16 +10,17 @@ export interface Persona {
   segundoNombre: string;
   primerApellido: string;
   segundoApellido: string;
-  documentoPersona: number;
+  documentoPersona: number | null;
   genero: string;
-  fkIdTipoDocumento: number;
+  fkIdTipoDocumento: number | null;
+  oldDocumentoPersona?: number;
   fechaNacimiento: string;
 }
 
 export interface UserData extends Persona, ActionsUser{
   password: string;
-  usuario: number;
-  fkIdRol: number;
+  usuario: number | null;
+  fkIdRol: number | null;
   estadoUsuario: number;
   fotoPerfil: string;
   title?: string; // Titulo en la tabla
@@ -77,8 +78,32 @@ export interface ContactPerson {
   fkDocumentoPersona: number;
 }
 
-export interface Person extends Persona, Contact, ContactPerson {
-// Se crea esta interfaz solo para unir propiedades de otras interfaces
+export interface InformationEmploye extends ActionsUser {
+  documentoPersona:  number | null;
+  primerNombre: string;
+  segundoNombre: string;
+  primerApellido: string;
+  segundoApellido: string;
+  genero: string;
+  fechaNacimiento: string;
+  fkIdTipoDocumento: number | null;
+  fkIdContacto: number | null;
+  fkDocumentoPersona: number | null;
+  idContacto: number | null;
+  direccion: string;
+  barrio: string;
+  correo: string;
+  celular: string;
+  telefonoFijo: string;
+  fkIdCiudad: number | null,
+  nombreCiudad?: string;
+  fkIdDepartamento?: number | null,
+  nombreDepartamento?: string;
+  fkIdCargo: number | null,
+  nombreCargo?: string;
+  nombreTipoDocumento?: string;
+  title?: string;
+  isEmploye: boolean;
 }
 
 export interface DisabilityType {

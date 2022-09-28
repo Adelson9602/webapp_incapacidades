@@ -245,10 +245,7 @@ export default {
       fabAccusoft,
       leftDrawerOpen,
       search,
-      links1: [
-        { icon: 'home', text: 'Home', route: '/inicio' },
-        { icon: 'whatshot', text: 'Usuarios', route: '/users' },
-      ],
+      links1: [{ icon: 'home', text: 'Home', route: '/inicio' }],
       links2: [
         { icon: 'admin_panel_settings', text: 'Roles', route: '/rols' },
         { icon: 'folder', text: 'Tipo documentos', route: '/document_type' },
@@ -262,13 +259,20 @@ export default {
       ],
       links3: [
         {
+          icon: 'fa-solid fa-people-group',
+          text: 'Empleados',
+          route: 'employes',
+        },
+        {
           icon: 'fa-solid fa-building',
           text: 'Empresas',
           route: 'company',
         },
-        { icon: 'local_movies', text: 'Movies & Shows' },
-        { icon: 'videogame_asset', text: 'Gaming', route: '' },
-        { icon: 'live_tv', text: 'Live', route: '' },
+        {
+          icon: 'fa-solid fa-users-between-lines',
+          text: 'Usuarios',
+          route: '/users',
+        },
       ],
       links4: [
         { icon: 'settings', text: 'Settings', route: 'settings' },
