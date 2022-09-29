@@ -25,6 +25,7 @@ export interface UserData extends Persona, ActionsUser{
   fotoPerfil: string;
   title?: string; // Titulo en la tabla
   rowKey?: number; // Idenfiticador único en la tabla
+  avatar?: string; // Avatar en la tabla
 }
 
 export interface Rols extends ActionsUser {

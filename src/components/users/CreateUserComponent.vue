@@ -190,13 +190,13 @@
           </div>
         </div>
         <div class="row justify-end">
-          <q-btn
+          <!-- <q-btn
             label="Limpiar formulario"
             type="reset"
             color="primary"
             flat
             class="q-ml-sm"
-          />
+          /> -->
           <q-btn
             icon="save"
             label="Crear usuario"
@@ -229,7 +229,7 @@ export default defineComponent({
   },
   setup(props, { emit }) {
     const $q = useQuasar();
-    const isPwd = ref(false);
+    const isPwd = ref(true);
     const isLoading = ref(false);
     const optionsRoles = ref<Rols[]>();
     const optionsDocumentTypes = ref<Rols[]>();
@@ -295,7 +295,6 @@ export default defineComponent({
     };
 
     const assingData = (data: UserData) => {
-      console.log(data.password);
       person.value = {
         documentoPersona: data.documentoPersona,
         fechaNacimiento: data.fechaNacimiento,
@@ -305,12 +304,13 @@ export default defineComponent({
         primerNombre: data.primerNombre,
         segundoApellido: data.segundoApellido,
         segundoNombre: data.segundoNombre,
-        password: decryptedAES(data.password),
+        password: decryptedAES(decryptedAES(data.password)),
         usuario: data.usuario,
         estadoUsuario: data.estadoUsuario,
         fkIdRol: data.fkIdRol,
         fotoPerfil: data.fotoPerfil,
       };
+      confirmPassword.value = decryptedAES(decryptedAES(data.password));
     };
 
     onMounted(() => {

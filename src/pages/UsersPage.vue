@@ -150,7 +150,6 @@ export default defineComponent({
             item.title = `${item.primerApellido} ${item.segundoApellido} ${item.primerNombre} ${item.segundoNombre}`;
             item.btnEdit = true;
             item.btnStatus = true;
-            item.btnDetail = true;
             return item;
           }),
         ];

@@ -105,6 +105,7 @@
 
       <template v-slot:header="props">
         <q-tr :props="props">
+          <q-th v-if="props.row.fotoPerfil"></q-th>
           <q-th
             v-for="col in dataFiltered(props.cols, props.row)"
             :key="col.name"
@@ -118,6 +119,15 @@
 
       <template v-slot:body="props">
         <q-tr :props="props">
+          <q-td v-if="props.row.fotoPerfil">
+            <q-avatar size="50px">
+              <q-img
+                :src="props.row.fotoPerfil"
+                spinner-color="primary"
+                spinner-size="20px"
+              />
+            </q-avatar>
+          </q-td>
           <q-td
             v-for="col in dataFiltered(props.cols, props.row)"
             :key="col.name"
