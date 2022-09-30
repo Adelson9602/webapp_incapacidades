@@ -200,7 +200,7 @@ export interface StateInability {
   idEstadoIncapacidad: number;
 }
 
-export interface Inability {
+export interface Disability {
   radicado: string;
   fkIdTipoIncapacidad: number;
   fkNitEmpresa: number;
@@ -217,7 +217,45 @@ export interface Inability {
   fkIdEps: number;
 }
 
-export interface HistoryInability {
+export interface InformationDisability extends ActionsUser {
+  radicado: string;
+  fkIdTipoIncapacidad: number;
+  fkNitEmpresa: string;
+  numeroIncapacidad: number;
+  fechaInicio: string;
+  fechaFin: string;
+  totalDias: number;
+  ibc: string;
+  valor: number;
+  fkIdEstadoIncapacidad: number;
+  fkDocumentoPersona: number;
+  fkIdArl: string;
+  fkIdAfp: string;
+  fkIdEps: string;
+  primerNombre: string;
+  segundoNombre: string;
+  primerApellido: string;
+  segundoApellido: string;
+  genero: string;
+  fechaNacimiento: string;
+  fkIdTipoDocumento: number;
+  nombreTipoDocumento: string;
+  nombreTipoIncapacidad: string;
+  codigoDianostico: string;
+  nit: string;
+  razonSocial: string;
+  fkIdTipoEmpresa: number;
+  nitArl: string;
+  razonSocialArl: string;
+  nitAfp: string;
+  razonSocialAfp: string;
+  nitEps: string;
+  razonSocialEps: string;
+  nombreEstadoIncapacidad: string;
+  title?: string;
+}
+
+export interface HistoryDisability {
   idHistorialIncapacidad: number;
   fkRadicado: string;
   estadoIncapidad: number;

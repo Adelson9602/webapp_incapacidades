@@ -11,20 +11,20 @@
         align="justify"
         narrow-indicator
       >
-        <q-tab name="companies" label="Empresas" />
-        <q-tab name="add_company" label="Agregar empresa" />
+        <q-tab name="disabilities" label="Empresas" />
+        <q-tab name="add_disability" label="Agregar empresa" />
       </q-tabs>
 
       <q-separator />
 
       <q-tab-panels v-model="tab" animated>
-        <q-tab-panel name="companies">
+        <q-tab-panel name="disabilities">
           <general-table-component
             :columns="columns"
             :rows="rows"
             @onEdit="onEdit"
             @onDetail="onDetail"
-            :grid="true"
+            :grid="false"
           />
 
           <q-dialog v-model="dialogDetail" persistent>
@@ -32,7 +32,7 @@
               <q-bar dark class="bg-primary text-white">
                 <q-icon dense round name="list" color="white" />
                 <div class="col text-center text-weight-bold">
-                  Detalle de {{ company?.razonSocial }}
+                  Detalle de incapacidad {{ disability?.radicado }}
                 </div>
                 <q-btn
                   dense
@@ -46,7 +46,7 @@
               <q-card-section class="row">
                 <div
                   class="col-xs-12 col-sm-6 q-pa-sm"
-                  v-for="(item, key) in companyDetail"
+                  v-for="(item, key) in disabilityDetail"
                   :key="key"
                 >
                   <q-field :label="`${key}`" stack-label>
@@ -68,11 +68,11 @@
           </q-dialog>
         </q-tab-panel>
 
-        <q-tab-panel name="add_company">
-          <create-company-component
+        <q-tab-panel name="add_disability">
+          <!-- <create-disability-component
             @on-reload="onReload"
-            :company-edit="company"
-          />
+            :disability-edit="disability"
+          /> -->
         </q-tab-panel>
       </q-tab-panels>
     </q-card>
@@ -82,60 +82,80 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
 import { get } from 'src/requests';
-import { InformationCompany } from 'src/models/generals.models';
+import { InformationDisability } from 'src/models/generals.models';
 import { controlError } from 'src/helpers/controlError';
 import GeneralTableComponent from 'src/components/general/GeneralTableComponent.vue';
-import CreateCompanyComponent from 'src/components/company/CreateCompanyComponent.vue';
 
 const columns = [
   {
-    name: 'nit',
+    name: 'radicado',
     align: 'center',
-    label: 'NIT',
+    label: 'No. RADICADO',
     sortable: true,
-    field: 'nit',
+    field: 'radicado',
   },
   {
-    name: 'razonSocial',
+    name: 'fechaInicio',
     align: 'center',
-    label: 'RAZÓN SOCIAL',
+    label: 'FECHA INICIO INCAPACIDAD',
     sortable: true,
-    field: 'razonSocial',
+    field: 'fechaInicio',
   },
   {
-    name: 'nombreTipoEmpresa',
+    name: 'fechaFin',
     align: 'center',
-    label: 'TIPO EMPRESA',
+    label: 'FECHA FIN INCAPACIDAD',
     sortable: true,
-    field: 'nombreTipoEmpresa',
+    field: 'fechaFin',
   },
   {
-    name: 'correo',
+    name: 'totalDias',
     align: 'center',
-    label: 'CORREO',
+    label: 'TOTAL DÍAS',
     sortable: true,
-    field: 'correo',
+    field: 'totalDias',
   },
   {
-    name: 'celular',
+    name: 'nombreEstadoIncapacidad',
     align: 'center',
-    label: 'CELULAR',
+    label: 'ESTADO INCAPACIDAD',
     sortable: true,
-    field: 'celular',
+    field: 'nombreEstadoIncapacidad',
   },
   {
-    name: 'telefonoFijo',
+    name: 'fkDocumentoPersona',
     align: 'center',
-    label: 'TELÉFONO',
+    label: 'DOCUMENTO INCAPACITADO',
     sortable: true,
-    field: 'telefonoFijo',
+    field: 'fkDocumentoPersona',
   },
   {
-    name: 'direccion',
+    name: 'nombreTipoDocumento',
     align: 'center',
-    label: 'DIRECCIÓN',
+    label: 'TIPO DOCUMENTO',
     sortable: true,
-    field: 'direccion',
+    field: 'nombreTipoDocumento',
+  },
+  {
+    name: 'primerNombre',
+    align: 'center',
+    label: 'PRIMER NOMBRE',
+    sortable: true,
+    field: 'primerNombre',
+  },
+  {
+    name: 'primerApellido',
+    align: 'center',
+    label: 'PRIMER APELLIDO',
+    sortable: true,
+    field: 'primerApellido',
+  },
+  {
+    name: 'nombreTipoIncapacidad',
+    align: 'center',
+    label: 'TIPO INCAPACIDAD',
+    sortable: true,
+    field: 'nombreTipoIncapacidad',
   },
 ];
 
@@ -143,26 +163,25 @@ export default defineComponent({
   name: 'CompanyPage',
   components: {
     GeneralTableComponent,
-    CreateCompanyComponent,
   },
   setup() {
-    const tab = ref('companies');
-    const rows = ref<InformationCompany[]>();
-    const company = ref<InformationCompany>();
-    const companyDetail = ref<any>();
+    const tab = ref('disabilities');
+    const rows = ref<InformationDisability[]>();
+    const disability = ref<InformationDisability>();
+    const disabilityDetail = ref<any>();
     const dialogDetail = ref(false);
 
     const getData = async () => {
       try {
-        const resCompnaies = await get
-          .getCompanies()
+        const resDisabilities = await get
+          .getDisability()
           .then((response) => response.data);
 
         rows.value = [
-          ...resCompnaies.map((c) => {
+          ...resDisabilities.map((c) => {
             c.btnDetail = true;
             c.btnEdit = true;
-            c.title = c.razonSocial;
+            c.title = `${c.primerNombre} ${c.primerApellido}`;
             return c;
           }),
         ];
@@ -172,29 +191,29 @@ export default defineComponent({
     };
 
     const onReload = () => {
-      tab.value = 'companies';
+      tab.value = 'disabilities';
       setTimeout(() => getData(), 300);
     };
 
-    const onEdit = (row: InformationCompany) => {
-      company.value = row;
-      tab.value = 'add_company';
+    const onEdit = (row: InformationDisability) => {
+      disability.value = row;
+      tab.value = 'add_disability';
     };
 
-    const onDetail = (row: InformationCompany) => {
-      companyDetail.value = {
-        NIT: row.nit,
-        'RAZÓN SOCIAL': row.razonSocial,
-        'TIPO EMPRESA': row.nombreTipoEmpresa,
-        DIRECCIÓN: row.direccion,
-        BARRIO: row.barrio,
-        CORREO: row.correo,
-        CELULAR: row.celular,
-        TELÉFONO: row.telefonoFijo,
-        CIUDAD: row.nombreCiudad,
-        DEPARTAMENTO: row.nombreDepartamento,
-      };
-      company.value = row;
+    const onDetail = (row: InformationDisability) => {
+      // disabilityDetail.value = {
+      //   NIT: row.nit,
+      //   'RAZÓN SOCIAL': row.razonSocial,
+      //   'TIPO EMPRESA': row.nombreTipoEmpresa,
+      //   DIRECCIÓN: row.direccion,
+      //   BARRIO: row.barrio,
+      //   CORREO: row.correo,
+      //   CELULAR: row.celular,
+      //   TELÉFONO: row.telefonoFijo,
+      //   CIUDAD: row.nombreCiudad,
+      //   DEPARTAMENTO: row.nombreDepartamento,
+      // };
+      disability.value = row;
       dialogDetail.value = true;
     };
 
@@ -204,9 +223,9 @@ export default defineComponent({
       tab,
       columns,
       rows,
-      company,
+      disability,
       dialogDetail,
-      companyDetail,
+      disabilityDetail,
       onReload,
       onEdit,
       onDetail,
