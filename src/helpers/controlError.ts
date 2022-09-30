@@ -1,6 +1,9 @@
 import { Notify } from 'quasar';
+import { useRouter } from 'vue-router';
+import { useQuasar, LocalStorage } from 'quasar';
 /* eslint-disable */
 const controlError = (e: any) => {
+  const router = useRouter();
   let icon = 'error';
   let type = 'negative';
   console.error(e);
@@ -17,6 +20,28 @@ const controlError = (e: any) => {
       e.message = 'Variable ' + variableUndefined + ' no esta definida';
     } else if(e.response){
       e.message = e.response.data.message
+      console.error(e.response)
+      console.error(e.response.data)
+      const token = localStorage.remove('token');
+      if(e.response.status === 401 && token){
+        // validación aplica para cuando el token ha expirado
+        const $q = useQuasar();
+        const router = useRouter();
+        $q.dialog({
+          title: 'Sesión expirada',
+          message: 'Su sesión ha expirado, por favor inicie sesión nuevamente'
+        }).onOk(() => {
+          $q.loading.show({
+            message: 'Cerrando sesión...',
+          });
+          setTimeout(() => {
+            LocalStorage.remove('dataUsuario');
+            LocalStorage.remove('token');
+            router.push('/');
+            $q.loading.hide();
+          }, 1000);
+        })
+      }
     }
     Notify.create({
       message: e.message,

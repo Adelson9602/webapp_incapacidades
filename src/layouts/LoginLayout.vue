@@ -30,6 +30,11 @@
                     type="text"
                     label="Usuario"
                     mask="############################################"
+                    @update:model-value="
+                      () => {
+                        msgError = null;
+                      }
+                    "
                   >
                     <template v-slot:prepend>
                       <img src="img/icons/user.png" class="custom-icons" />
@@ -43,6 +48,11 @@
                     :rules="[(val) => !!val || 'Ingrese su contraseña']"
                     :type="isPwd ? 'password' : 'text'"
                     label="Contraseña"
+                    @update:model-value="
+                      () => {
+                        msgError = null;
+                      }
+                    "
                   >
                     <template v-slot:prepend>
                       <img src="img/icons/lock.png" class="custom-icons" />
@@ -56,6 +66,7 @@
                       </q-icon>
                     </template>
                   </q-input>
+                  <div class="text-body1 text-negative">{{ msgError }}</div>
                   <div>
                     <q-btn
                       label="Iniciar sesión"
@@ -189,6 +200,7 @@ export default {
         'La plataforma en líena para el control y gestión de procesos administrativos de tu empresa.',
       usuario,
       password,
+      msgError,
       isPwd: ref(false),
       onSubmit,
     };

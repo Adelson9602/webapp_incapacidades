@@ -259,6 +259,11 @@ export default {
       ],
       links3: [
         {
+          icon: 'fa-solid fa-notes-medical',
+          text: 'Incapacidades',
+          route: 'disability',
+        },
+        {
           icon: 'fa-solid fa-people-group',
           text: 'Empleados',
           route: 'employes',
