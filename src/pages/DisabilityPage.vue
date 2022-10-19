@@ -11,8 +11,8 @@
         align="justify"
         narrow-indicator
       >
-        <q-tab name="disabilities" label="Empresas" />
-        <q-tab name="add_disability" label="Agregar empresa" />
+        <q-tab name="disabilities" label="Incapacidades" />
+        <q-tab name="add_disability" label="Agregar incapacidad" />
       </q-tabs>
 
       <q-separator />
@@ -69,10 +69,10 @@
         </q-tab-panel>
 
         <q-tab-panel name="add_disability">
-          <!-- <create-disability-component
+          <create-disability-component
             @on-reload="onReload"
             :disability-edit="disability"
-          /> -->
+          />
         </q-tab-panel>
       </q-tab-panels>
     </q-card>
@@ -85,6 +85,7 @@ import { get } from 'src/requests';
 import { InformationDisability } from 'src/models/generals.models';
 import { controlError } from 'src/helpers/controlError';
 import GeneralTableComponent from 'src/components/general/GeneralTableComponent.vue';
+import CreateDisabilityComponent from 'src/components/disability/CreateDisabilityComponent.vue';
 
 const columns = [
   {
@@ -163,6 +164,7 @@ export default defineComponent({
   name: 'CompanyPage',
   components: {
     GeneralTableComponent,
+    CreateDisabilityComponent,
   },
   setup() {
     const tab = ref('disabilities');

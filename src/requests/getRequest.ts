@@ -1,5 +1,5 @@
 import { api } from 'boot/axios';
-import { Rols, DocumentType, UserData, StateDisability, Department, City, Position, InformationCompany, TypeCompany, DepartemtAndCity, InformationEmploye, InformationDisability } from 'src/models/generals.models';
+import { Rols, DocumentType, UserData, StateDisability, Department, City, Position, InformationCompany, TypeCompany, DepartemtAndCity, InformationEmploye, InformationDisability, Company, Persona, DisabilityType } from 'src/models/generals.models';
 
 const getRols = async () => {
   return await api.get<Rols[]>('rols')
@@ -45,8 +45,20 @@ const getEmployes = async () => {
   return await api.get<InformationEmploye[]>('employe')
 }
 
+const getEmployesSelect = async () => {
+  return await api.get<Persona[]>('employe_select')
+}
+
 const getDisability = async () => {
   return await api.get<InformationDisability[]>('disability')
+}
+
+const getCompanyByType = async (idTipo: number) => {
+  return await api.get<Company[]>(`company_by_type/${idTipo}`)
+}
+
+const getDisabilityType = async () => {
+  return await api.get<DisabilityType[]>('disability_type')
 }
 
 export default {
@@ -61,5 +73,8 @@ export default {
   getCompanyType,
   getDepartmentAndCity,
   getEmployes,
-  getDisability
+  getDisability,
+  getCompanyByType,
+  getEmployesSelect,
+  getDisabilityType
 }

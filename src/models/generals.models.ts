@@ -15,6 +15,7 @@ export interface Persona {
   fkIdTipoDocumento: number | null;
   oldDocumentoPersona?: number;
   fechaNacimiento: string;
+  completeName?: string;
 }
 
 export interface UserData extends Persona, ActionsUser{
@@ -203,7 +204,7 @@ export interface StateInability {
 export interface Disability {
   radicado: string;
   fkIdTipoIncapacidad: number;
-  fkNitEmpresa: number;
+  fkNitEmpresa: string;
   numeroIncapacidad: number;
   fechaInicio: string;
   fechaFin: string;
@@ -212,9 +213,9 @@ export interface Disability {
   valor: string;
   fkIdEstadoIncapacidad: number;
   fkDocumentoPersona: number;
-  fkIdArl: number;
-  fkIdAfp: number;
-  fkIdEps: number;
+  fkIdArl: string;
+  fkIdAfp: string;
+  fkIdEps: string;
 }
 
 export interface InformationDisability extends ActionsUser {

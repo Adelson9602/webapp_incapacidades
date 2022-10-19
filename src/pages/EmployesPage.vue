@@ -162,12 +162,12 @@ export default defineComponent({
 
     const getData = async () => {
       try {
-        const resCompnaies = await get
+        const resEmployes = await get
           .getEmployes()
           .then((response) => response.data);
 
         rows.value = [
-          ...resCompnaies.map((c) => {
+          ...resEmployes.map((c) => {
             c.btnDetail = true;
             c.btnEdit = true;
             c.title = `${c.primerNombre} ${c.primerApellido}`;

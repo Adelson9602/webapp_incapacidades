@@ -8,22 +8,12 @@ const controlError = (e: any) => {
   let type = 'negative';
   console.error(e);
   if (e.message) {
-    if (e.message === 'Network Error') {
-      e.message = 'Error de conexión';
-      icon = 'signal_wifi_statusbar_connected_no_internet_4';
-      type = 'warning';
-    } else if (e.message === 'Request failed with status code 404') {
-      e.message = 'Error: Servicio solicitado no existe, código 404';
-      type = 'warning';
-    } else if (e.message.includes('is not defined')) {
-      const variableUndefined = e.message.split(' ')[0];
-      e.message = 'Variable ' + variableUndefined + ' no esta definida';
-    } else if(e.response){
+    if(e.response){
       e.message = e.response.data.message
       console.error(e.response)
       console.error(e.response.data)
-      const token = localStorage.remove('token');
-      if(e.response.status === 401 && token){
+      e.message = e.response.data.message
+      if(e.response.status === 401){
         // validación aplica para cuando el token ha expirado
         const $q = useQuasar();
         const router = useRouter();
@@ -42,7 +32,19 @@ const controlError = (e: any) => {
           }, 1000);
         })
       }
+    } else if (e.message === 'Network Error') {
+      e.message = 'Error de conexión';
+      icon = 'signal_wifi_statusbar_connected_no_internet_4';
+      type = 'warning';
+    } else if (e.message === 'Request failed with status code 404') {
+      e.message = 'Error: Servicio solicitado no existe, código 404';
+      type = 'warning';
+    } else if (e.message.includes('is not defined')) {
+      const variableUndefined = e.message.split(' ')[0];
+      e.message = 'Variable ' + variableUndefined + ' no esta definida';
     }
+
+    console.log('AQUI')
     Notify.create({
       message: e.message,
       type,
