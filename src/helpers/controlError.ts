@@ -44,7 +44,6 @@ const controlError = (e: any) => {
       e.message = 'Variable ' + variableUndefined + ' no esta definida';
     }
 
-    console.log('AQUI')
     Notify.create({
       message: e.message,
       type,
