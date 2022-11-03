@@ -58,7 +58,7 @@
         :columns="columns"
         title="Roles del sistema"
         :rows="rows"
-        :grid="true"
+        :grid="false"
         @on-edit="onEdit"
       />
     </q-card>
@@ -71,9 +71,9 @@ import { Rols } from 'src/models/generals.models';
 import GeneralTableComponent from 'src/components/general/GeneralTableComponent.vue';
 import { get, post } from 'src/requests';
 import { controlError } from 'src/helpers/controlError';
-import { useQuasar } from 'quasar';
+import { QTableColumn, useQuasar } from 'quasar';
 
-const columns = [
+const columns: QTableColumn[] = [
   {
     name: 'idRol',
     label: 'ID ROL',

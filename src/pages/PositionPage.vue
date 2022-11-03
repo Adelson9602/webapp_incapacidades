@@ -67,13 +67,13 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue';
-import { Position } from 'src/models/generals.models';
-import GeneralTableComponent from 'src/components/general/GeneralTableComponent.vue';
+import { useQuasar, QTableColumn } from 'quasar';
 import { get, post } from 'src/requests';
+import { Position } from 'src/models/generals.models';
 import { controlError } from 'src/helpers/controlError';
-import { useQuasar } from 'quasar';
+import GeneralTableComponent from 'src/components/general/GeneralTableComponent.vue';
 
-const columns = [
+const columns: QTableColumn[] = [
   {
     name: 'idCargo',
     label: 'ID CARGO',

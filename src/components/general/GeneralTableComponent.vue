@@ -1,16 +1,34 @@
 <template>
   <div class="q-pa-md">
     <q-table
-      :grid="grid"
-      :title="title"
+      :grid="isGrid"
       :rows="rows"
       :columns="columns"
       row-key="rowKey"
       flat
       :filter="filter"
-      :hide-header="grid ? true : false"
+      :hide-header="isGrid ? true : false"
       :pagination="pagination"
     >
+      <template v-slot:top-left>
+        <div class="text-h6">
+          {{ title }}
+          &nbsp;
+          <q-btn
+            color="primary"
+            :icon="
+              isGrid
+                ? 'fa-solid fa-table-list'
+                : 'fa-solid fa-table-cells-large'
+            "
+            dense
+            flat
+            @click="isGrid = !isGrid"
+          >
+            <q-tooltip> Cambiar vista de tabla </q-tooltip>
+          </q-btn>
+        </div>
+      </template>
       <template v-slot:top-right>
         <q-input
           borderless
@@ -103,14 +121,11 @@
         </div>
       </template>
 
+      <!-- Modo normal -->
       <template v-slot:header="props">
         <q-tr :props="props">
           <q-th v-if="avatar"></q-th>
-          <q-th
-            v-for="col in dataFiltered(props.cols, props.row)"
-            :key="col.name"
-            :props="props"
-          >
+          <q-th v-for="col in props.cols" :key="col.name" :props="props">
             {{ col.label }}
           </q-th>
           <q-th auto-width />
@@ -128,11 +143,7 @@
               />
             </q-avatar>
           </q-td>
-          <q-td
-            v-for="col in dataFiltered(props.cols, props.row)"
-            :key="col.name"
-            :props="props"
-          >
+          <q-td v-for="col in props.cols" :key="col.name" :props="props">
             <div v-if="col.label != 'ESTADO'">{{ col.value }}</div>
             <q-badge
               v-else
@@ -191,8 +202,8 @@
 </template>
 
 <script lang="ts">
-import { useQuasar } from 'quasar';
-import { ref, watch } from 'vue';
+import { useQuasar, QTableColumn } from 'quasar';
+import { onMounted, PropType, ref, toRefs, watch } from 'vue';
 
 export default {
   props: {
@@ -201,7 +212,7 @@ export default {
       require: true,
     },
     columns: {
-      type: Array,
+      type: Array as PropType<QTableColumn[]>,
       require: true,
     },
     title: String,
@@ -217,16 +228,7 @@ export default {
   emits: ['onEdit', 'onDetail', 'onStatus', 'input'],
   setup(props: any, { emit }: any) {
     const $q = useQuasar();
-    function getItemsPerPage() {
-      if ($q.screen.lt.sm) {
-        return 3;
-      }
-      if ($q.screen.lt.md) {
-        return 6;
-      }
-      return 9;
-    }
-
+    const { grid } = toRefs(props);
     const filter = ref('');
     const pagination = ref({
       sortBy: 'desc',
@@ -235,6 +237,7 @@ export default {
       rowsPerPage: 9,
       // rowsNumber: xx if getting data from a server
     });
+    const isGrid = ref(false);
 
     watch(
       () => $q.screen.name,
@@ -243,7 +246,16 @@ export default {
       }
     );
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const getItemsPerPage = () => {
+      if ($q.screen.lt.sm) {
+        return 3;
+      }
+      if ($q.screen.lt.md) {
+        return 6;
+      }
+      return 9;
+    };
+
     const upDateVmodel = ($event: any) => {
       emit('input', $event);
     };
@@ -260,7 +272,8 @@ export default {
       emit('onDetail', row);
     };
 
-    const dataFiltered = (cols: any, row: any) => {
+    // Filta los datos que se mostraran en la tabla, evitando que se repita el titulo con alguno de los rows
+    const dataFiltered = (cols: any, row?: any) => {
       if (row) {
         return cols.filter(
           (col: any) => col.label !== 'TITLE' && col.value !== row.title
@@ -277,9 +290,14 @@ export default {
       }
     };
 
+    onMounted(() => {
+      isGrid.value = grid.value;
+    });
+
     return {
       filter,
       pagination,
+      isGrid,
       upDateVmodel,
       onEdit,
       onStatus,

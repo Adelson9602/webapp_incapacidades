@@ -20,6 +20,7 @@
                 </div>
               </section>
               <section>
+                <!-- Formulario login -->
                 <q-form @submit="onSubmit" class="q-gutter-md">
                   <q-input
                     v-model="usuario"
@@ -32,7 +33,7 @@
                     mask="############################################"
                     @update:model-value="
                       () => {
-                        msgError = null;
+                        msgError = '';
                       }
                     "
                   >
@@ -50,7 +51,7 @@
                     label="Contraseña"
                     @update:model-value="
                       () => {
-                        msgError = null;
+                        msgError = '';
                       }
                     "
                   >
@@ -102,6 +103,66 @@
                     />
                   </div>
                 </q-form>
+
+                <!-- Dialog para mostrar las empresas en las que esta registrado el usuario -->
+                <q-dialog
+                  v-model="dialogCompanies"
+                  position="bottom"
+                  persistent
+                >
+                  <q-card style="width: 450px; max-width: 90vw">
+                    <q-bar dark class="bg-transparent text-black">
+                      <div class="col text-center text-weight-bold">
+                        Seleccione una empresa
+                      </div>
+                      <q-btn
+                        dense
+                        flat
+                        icon="minimize"
+                        @click="minimize = true"
+                      />
+                      <q-btn
+                        dense
+                        flat
+                        icon="crop_square"
+                        @click="minimize = false"
+                      />
+                      <q-btn dense flat icon="close" v-close-popup />
+                    </q-bar>
+                    <q-card-section
+                      class="row"
+                      :class="minimize ? 'minimize' : ''"
+                    >
+                      <div
+                        class="col-xs-6 col-sm-6 col-md-4 q-pa-sm"
+                        v-for="(item, index) in companiesUser"
+                        :key="index"
+                      >
+                        <q-btn
+                          class="card-company cursor-pointer"
+                          flat
+                          @click="onSelection(item)"
+                        >
+                          <div class="q-py-none">
+                            <q-img
+                              :src="item.urlLogo"
+                              fit="contain"
+                              spinner-color="primary"
+                              spinner-size="82px"
+                              class="img-logo"
+                              height="70"
+                            />
+                          </div>
+                          <p
+                            class="text-center text-body2 q-pa-none q-ma-none ellipsis-2-lines"
+                          >
+                            {{ item.razonSocial }}
+                          </p>
+                        </q-btn>
+                      </div>
+                    </q-card-section>
+                  </q-card>
+                </q-dialog>
               </section>
             </q-card-section>
 
@@ -110,6 +171,7 @@
             <q-card-section
               class="col-xs-12 col-sm-6 col-md-6 column justify-center banner"
             >
+              <!-- Logo y eslogan del sistema -->
               <div class="opacity"></div>
               <img
                 src="img/logo_white.png"
@@ -137,7 +199,6 @@ import { Cliente } from '../models/auth.models';
 
 export default {
   name: 'LayoutLogin',
-
   setup() {
     const $q = useQuasar();
     const router = useRouter();
@@ -145,7 +206,11 @@ export default {
     const usuario = ref<string>('');
     const password = ref<string>('');
     const msgError = ref<string>('');
+    const dialogCompanies = ref<boolean>(false);
+    const companiesUser = ref<Cliente[]>([]);
+    const minimize = ref<boolean>(false);
 
+    // Funcion para hacer login en el sistema
     const onSubmit = async () => {
       try {
         loading.value = true;
@@ -156,34 +221,11 @@ export default {
           })
           .then((response) => response);
 
-        let actions: Cliente[] = [];
-        data.forEach((empresa) => {
-          empresa.label = empresa.nombreSistema;
-          empresa.img = empresa.urlLogo;
-          empresa.id = empresa.idEmpresa;
-          actions.push(empresa);
-        });
-        $q.bottomSheet({
-          // title: 'Por favor, seleccione una empresa',
-          message: 'Por favor, seleccione una empresa',
-          grid: true,
-          actions,
-        }).onOk((action: Cliente) => {
-          LocalStorage.set(
-            'dataUsuario',
-            encryptJSON(JSON.parse(JSON.stringify(action)))
-          );
-          LocalStorage.set('token', headers['auth-token']);
-          api.defaults.headers.common['x-access-token'] = headers['auth-token'];
-          api.defaults.headers.common['base'] = action.nombreBase;
+        companiesUser.value = [...data];
+        LocalStorage.set('token', headers['auth-token']);
+        api.defaults.headers.common['x-access-token'] = headers['auth-token'];
 
-          router.push('inicio');
-          $q.notify({
-            message: 'Bienvenido',
-            type: 'positive',
-            position: 'bottom-right',
-          });
-        });
+        dialogCompanies.value = true;
       } catch (error: any) {
         if (error.response && error.response.status == 401) {
           return (msgError.value = error.response.data.message);
@@ -195,6 +237,21 @@ export default {
       }
     };
 
+    const onSelection = (company: Cliente) => {
+      LocalStorage.set(
+        'dataUsuario',
+        encryptJSON(JSON.parse(JSON.stringify(company)))
+      );
+      api.defaults.headers.common['base'] = company.nombreBase;
+
+      router.push('inicio');
+      $q.notify({
+        message: 'Bienvenido',
+        type: 'positive',
+        position: 'bottom-right',
+      });
+    };
+
     return {
       lorem:
         'La plataforma en líena para el control y gestión de procesos administrativos de tu empresa.',
@@ -202,7 +259,11 @@ export default {
       password,
       msgError,
       isPwd: ref(false),
+      dialogCompanies,
+      companiesUser,
+      minimize,
       onSubmit,
+      onSelection,
     };
   },
 };
@@ -252,6 +313,16 @@ export default {
   color: #40c25ec9
   font-weight: bold
 
+.card-company
+  height: 130px
+  &
+    .img-logo
+      height: 40px
+      width: 80px
+
+.minimize
+  display: none
+  overflow: hidden
 
 @media (max-width: 600px)
   .card-login

@@ -26,7 +26,7 @@
             outlined
             square
             v-model="search"
-            placeholder="Search"
+            placeholder="Buscar incapacidad por número de documento"
             class="bg-white col"
           />
           <q-btn
