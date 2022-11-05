@@ -227,6 +227,20 @@
             </template>
           </q-input>
         </div>
+        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
+          <q-uploader
+            label="Agrese los archivos requeridos"
+            multiple
+            @added="addFiles"
+            hide-upload-btn
+            ref="filesInput"
+            style="width: auto"
+            color="grey-1"
+            text-color="black"
+            flat
+            bordered
+          />
+        </div>
       </div>
       <div>
         <q-btn label="Submit" type="submit" color="primary" />
@@ -297,6 +311,8 @@ export default defineComponent({
     const optionsEmployes = ref<Persona[]>([]);
     const disabilityType = ref<DisabilityType[]>([]);
     const optionsDisabilityType = ref<DisabilityType[]>([]);
+    const files = ref<File[]>([]);
+    const filesInput = ref();
 
     const getData = async () => {
       isLoading.value = true;
@@ -496,6 +512,14 @@ export default defineComponent({
       });
     };
 
+    const addFiles = (value: File[]) => {
+      files.value = value;
+      console.log(filesInput.value);
+    };
+    const onClick = () => {
+      filesInput.value.upload();
+    };
+
     onMounted(() => getData());
 
     return {
@@ -508,6 +532,8 @@ export default defineComponent({
       optionsEmployes,
       optionsDisabilityType,
       isLoading,
+      files,
+      filesInput,
       onSubmit,
       filterCompany,
       filterArl,
@@ -515,7 +541,13 @@ export default defineComponent({
       filterEps,
       filterEmployes,
       filterDisabilityType,
+      addFiles,
+      onClick,
     };
   },
 });
 </script>
+<style lang="sass" scoped>
+.files
+  border: 1px solid $primary
+</style>

@@ -45,10 +45,10 @@ import CreateUserComponent from 'components/users/CreateUserComponent.vue';
 import { UserData } from 'src/models/generals.models';
 import { controlError } from 'src/helpers/controlError';
 import { get, post } from 'src/requests';
-import { useQuasar } from 'quasar';
+import { QTableColumn, useQuasar } from 'quasar';
 import { decryptedAES } from 'src/helpers/encrypt';
 
-const columns = [
+const columns: QTableColumn[] = [
   {
     name: 'usuario',
     label: 'USUARIO',
@@ -111,13 +111,6 @@ const columns = [
     align: 'center',
     sortable: true,
     field: 'estadoUsuario',
-  },
-  {
-    name: 'title',
-    label: 'TITLE',
-    align: 'center',
-    sortable: true,
-    field: 'title',
   },
 ];
 
