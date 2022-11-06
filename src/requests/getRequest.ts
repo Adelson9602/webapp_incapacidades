@@ -61,6 +61,10 @@ const getDisabilityType = async () => {
   return await api.get<DisabilityType[]>('disability_type')
 }
 
+const getDataDashboard = async () => {
+  return await api.get<any[]>('dashboard')
+}
+
 export default {
   getRols,
   getDocumentsType,
@@ -76,5 +80,6 @@ export default {
   getDisability,
   getCompanyByType,
   getEmployesSelect,
-  getDisabilityType
+  getDisabilityType,
+  getDataDashboard
 }
