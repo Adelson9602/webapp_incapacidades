@@ -148,7 +148,7 @@
                               :src="item.urlLogo"
                               fit="contain"
                               spinner-color="primary"
-                              spinner-size="82px"
+                              spinner-size="40px"
                               class="img-logo"
                               height="70"
                             />

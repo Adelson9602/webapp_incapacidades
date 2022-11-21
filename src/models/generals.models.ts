@@ -264,3 +264,33 @@ export interface HistoryDisability {
   fechaProrroga: string;
   observacion: string;
 }
+
+export interface ResponseDashboard {
+  totalDisabilities:         TotalDisabilities;
+  totalDisabilitiesByEps:    TotalDisabilitiesByEp[];
+  totalDisabilitiesByStatus: TotalDisabilitiesByStatus[];
+}
+
+export interface TotalDisabilities {
+  numeroIncapacidades: number;
+  totalIncapacidades:  number;
+}
+
+export interface TotalDisabilitiesByEp {
+  razonSocial:         string;
+  numeroIncapacidades: number;
+  totalIncapacidades:  number;
+}
+
+export interface TotalDisabilitiesByStatus {
+  nombreEstadoIncapacidad: string;
+  numeroIncapacidades:     number;
+  totalIncapacidades:      number;
+}
+
+export interface Cards {
+  title: string;
+  value: number | string;
+  icon: string;
+  color: string;
+}
