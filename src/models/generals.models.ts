@@ -267,7 +267,7 @@ export interface HistoryDisability {
 
 export interface ResponseDashboard {
   totalDisabilities:         TotalDisabilities;
-  totalDisabilitiesByEps:    TotalDisabilitiesByEp[];
+  totalDisabilitiesByEps:    TotalDisabilitiesByEps[];
   totalDisabilitiesByStatus: TotalDisabilitiesByStatus[];
 }
 
@@ -276,7 +276,7 @@ export interface TotalDisabilities {
   totalIncapacidades:  number;
 }
 
-export interface TotalDisabilitiesByEp {
+export interface TotalDisabilitiesByEps {
   razonSocial:         string;
   numeroIncapacidades: number;
   totalIncapacidades:  number;
@@ -293,4 +293,23 @@ export interface Cards {
   value: number | string;
   icon: string;
   color: string;
+}
+
+export interface LatestDisabilities {
+  id: number;
+  radicado: string;
+  fkIdTipoIncapacidad: number;
+  fkNitEmpresa: string;
+  numeroIncapacidad: number;
+  fechaInicio: string;
+  fechaFin: string;
+  totalDias: number;
+  ibc: string;
+  valor: number;
+  fkIdEstadoIncapacidad: number;
+  fkDocumentoPersona: number;
+  fkIdArl: string;
+  fkIdAfp: string;
+  fkIdEps: string;
+  fechaRegistro: string;
 }

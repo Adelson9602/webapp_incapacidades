@@ -33,22 +33,50 @@
       </div>
     </div>
     <div class="row q-pt-md">
-      <div class="col-xs-12 col-md-6">
-        <apexchart
-          type="bar"
-          height="350"
-          :options="settingsChart"
-          :series="quantityDisabilities"
-          v-if="labelStatus.length > 0"
+      <div class="col-xs-12 col-md-6 q-pa-sm">
+        <q-card flat>
+          <q-card-section>
+            <apexchart
+              type="bar"
+              height="350"
+              :options="settingsChart"
+              :series="quantityDisabilities"
+              v-if="labelStatus.length > 0"
+            />
+          </q-card-section>
+        </q-card>
+      </div>
+      <div class="col-xs-12 col-md-6 q-pa-sm">
+        <q-card flat>
+          <q-card-section>
+            <apexchart
+              type="bar"
+              height="350"
+              :options="settingsChartCost"
+              :series="costDisabilities"
+              v-if="labelStatus.length > 0"
+            />
+          </q-card-section>
+        </q-card>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-12 col-sm-12 col-md-6 q-pa-sm">
+        <q-table
+          title="Últimas radicadiones"
+          :rows="rows"
+          :columns="cloumns"
+          row-key="name"
+          flat
         />
       </div>
-      <div class="col-xs-12 col-md-6">
-        <apexchart
-          type="bar"
-          height="350"
-          :options="settingsChartCost"
-          :series="costDisabilities"
-          v-if="labelStatus.length > 0"
+      <div class="col-xs-12 col-sm-12 col-md-6 q-pa-sm">
+        <q-table
+          title="Total por eps"
+          :rows="rowsEps"
+          :columns="cloumnsEps"
+          row-key="name"
+          flat
         />
       </div>
     </div>
@@ -58,10 +86,15 @@
 <script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue';
 import { get } from 'src/requests';
-import { useQuasar, date } from 'quasar';
+import { useQuasar, date, QTableColumn } from 'quasar';
 import { controlError } from 'src/helpers/controlError';
 import VueApexCharts from 'vue3-apexcharts';
-import { Cards, ResponseDashboard } from 'src/models/generals.models';
+import {
+  Cards,
+  LatestDisabilities,
+  ResponseDashboard,
+  TotalDisabilitiesByEps,
+} from 'src/models/generals.models';
 
 interface DataDashboard {
   nombreEstadoIncapacidad: string;
@@ -123,6 +156,60 @@ const defaultSettignsChart = {
     },
   },
 };
+
+const cloumnsEps: QTableColumn[] = [
+  {
+    name: 'numeroIncapacidades',
+    align: 'center',
+    label: 'CANTIDAD INCAPACIDADES',
+    field: 'numeroIncapacidades',
+    sortable: true,
+  },
+  {
+    name: 'razonSocial',
+    align: 'center',
+    label: 'EPS',
+    field: 'razonSocial',
+    sortable: true,
+  },
+  {
+    name: 'totalIncapacidades',
+    align: 'center',
+    label: 'TOTAL',
+    field: 'totalIncapacidades',
+    sortable: true,
+  },
+];
+const cloumns: QTableColumn[] = [
+  {
+    name: 'radicado',
+    align: 'center',
+    label: 'RADICADO',
+    field: 'radicado',
+    sortable: true,
+  },
+  {
+    name: 'fkDocumentoPersona',
+    align: 'center',
+    label: 'DOCUMENTO EMPLEADO',
+    field: 'fkDocumentoPersona',
+    sortable: true,
+  },
+  {
+    name: 'fkNitEmpresa',
+    align: 'center',
+    label: 'NIT EMPRESA',
+    field: 'fkNitEmpresa',
+    sortable: true,
+  },
+  {
+    name: 'fechaRegistro',
+    align: 'center',
+    label: 'FECHA RADICACIÓN',
+    field: 'fechaRegistro',
+    sortable: true,
+  },
+];
 
 export default defineComponent({
   name: 'IndexPage',
@@ -220,6 +307,8 @@ export default defineComponent({
         color: 'bg-c-lite',
       },
     ]);
+    const rows = ref<LatestDisabilities[]>([]);
+    const rowsEps = ref<TotalDisabilitiesByEps[]>([]);
 
     const getData = async () => {
       $q.loading.show({
@@ -230,7 +319,8 @@ export default defineComponent({
         const {
           totalDisabilitiesByStatus,
           totalDisabilities,
-        }: ResponseDashboard = data as unknown as ResponseDashboard;
+          totalDisabilitiesByEps,
+        }: ResponseDashboard = data;
 
         cardsData.value[2].value = totalDisabilities.numeroIncapacidades;
         cardsData.value[3].value = new Intl.NumberFormat().format(
@@ -245,6 +335,10 @@ export default defineComponent({
           data2.value.push(element.totalIncapacidades);
           labelStatus.value.push(element.nombreEstadoIncapacidad);
         });
+        rowsEps.value = [...totalDisabilitiesByEps];
+
+        const resLatest = await get.getLatestDisabilities();
+        rows.value = [...resLatest.data.map((e) => e)];
       } catch (error) {
         controlError(error);
       } finally {
@@ -262,6 +356,10 @@ export default defineComponent({
       settingsChart,
       settingsChartCost,
       labelStatus,
+      rows,
+      cloumns,
+      rowsEps,
+      cloumnsEps,
     };
   },
 });
