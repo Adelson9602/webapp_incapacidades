@@ -91,8 +91,9 @@ import GeneralTableComponent from 'src/components/general/GeneralTableComponent.
 import CreateEmployeComponent from 'src/components/Person/CreateEmployeComponent.vue';
 import { employeStore } from 'stores/employe';
 import { storeToRefs } from 'pinia';
+import { QTableColumn } from 'quasar';
 
-const columns = [
+const columns: QTableColumn[] = [
   {
     name: 'documentoPersona',
     align: 'center',

@@ -74,9 +74,9 @@ import { DocumentType } from 'src/models/generals.models';
 import GeneralTableComponent from 'src/components/general/GeneralTableComponent.vue';
 import { get, post } from 'src/requests';
 import { controlError } from 'src/helpers/controlError';
-import { useQuasar } from 'quasar';
+import { QTableColumn, useQuasar } from 'quasar';
 
-const columns = [
+const columns: QTableColumn[] = [
   {
     name: 'idTipoDocumento',
     label: 'ID TIPO DOCUMENTO',

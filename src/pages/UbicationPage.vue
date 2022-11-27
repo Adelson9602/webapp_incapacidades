@@ -173,9 +173,9 @@ import { City, Department } from 'src/models/generals.models';
 import GeneralTableComponent from 'src/components/general/GeneralTableComponent.vue';
 import { get, post } from 'src/requests';
 import { controlError } from 'src/helpers/controlError';
-import { useQuasar } from 'quasar';
+import { QTableColumn, useQuasar } from 'quasar';
 
-const columns = [
+const columns: QTableColumn[] = [
   {
     name: 'idDepartamento',
     label: 'ID DEPARTAMENTO',
@@ -192,7 +192,7 @@ const columns = [
   },
 ];
 
-const columnsCity = [
+const columnsCity: QTableColumn[] = [
   {
     name: 'idCiudad',
     label: 'ID CIUDAD',

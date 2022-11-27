@@ -86,8 +86,9 @@ import { InformationDisability } from 'src/models/generals.models';
 import { controlError } from 'src/helpers/controlError';
 import GeneralTableComponent from 'src/components/general/GeneralTableComponent.vue';
 import CreateDisabilityComponent from 'src/components/disability/CreateDisabilityComponent.vue';
+import { QTableColumn } from 'quasar';
 
-const columns = [
+const columns: QTableColumn[] = [
   {
     name: 'radicado',
     align: 'center',
