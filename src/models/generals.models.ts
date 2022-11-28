@@ -213,9 +213,7 @@ export interface Disability {
   valor: string;
   fkIdEstadoIncapacidad: number;
   fkDocumentoPersona: number;
-  fkIdArl: string;
-  fkIdAfp: string;
-  fkIdEps: string;
+  fkEntidad: string;
 }
 
 export interface InformationDisability extends ActionsUser {
@@ -230,9 +228,7 @@ export interface InformationDisability extends ActionsUser {
   valor: number;
   fkIdEstadoIncapacidad: number;
   fkDocumentoPersona: number;
-  fkIdArl: string;
-  fkIdAfp: string;
-  fkIdEps: string;
+  fkEntidad: string;
   primerNombre: string;
   segundoNombre: string;
   primerApellido: string;

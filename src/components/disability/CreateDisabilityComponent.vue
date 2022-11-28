@@ -60,63 +60,15 @@
         <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
           <q-select
             outlined
-            v-model="disability.fkIdArl"
+            v-model="disability.fkEntidad"
             clearable
             use-input
             hide-selected
             fill-input
             input-debounce="0"
-            label="ARL"
+            label="Entidad"
             :options="optionsArls"
             @filter="filterArl"
-            option-label="razonSocial"
-            option-value="nit"
-            map-options
-            emit-value
-          >
-            <template v-slot:no-option>
-              <q-item>
-                <q-item-section class="text-grey"> No results </q-item-section>
-              </q-item>
-            </template>
-          </q-select>
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
-          <q-select
-            outlined
-            v-model="disability.fkIdAfp"
-            clearable
-            use-input
-            hide-selected
-            fill-input
-            input-debounce="0"
-            label="AFP"
-            :options="optionsAfps"
-            @filter="filterAfp"
-            option-label="razonSocial"
-            option-value="nit"
-            map-options
-            emit-value
-          >
-            <template v-slot:no-option>
-              <q-item>
-                <q-item-section class="text-grey"> No results </q-item-section>
-              </q-item>
-            </template>
-          </q-select>
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
-          <q-select
-            outlined
-            v-model="disability.fkIdEps"
-            clearable
-            use-input
-            hide-selected
-            fill-input
-            input-debounce="0"
-            label="EPS"
-            :options="optionsEps"
-            @filter="filterEps"
             option-label="razonSocial"
             option-value="nit"
             map-options
@@ -227,20 +179,6 @@
             </template>
           </q-input>
         </div>
-        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
-          <q-uploader
-            label="Agrese los archivos requeridos"
-            multiple
-            @added="addFiles"
-            hide-upload-btn
-            ref="filesInput"
-            style="width: auto"
-            color="grey-1"
-            text-color="black"
-            flat
-            bordered
-          />
-        </div>
       </div>
       <div>
         <q-btn label="Submit" type="submit" color="primary" />
@@ -293,9 +231,7 @@ export default defineComponent({
       valor: '',
       fkIdEstadoIncapacidad: 0,
       fkDocumentoPersona: 0,
-      fkIdArl: '',
-      fkIdAfp: '',
-      fkIdEps: '',
+      fkEntidad: '',
     });
     const isLoading = ref(false);
     const companies = ref<Company[]>([]);
@@ -393,9 +329,7 @@ export default defineComponent({
         valor: `${disabilityEdit.value?.valor}`,
         fkIdEstadoIncapacidad: disabilityEdit.value?.fkIdEstadoIncapacidad || 0,
         fkDocumentoPersona: disabilityEdit.value?.fkDocumentoPersona || 0,
-        fkIdArl: `${disabilityEdit.value?.fkIdArl}`,
-        fkIdAfp: `${disabilityEdit.value?.fkIdAfp}`,
-        fkIdEps: `${disabilityEdit.value?.fkIdEps}`,
+        fkEntidad: `${disabilityEdit.value?.fkEntidad}`,
       };
     };
 
