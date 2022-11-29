@@ -108,7 +108,8 @@ export interface InformationEmploye extends ActionsUser {
   isEmploye: boolean;
 }
 
-export interface DisabilityType {
+export interface DisabilityType extends ActionsUser {
+  title?: string;
   idTipoIncapacidad: number;
   nombreTipoIncapacidad: string;
   codigoDianostico: string;

@@ -66,7 +66,7 @@
             hide-selected
             fill-input
             input-debounce="0"
-            label="Entidad"
+            label="ENTIDAD"
             :options="optionsArls"
             @filter="filterArl"
             option-label="razonSocial"
@@ -229,7 +229,7 @@ export default defineComponent({
       totalDias: 4,
       ibc: '',
       valor: '',
-      fkIdEstadoIncapacidad: 0,
+      fkIdEstadoIncapacidad: 8,
       fkDocumentoPersona: 0,
       fkEntidad: '',
     });

@@ -1,0 +1,188 @@
+<template>
+  <q-page padding>
+    <!-- content -->
+    <q-card flat>
+      <q-card-section class="q-pb-none">
+        <q-btn
+          color="primary"
+          icon="add"
+          label="agregar tipo documento"
+          @click="dialog = true"
+        />
+        <q-dialog v-model="dialog" persistent>
+          <q-card style="width: 450px; max-width: 90vw">
+            <q-bar dark class="bg-primary text-white">
+              <q-btn dense flat round icon="list" color="white" />
+              <div class="col text-center text-weight-bold">
+                {{
+                  disabilityType.idTipoIncapacidad ? 'Editar ' : 'Agregar '
+                }}tipo incapacidad
+              </div>
+              <q-btn
+                dense
+                flat
+                round
+                icon="close"
+                color="white"
+                v-close-popup
+              />
+            </q-bar>
+            <q-card-section>
+              <q-form
+                @submit="onSubmit"
+                @reset="onReset"
+                class="q-gutter-md"
+                ref="myForm"
+              >
+                <q-input
+                  v-model="disabilityType.nombreTipoIncapacidad"
+                  outlined
+                  type="text"
+                  label="Nombre tipo de incapacidad"
+                  :rules="[
+                    (val) => !!val || 'Nombre tipo incapacidad es requerido',
+                  ]"
+                />
+                <div class="row justify-end">
+                  <q-btn label="Guardar" type="submit" color="primary" />
+                  <q-btn
+                    label="Cancelar"
+                    type="reset"
+                    color="primary"
+                    flat
+                    class="q-ml-sm"
+                  />
+                </div>
+              </q-form>
+            </q-card-section>
+          </q-card>
+        </q-dialog>
+      </q-card-section>
+      <general-table-component
+        :columns="columns"
+        title="Tipos de incapacidad"
+        :rows="rows"
+        :grid="true"
+        @on-edit="onEdit"
+      />
+    </q-card>
+  </q-page>
+</template>
+
+<script lang="ts">
+import { defineComponent, onMounted, ref } from 'vue';
+import { DisabilityType } from 'src/models/generals.models';
+import GeneralTableComponent from 'src/components/general/GeneralTableComponent.vue';
+import { get, post } from 'src/requests';
+import { controlError } from 'src/helpers/controlError';
+import { QTableColumn, useQuasar } from 'quasar';
+
+const columns: QTableColumn[] = [
+  {
+    name: 'idTipoDocumento',
+    label: 'ID TIPO DOCUMENTO',
+    align: 'center',
+    sortable: true,
+    field: 'idTipoDocumento',
+  },
+  {
+    name: 'nombreTipoDocumento',
+    label: 'TIPO DOCUMENTO',
+    align: 'center',
+    sortable: true,
+    field: 'nombreTipoDocumento',
+  },
+];
+export default defineComponent({
+  name: 'PageTypeDocument',
+  components: {
+    GeneralTableComponent,
+  },
+  setup() {
+    const $q = useQuasar();
+    const rows = ref<DisabilityType[]>([]);
+    const isLoading = ref(false);
+    const dialog = ref(false);
+    const myForm = ref<any>(null);
+    const disabilityType = ref({
+      idTipoIncapacidad: 0,
+      nombreTipoIncapacidad: '',
+      codigoDianostico: '',
+    });
+
+    const getData = async () => {
+      isLoading.value = true;
+      try {
+        const resDisabilityType = await get
+          .getDisabilityType()
+          .then((response) => response.data);
+        rows.value = [
+          ...resDisabilityType.map((disabilityType) => {
+            disabilityType.title = disabilityType.nombreTipoIncapacidad;
+            disabilityType.btnEdit = true;
+            return disabilityType;
+          }),
+        ];
+      } catch (error) {
+        controlError(error);
+      } finally {
+        isLoading.value = false;
+      }
+    };
+
+    const onSubmit = async () => {
+      isLoading.value = true;
+      try {
+        const resTypeDoc = await post
+          .createDisabilityType(disabilityType.value)
+          .then((response) => response.data);
+
+        $q.notify({
+          message: resTypeDoc.message,
+          type: 'positive',
+          position: 'bottom-right',
+        });
+        setTimeout(() => getData(), 200);
+        disabilityType.value = {
+          idTipoIncapacidad: 0,
+          nombreTipoIncapacidad: '',
+          codigoDianostico: '',
+        };
+        dialog.value = false;
+      } catch (error) {
+        controlError(error);
+      } finally {
+        isLoading.value = false;
+      }
+    };
+
+    const onReset = () => {
+      disabilityType.value = {
+        idTipoIncapacidad: 0,
+        nombreTipoIncapacidad: '',
+        codigoDianostico: '',
+      };
+      myForm.value.resetValidation();
+      dialog.value = false;
+    };
+
+    const onEdit = (row: DisabilityType) => {
+      disabilityType.value = row;
+      dialog.value = true;
+    };
+
+    onMounted(() => getData());
+
+    return {
+      columns,
+      rows,
+      dialog,
+      disabilityType,
+      myForm,
+      onSubmit,
+      onReset,
+      onEdit,
+    };
+  },
+});
+</script>

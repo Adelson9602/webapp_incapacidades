@@ -256,6 +256,11 @@ export default {
         },
         { icon: 'location_on', text: 'Ubicación', route: '/ubication' },
         { icon: 'groups', text: 'Cargos', route: '/position' },
+        {
+          icon: 'assist_walker',
+          text: 'Tipos de incapacidad',
+          route: '/disability_type',
+        },
       ],
       links3: [
         {
