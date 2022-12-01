@@ -6,7 +6,7 @@
         <q-btn
           color="primary"
           icon="add"
-          label="agregar tipo documento"
+          label="agregar tipo incapacidad"
           @click="dialog = true"
         />
         <q-dialog v-model="dialog" persistent>
@@ -42,6 +42,24 @@
                   :rules="[
                     (val) => !!val || 'Nombre tipo incapacidad es requerido',
                   ]"
+                  @update:model-value="
+                    (val) => {
+                      disabilityType.nombreTipoIncapacidad =
+                        `${val}`.toUpperCase();
+                    }
+                  "
+                />
+                <q-input
+                  v-model="disabilityType.codigoDianostico"
+                  outlined
+                  type="text"
+                  label="Código diagnóstico"
+                  :rules="[(val) => !!val || 'Código diagnóstico es requerido']"
+                  @update:model-value="
+                    (val) => {
+                      disabilityType.codigoDianostico = `${val}`.toUpperCase();
+                    }
+                  "
                 />
                 <div class="row justify-end">
                   <q-btn label="Guardar" type="submit" color="primary" />
@@ -79,18 +97,25 @@ import { QTableColumn, useQuasar } from 'quasar';
 
 const columns: QTableColumn[] = [
   {
-    name: 'idTipoDocumento',
-    label: 'ID TIPO DOCUMENTO',
+    name: 'idTipoIncapacidad',
+    label: 'ID TIPO INCAPACIDAD',
     align: 'center',
     sortable: true,
-    field: 'idTipoDocumento',
+    field: 'idTipoIncapacidad',
   },
   {
-    name: 'nombreTipoDocumento',
-    label: 'TIPO DOCUMENTO',
+    name: 'nombreTipoIncapacidad',
+    label: 'TIPO INCAPACIDAD',
     align: 'center',
     sortable: true,
-    field: 'nombreTipoDocumento',
+    field: 'nombreTipoIncapacidad',
+  },
+  {
+    name: 'codigoDianostico',
+    label: 'CÓDIGO DIAGNÓSTICO',
+    align: 'center',
+    sortable: true,
+    field: 'codigoDianostico',
   },
 ];
 export default defineComponent({
@@ -104,8 +129,8 @@ export default defineComponent({
     const isLoading = ref(false);
     const dialog = ref(false);
     const myForm = ref<any>(null);
-    const disabilityType = ref({
-      idTipoIncapacidad: 0,
+    const disabilityType = ref<DisabilityType>({
+      idTipoIncapacidad: null,
       nombreTipoIncapacidad: '',
       codigoDianostico: '',
     });

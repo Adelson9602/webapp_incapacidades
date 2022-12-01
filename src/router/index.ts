@@ -39,7 +39,7 @@ export default route(function (/* { store, ssrContext } */) {
     // const isLogged = store.state.auth.isLogged //Con esto sabemos si el usuario esta logueado
     /* eslint-disable */
     let token = LocalStorage.getItem("dataUsuario");
-    if (!requiresAuth && token && to.path === "/login") {
+    if (!requiresAuth && token && to.path === "/login" || requiresAuth && token && to.path === "/") {
       return next("/inicio");
     }
 

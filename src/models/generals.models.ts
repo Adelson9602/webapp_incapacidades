@@ -110,7 +110,7 @@ export interface InformationEmploye extends ActionsUser {
 
 export interface DisabilityType extends ActionsUser {
   title?: string;
-  idTipoIncapacidad: number;
+  idTipoIncapacidad: number | null;
   nombreTipoIncapacidad: string;
   codigoDianostico: string;
 }

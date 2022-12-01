@@ -1,6 +1,6 @@
 import { Notify } from 'quasar';
 import { useRouter } from 'vue-router';
-import { useQuasar, LocalStorage } from 'quasar';
+import { Dialog, Loading, LocalStorage } from 'quasar';
 /* eslint-disable */
 const controlError = (e: any) => {
   const router = useRouter();
@@ -15,20 +15,19 @@ const controlError = (e: any) => {
       e.message = e.response.data.message
       if(e.response.status === 401){
         // validación aplica para cuando el token ha expirado
-        const $q = useQuasar();
         const router = useRouter();
-        $q.dialog({
+        Dialog.create({
           title: 'Sesión expirada',
           message: 'Su sesión ha expirado, por favor inicie sesión nuevamente'
         }).onOk(() => {
-          $q.loading.show({
+          Loading.show({
             message: 'Cerrando sesión...',
           });
           setTimeout(() => {
             LocalStorage.remove('dataUsuario');
             LocalStorage.remove('token');
-            router.push('/');
-            $q.loading.hide();
+            router.push('')
+            Loading.hide();
           }, 1000);
         })
       }

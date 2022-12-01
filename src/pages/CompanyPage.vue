@@ -86,8 +86,9 @@ import { InformationCompany } from 'src/models/generals.models';
 import { controlError } from 'src/helpers/controlError';
 import GeneralTableComponent from 'src/components/general/GeneralTableComponent.vue';
 import CreateCompanyComponent from 'src/components/company/CreateCompanyComponent.vue';
+import { QTableColumn } from 'quasar';
 
-const columns = [
+const columns: QTableColumn[] = [
   {
     name: 'nit',
     align: 'center',
