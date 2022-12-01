@@ -310,3 +310,7 @@ export interface LatestDisabilities {
   fkIdEps: string;
   fechaRegistro: string;
 }
+
+export interface Salary {
+  salarioMinimo: string;
+}

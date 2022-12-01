@@ -1,5 +1,5 @@
 import { api } from 'boot/axios';
-import { Rols, DocumentType, UserData, StateDisability, Department, City, Position, InformationCompany, TypeCompany, DepartemtAndCity, InformationEmploye, InformationDisability, Company, Persona, DisabilityType, LatestDisabilities, ResponseDashboard } from 'src/models/generals.models';
+import { Rols, DocumentType, UserData, StateDisability, Department, City, Position, InformationCompany, TypeCompany, DepartemtAndCity, InformationEmploye, InformationDisability, Company, Persona, DisabilityType, LatestDisabilities, ResponseDashboard, Salary } from 'src/models/generals.models';
 
 const getRols = async () => {
   return await api.get<Rols[]>('rols')
@@ -69,6 +69,10 @@ const getLatestDisabilities = async () => {
   return await api.get<LatestDisabilities[]>('last_disabilities')
 }
 
+const getSalary = async () => {
+  return await api.get<Salary>('salary')
+}
+
 export default {
   getRols,
   getDocumentsType,
@@ -86,5 +90,6 @@ export default {
   getEmployesSelect,
   getDisabilityType,
   getDataDashboard,
-  getLatestDisabilities
+  getLatestDisabilities,
+  getSalary
 }

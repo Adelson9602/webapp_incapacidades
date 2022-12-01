@@ -199,8 +199,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, PropType, ref, toRefs } from 'vue';
-import { date } from 'quasar';
+import { defineComponent, onMounted, PropType, ref, toRefs, watch } from 'vue';
+import { date, useQuasar } from 'quasar';
 import { get, post } from 'src/requests';
 import {
   Company,
@@ -209,6 +209,7 @@ import {
   DocumentType,
   InformationDisability,
   Persona,
+  Salary,
 } from 'src/models/generals.models';
 import { controlError } from 'src/helpers/controlError';
 export default defineComponent({
@@ -218,6 +219,7 @@ export default defineComponent({
     disabilityEdit: Object as PropType<InformationDisability>,
   },
   setup(props, { emit }) {
+    const $q = useQuasar();
     const { disabilityEdit } = toRefs(props);
     const disability = ref<Disability>({
       radicado: '',
@@ -248,7 +250,10 @@ export default defineComponent({
     const disabilityType = ref<DisabilityType[]>([]);
     const optionsDisabilityType = ref<DisabilityType[]>([]);
     const files = ref<File[]>([]);
+    const salary = ref<Salary>();
     const filesInput = ref();
+    const today = ref<string>('');
+    const numberDays = ref<number>(0);
 
     const getData = async () => {
       isLoading.value = true;
@@ -282,6 +287,11 @@ export default defineComponent({
           .then((response) => response.data);
         optionsDocumentTypes.value = [...resDocuments];
 
+        const resSalary = await get
+          .getSalary()
+          .then((response) => response.data);
+        salary.value = { ...resSalary };
+
         const resEmployes = await get
           .getEmployesSelect()
           .then((response) => response.data);
@@ -301,9 +311,9 @@ export default defineComponent({
 
         // Asignamos a los inputs tipo date la fecha actual del sistema
         const timeStamp = Date.now();
-        const formattedString = date.formatDate(timeStamp, 'YYYY/MM/DD');
-        disability.value.fechaInicio = formattedString;
-        disability.value.fechaFin = formattedString;
+        today.value = date.formatDate(timeStamp, 'YYYY/MM/DD');
+        disability.value.fechaInicio = today.value;
+        disability.value.fechaFin = today.value;
 
         // Validamos si el prop disabilityEdit tiene algun valor, si tiene valor significa que se esta editando alguna incapacidad, entonces procedemos a asignar los datos a editar a los inputs
         if (disabilityEdit.value) {
@@ -448,11 +458,46 @@ export default defineComponent({
 
     const addFiles = (value: File[]) => {
       files.value = value;
-      console.log(filesInput.value);
     };
     const onClick = () => {
       filesInput.value.upload();
     };
+
+    watch(
+      () => disability.value.fechaInicio,
+      async (value) => {
+        const fechaInicio = new Date(value);
+        const diff = date.getDateDiff(
+          disability.value.fechaFin,
+          fechaInicio,
+          'days'
+        );
+        console.log(diff);
+      }
+    );
+
+    watch(
+      () => disability.value.fechaFin,
+      async (value) => {
+        const fechaInicio = new Date(disability.value.fechaInicio);
+        const fechaFin = new Date(value);
+        if (fechaFin < fechaInicio) {
+          disability.value.fechaFin = today.value;
+          $q.notify({
+            message:
+              'La fecha final no puede ser inferior a la fecha de inicio',
+            type: 'warning',
+          });
+        } else {
+          const diff = date.getDateDiff(
+            fechaFin,
+            disability.value.fechaInicio,
+            'days'
+          );
+          console.log(diff);
+        }
+      }
+    );
 
     onMounted(() => getData());
 
