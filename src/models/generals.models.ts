@@ -210,8 +210,8 @@ export interface Disability {
   fechaInicio: string;
   fechaFin: string;
   totalDias: number;
-  ibc: string;
-  valor: string;
+  ibc: number;
+  valor: number;
   fkIdEstadoIncapacidad: number;
   fkDocumentoPersona: number;
   fkEntidad: string;
@@ -225,7 +225,7 @@ export interface InformationDisability extends ActionsUser {
   fechaInicio: string;
   fechaFin: string;
   totalDias: number;
-  ibc: string;
+  ibc: number;
   valor: number;
   fkIdEstadoIncapacidad: number;
   fkDocumentoPersona: number;

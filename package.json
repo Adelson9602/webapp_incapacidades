@@ -15,6 +15,7 @@
     "apexcharts": "^3.36.3",
     "axios": "^0.21.1",
     "crypto-js": "^4.1.1",
+    "format-money-js": "^1.5.5",
     "pinia": "^2.0.11",
     "quasar": "^2.6.0",
     "vue": "^3.0.0",

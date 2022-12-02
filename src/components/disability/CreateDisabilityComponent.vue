@@ -15,7 +15,13 @@
           />
         </div>
         <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
-          <q-input outlined v-model="disability.ibc" type="text" label="IBC" />
+          <q-input
+            outlined
+            v-model="disability.ibc"
+            type="text"
+            label="IBC"
+            @update:model-value="(val) => {}"
+          />
         </div>
         <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
           <q-input
@@ -212,6 +218,7 @@ import {
   Salary,
 } from 'src/models/generals.models';
 import { controlError } from 'src/helpers/controlError';
+import Dinero from 'dinero.js';
 export default defineComponent({
   name: 'ComponentCreateDisability',
   emits: ['onReload'],
@@ -229,8 +236,8 @@ export default defineComponent({
       fechaInicio: '',
       fechaFin: '',
       totalDias: 4,
-      ibc: '',
-      valor: '',
+      ibc: 0,
+      valor: 0,
       fkIdEstadoIncapacidad: 8,
       fkDocumentoPersona: 0,
       fkEntidad: '',
@@ -335,8 +342,8 @@ export default defineComponent({
         fechaInicio: `${disabilityEdit.value?.fechaInicio}`,
         fechaFin: `${disabilityEdit.value?.fechaFin}`,
         totalDias: disabilityEdit.value?.totalDias || 0,
-        ibc: `${disabilityEdit.value?.ibc}`,
-        valor: `${disabilityEdit.value?.valor}`,
+        ibc: disabilityEdit.value?.ibc || 0,
+        valor: disabilityEdit.value?.valor || 0,
         fkIdEstadoIncapacidad: disabilityEdit.value?.fkIdEstadoIncapacidad || 0,
         fkDocumentoPersona: disabilityEdit.value?.fkDocumentoPersona || 0,
         fkEntidad: `${disabilityEdit.value?.fkEntidad}`,
@@ -466,19 +473,20 @@ export default defineComponent({
     watch(
       () => disability.value.fechaInicio,
       async (value) => {
+        // Calcula el número de días
         const fechaInicio = new Date(value);
-        const diff = date.getDateDiff(
+        numberDays.value = date.getDateDiff(
           disability.value.fechaFin,
           fechaInicio,
           'days'
         );
-        console.log(diff);
       }
     );
 
     watch(
       () => disability.value.fechaFin,
       async (value) => {
+        // Calcula el número de días
         const fechaInicio = new Date(disability.value.fechaInicio);
         const fechaFin = new Date(value);
         if (fechaFin < fechaInicio) {
@@ -489,13 +497,24 @@ export default defineComponent({
             type: 'warning',
           });
         } else {
-          const diff = date.getDateDiff(
+          numberDays.value = date.getDateDiff(
             fechaFin,
             disability.value.fechaInicio,
             'days'
           );
-          console.log(diff);
         }
+      }
+    );
+
+    watch(
+      () => disability.value.fkIdTipoIncapacidad,
+      async () => {
+        // salario / 3 * 2,
+        disability.value.ibc;
+        disability.value.valor = +new Intl.NumberFormat().format(
+          Math.round((disability.value.ibc / 3) * 2)
+        );
+        console.log(Dinero({ amount: 5000, currency: 'EUR' }).getAmount());
       }
     );
 
@@ -522,6 +541,7 @@ export default defineComponent({
       filterDisabilityType,
       addFiles,
       onClick,
+      Dinero,
     };
   },
 });
