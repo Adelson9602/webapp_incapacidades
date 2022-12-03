@@ -312,5 +312,5 @@ export interface LatestDisabilities {
 }
 
 export interface Salary {
-  salarioMinimo: string;
+  salarioMinimo: number;
 }

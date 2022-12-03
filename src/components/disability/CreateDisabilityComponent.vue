@@ -15,13 +15,7 @@
           />
         </div>
         <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
-          <q-input
-            outlined
-            v-model="disability.ibc"
-            type="text"
-            label="IBC"
-            @update:model-value="(val) => {}"
-          />
+          <q-input outlined v-model="disability.ibc" type="text" label="IBC" />
         </div>
         <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
           <q-input
@@ -29,6 +23,7 @@
             v-model="disability.valor"
             type="text"
             label="VALOR"
+            disable
           />
         </div>
         <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
@@ -114,7 +109,7 @@
         <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
           <q-select
             outlined
-            v-model="disability.fkIdTipoIncapacidad"
+            v-model="idTipoIncapacidad"
             clearable
             use-input
             hide-selected
@@ -135,6 +130,33 @@
             </template>
           </q-select>
         </div>
+        <div
+          class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm"
+          v-if="idTipoIncapacidad == 1"
+        >
+          <q-select
+            outlined
+            v-model="disability.fkIdTipoIncapacidad"
+            clearable
+            use-input
+            hide-selected
+            fill-input
+            input-debounce="0"
+            label="TIPO ENFERMEDAD"
+            :options="optionsDisabilityTypeTwo"
+            @filter="filterDisabilityType"
+            option-label="nombreTipoIncapacidad"
+            option-value="idTipoIncapacidad"
+            map-options
+            emit-value
+          >
+            <template v-slot:no-option>
+              <q-item>
+                <q-item-section class="text-grey"> No results </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
+        </div>
         <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
           <q-input
             outlined
@@ -142,6 +164,7 @@
             mask="date"
             :rules="['date']"
             label="Fecha inicio de incapacidad"
+            :disable="disability.fkIdTipoIncapacidad ? false : true"
           >
             <template v-slot:append>
               <q-icon name="event" class="cursor-pointer">
@@ -167,6 +190,7 @@
             mask="date"
             :rules="['date']"
             label="Fecha fin de incapacidad"
+            :disable="disability.fkIdTipoIncapacidad ? false : true"
           >
             <template v-slot:append>
               <q-icon name="event" class="cursor-pointer">
@@ -215,10 +239,8 @@ import {
   DocumentType,
   InformationDisability,
   Persona,
-  Salary,
 } from 'src/models/generals.models';
 import { controlError } from 'src/helpers/controlError';
-import Dinero from 'dinero.js';
 export default defineComponent({
   name: 'ComponentCreateDisability',
   emits: ['onReload'],
@@ -242,7 +264,8 @@ export default defineComponent({
       fkDocumentoPersona: 0,
       fkEntidad: '',
     });
-    const isLoading = ref(false);
+    const idTipoIncapacidad = ref<number>(0);
+    const isLoading = ref<boolean>(false);
     const companies = ref<Company[]>([]);
     const optionsCompanies = ref<Company[]>([]);
     const arls = ref<Company[]>([]);
@@ -256,11 +279,28 @@ export default defineComponent({
     const optionsEmployes = ref<Persona[]>([]);
     const disabilityType = ref<DisabilityType[]>([]);
     const optionsDisabilityType = ref<DisabilityType[]>([]);
+    const optionsDisabilityTypeTwo = ref<DisabilityType[]>([
+      {
+        idTipoIncapacidad: 2,
+        nombreTipoIncapacidad: 'ENFERMEDAD GENERAL',
+        codigoDianostico: '',
+      },
+      {
+        idTipoIncapacidad: 6,
+        nombreTipoIncapacidad: 'ENFERMEDAD LABORAL',
+        codigoDianostico: '',
+      },
+    ]);
     const files = ref<File[]>([]);
-    const salary = ref<Salary>();
+    const minimumSalary = ref<number>(0);
     const filesInput = ref();
     const today = ref<string>('');
     const numberDays = ref<number>(0);
+    const formatter = new Intl.NumberFormat('es-CO', {
+      // style: 'currency',
+      currency: 'COP',
+      minimumFractionDigits: 0,
+    });
 
     const getData = async () => {
       isLoading.value = true;
@@ -297,7 +337,7 @@ export default defineComponent({
         const resSalary = await get
           .getSalary()
           .then((response) => response.data);
-        salary.value = { ...resSalary };
+        minimumSalary.value = resSalary.salarioMinimo;
 
         const resEmployes = await get
           .getEmployesSelect()
@@ -480,6 +520,45 @@ export default defineComponent({
           fechaInicio,
           'days'
         );
+
+        // (1, 'ACCIDENTE DE TRÁNSITO', 'AC001'),
+        // (2, 'ENFERMEDAD GENERAL', ''),
+        // (3, 'LICENCIA DE MATERNIDAD', ''),
+        // (4, 'LICENCIA PATERNIDAD', ''),
+        // (5, 'ACCIDENTE LABORAL', ''),
+        // (6, 'ENFERMEDAD LABORAL', ''),
+        // (7, 'PRUEBA EDIT', 'PU001');
+
+        const tempEntities = [...optionsArls.value];
+
+        const tempValue = (disability.value.ibc / 3) * 2;
+        if (tempValue < minimumSalary.value) {
+          console.log(numberDays.value);
+
+          // Cálculo para enfermedad general y
+          if (
+            disability.value.fkIdTipoIncapacidad == 2 ||
+            disability.value.fkIdTipoIncapacidad == 6
+          ) {
+            const value = Math.round(
+              (minimumSalary.value / 30) * (numberDays.value - 2)
+            );
+            disability.value.valor = value;
+          }
+          // Cálculo para licencias de maternidad y paternidad
+          if (
+            disability.value.fkIdTipoIncapacidad == 3 ||
+            disability.value.fkIdTipoIncapacidad == 4
+          ) {
+            const value = Math.round(
+              (minimumSalary.value / 30) * numberDays.value
+            );
+            disability.value.valor = value;
+          }
+        } else {
+          const value = Math.round((tempValue / 30) * numberDays.value);
+          disability.value.valor = value;
+        }
       }
     );
 
@@ -506,17 +585,11 @@ export default defineComponent({
       }
     );
 
-    watch(
-      () => disability.value.fkIdTipoIncapacidad,
-      async () => {
-        // salario / 3 * 2,
-        disability.value.ibc;
-        disability.value.valor = +new Intl.NumberFormat().format(
-          Math.round((disability.value.ibc / 3) * 2)
-        );
-        console.log(Dinero({ amount: 5000, currency: 'EUR' }).getAmount());
+    watch(idTipoIncapacidad, (value) => {
+      if (value != 1) {
+        disability.value.fkIdTipoIncapacidad = value;
       }
-    );
+    });
 
     onMounted(() => getData());
 
@@ -532,6 +605,9 @@ export default defineComponent({
       isLoading,
       files,
       filesInput,
+      formatter,
+      idTipoIncapacidad,
+      optionsDisabilityTypeTwo,
       onSubmit,
       filterCompany,
       filterArl,
@@ -541,7 +617,6 @@ export default defineComponent({
       filterDisabilityType,
       addFiles,
       onClick,
-      Dinero,
     };
   },
 });
