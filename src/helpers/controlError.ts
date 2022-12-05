@@ -15,7 +15,8 @@ const controlError = (e: any) => {
         // validación aplica para cuando el token ha expirado
         Dialog.create({
           title: 'Sesión expirada',
-          message: 'Su sesión ha expirado, por favor inicie sesión nuevamente'
+          message: 'Su sesión ha expirado, por favor inicie sesión nuevamente',
+          persistent: true
         }).onOk(() => {
           Loading.show({
             message: 'Cerrando sesión...',
