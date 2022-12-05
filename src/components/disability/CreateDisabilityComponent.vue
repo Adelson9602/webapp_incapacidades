@@ -61,30 +61,6 @@
         <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
           <q-select
             outlined
-            v-model="disability.fkEntidad"
-            clearable
-            use-input
-            hide-selected
-            fill-input
-            input-debounce="0"
-            label="ENTIDAD"
-            :options="optionsArls"
-            @filter="filterArl"
-            option-label="razonSocial"
-            option-value="nit"
-            map-options
-            emit-value
-          >
-            <template v-slot:no-option>
-              <q-item>
-                <q-item-section class="text-grey"> No results </q-item-section>
-              </q-item>
-            </template>
-          </q-select>
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
-          <q-select
-            outlined
             v-model="disability.fkDocumentoPersona"
             clearable
             use-input
@@ -149,6 +125,31 @@
             option-value="idTipoIncapacidad"
             map-options
             emit-value
+          >
+            <template v-slot:no-option>
+              <q-item>
+                <q-item-section class="text-grey"> No results </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
+          <q-select
+            outlined
+            v-model="disability.fkEntidad"
+            clearable
+            use-input
+            hide-selected
+            fill-input
+            input-debounce="0"
+            label="ENTIDAD"
+            :options="optionsEntyties"
+            @filter="filterEntyties"
+            option-label="razonSocial"
+            option-value="nit"
+            map-options
+            emit-value
+            :disable="disability.fkIdTipoIncapacidad ? false : true"
           >
             <template v-slot:no-option>
               <q-item>
@@ -268,12 +269,8 @@ export default defineComponent({
     const isLoading = ref<boolean>(false);
     const companies = ref<Company[]>([]);
     const optionsCompanies = ref<Company[]>([]);
-    const arls = ref<Company[]>([]);
-    const optionsArls = ref<Company[]>([]);
-    const afps = ref<Company[]>([]);
-    const optionsAfps = ref<Company[]>([]);
-    const eps = ref<Company[]>([]);
-    const optionsEps = ref<Company[]>([]);
+    const optionsEntyties = ref<Company[]>([]);
+    const entyties = ref<Company[]>([]);
     const optionsDocumentTypes = ref<DocumentType[]>([]);
     const employes = ref<Persona[]>([]);
     const optionsEmployes = ref<Persona[]>([]);
@@ -310,24 +307,6 @@ export default defineComponent({
           .then((response) => response.data);
         companies.value = [...resCompany];
         optionsCompanies.value = [...resCompany];
-
-        const resArl = await get
-          .getCompanyByType(2)
-          .then((response) => response.data);
-        arls.value = [...resArl];
-        optionsArls.value = [...resArl];
-
-        const resAfp = await get
-          .getCompanyByType(3)
-          .then((response) => response.data);
-        afps.value = [...resAfp];
-        optionsAfps.value = [...resAfp];
-
-        const resEps = await get
-          .getCompanyByType(1)
-          .then((response) => response.data);
-        eps.value = [...resEps];
-        optionsEps.value = [...resEps];
 
         const resDocuments = await get
           .getDocumentsType()
@@ -420,49 +399,17 @@ export default defineComponent({
       });
     };
 
-    const filterArl = (val: string, update: any) => {
+    const filterEntyties = (val: string, update: any) => {
       if (val === '') {
         update(() => {
-          optionsArls.value = arls.value;
+          optionsEntyties.value = entyties.value;
         });
         return;
       }
 
       update(() => {
         const needle = val.toLowerCase();
-        optionsArls.value = arls.value.filter(
-          (v) => v.razonSocial.toLowerCase().indexOf(needle) > -1
-        );
-      });
-    };
-
-    const filterAfp = (val: string, update: any) => {
-      if (val === '') {
-        update(() => {
-          optionsAfps.value = afps.value;
-        });
-        return;
-      }
-
-      update(() => {
-        const needle = val.toLowerCase();
-        optionsAfps.value = afps.value.filter(
-          (v) => v.razonSocial.toLowerCase().indexOf(needle) > -1
-        );
-      });
-    };
-
-    const filterEps = (val: string, update: any) => {
-      if (val === '') {
-        update(() => {
-          optionsEps.value = eps.value;
-        });
-        return;
-      }
-
-      update(() => {
-        const needle = val.toLowerCase();
-        optionsEps.value = eps.value.filter(
+        optionsEntyties.value = entyties.value.filter(
           (v) => v.razonSocial.toLowerCase().indexOf(needle) > -1
         );
       });
@@ -510,78 +457,130 @@ export default defineComponent({
       filesInput.value.upload();
     };
 
-    watch(
-      () => disability.value.fechaInicio,
-      async (value) => {
-        // Calcula el número de días
-        const fechaInicio = new Date(value);
+    const getEntityes = async (tipoIncapacidad: number) => {
+      isLoading.value = true;
+      try {
+        if (
+          tipoIncapacidad == 2 ||
+          tipoIncapacidad == 3 ||
+          tipoIncapacidad == 4
+        ) {
+          const resEps = await get
+            .getCompanyByType(1)
+            .then((response) => response.data);
+          entyties.value = [...resEps];
+          optionsEntyties.value = [...resEps];
+        }
+
+        if (tipoIncapacidad == 6) {
+          const resArl = await get
+            .getCompanyByType(2)
+            .then((response) => response.data);
+          entyties.value = [...resArl];
+          optionsEntyties.value = [...resArl];
+        }
+
+        // const resAfp = await get
+        //   .getCompanyByType(3)
+        //   .then((response) => response.data);
+        // afps.value = [...resAfp];
+        // optionsAfps.value = [...resAfp];
+      } catch (error) {
+        controlError(error);
+      } finally {
+        isLoading.value = false;
+      }
+    };
+
+    const calculateDisabilityCost = () => {
+      // (1, 'ACCIDENTE DE TRÁNSITO', 'AC001'),
+      // (2, 'ENFERMEDAD GENERAL', ''),
+      // (3, 'LICENCIA DE MATERNIDAD', ''),
+      // (4, 'LICENCIA PATERNIDAD', ''),
+      // (5, 'ACCIDENTE LABORAL', ''),
+      // (6, 'ENFERMEDAD LABORAL', ''),
+      // (7, 'PRUEBA EDIT', 'PU001');
+      // Calcula el número de días
+      countDays(
+        new Date(disability.value.fechaInicio),
+        new Date(disability.value.fechaFin)
+      );
+
+      const tempValue = (disability.value.ibc / 3) * 2;
+      if (tempValue < minimumSalary.value) {
+        // Cálculo para enfermedad general y
+        if (
+          disability.value.fkIdTipoIncapacidad == 2 ||
+          disability.value.fkIdTipoIncapacidad == 6
+        ) {
+          const value = Math.round(
+            (minimumSalary.value / 30) * (numberDays.value - 2)
+          );
+          disability.value.valor = value;
+        }
+        // Cálculo para licencias de maternidad y paternidad
+        if (
+          disability.value.fkIdTipoIncapacidad == 3 ||
+          disability.value.fkIdTipoIncapacidad == 4
+        ) {
+          const value = Math.round(
+            (minimumSalary.value / 30) * numberDays.value
+          );
+          disability.value.valor = value;
+        }
+      } else {
+        const value = Math.round((tempValue / 30) * numberDays.value);
+        disability.value.valor = value;
+      }
+    };
+
+    // Calcula el número de dias entre 2 fechas
+    const countDays = (startDate: Date, endDate: Date) => {
+      if (endDate < startDate) {
+        disability.value.fechaFin = today.value;
+        $q.notify({
+          message: 'La fecha final no puede ser inferior a la fecha de inicio',
+          type: 'warning',
+        });
+      } else {
         numberDays.value = date.getDateDiff(
-          disability.value.fechaFin,
-          fechaInicio,
+          endDate,
+          disability.value.fechaInicio,
           'days'
         );
+      }
+    };
 
-        // (1, 'ACCIDENTE DE TRÁNSITO', 'AC001'),
-        // (2, 'ENFERMEDAD GENERAL', ''),
-        // (3, 'LICENCIA DE MATERNIDAD', ''),
-        // (4, 'LICENCIA PATERNIDAD', ''),
-        // (5, 'ACCIDENTE LABORAL', ''),
-        // (6, 'ENFERMEDAD LABORAL', ''),
-        // (7, 'PRUEBA EDIT', 'PU001');
-
-        const tempEntities = [...optionsArls.value];
-
-        const tempValue = (disability.value.ibc / 3) * 2;
-        if (tempValue < minimumSalary.value) {
-          console.log(numberDays.value);
-
-          // Cálculo para enfermedad general y
-          if (
-            disability.value.fkIdTipoIncapacidad == 2 ||
-            disability.value.fkIdTipoIncapacidad == 6
-          ) {
-            const value = Math.round(
-              (minimumSalary.value / 30) * (numberDays.value - 2)
-            );
-            disability.value.valor = value;
-          }
-          // Cálculo para licencias de maternidad y paternidad
-          if (
-            disability.value.fkIdTipoIncapacidad == 3 ||
-            disability.value.fkIdTipoIncapacidad == 4
-          ) {
-            const value = Math.round(
-              (minimumSalary.value / 30) * numberDays.value
-            );
-            disability.value.valor = value;
-          }
-        } else {
-          const value = Math.round((tempValue / 30) * numberDays.value);
-          disability.value.valor = value;
+    watch(
+      () => disability.value.fechaInicio,
+      (value, oldValue) => {
+        if (oldValue != value) {
+          calculateDisabilityCost();
         }
       }
     );
 
     watch(
       () => disability.value.fechaFin,
-      async (value) => {
-        // Calcula el número de días
-        const fechaInicio = new Date(disability.value.fechaInicio);
-        const fechaFin = new Date(value);
-        if (fechaFin < fechaInicio) {
-          disability.value.fechaFin = today.value;
-          $q.notify({
-            message:
-              'La fecha final no puede ser inferior a la fecha de inicio',
-            type: 'warning',
-          });
-        } else {
-          numberDays.value = date.getDateDiff(
-            fechaFin,
-            disability.value.fechaInicio,
-            'days'
-          );
+      (value, oldValue) => {
+        if (oldValue != value) {
+          calculateDisabilityCost();
         }
+      }
+    );
+
+    watch(
+      () => disability.value.ibc,
+      () => {
+        calculateDisabilityCost();
+      }
+    );
+
+    watch(
+      () => disability.value.fkIdTipoIncapacidad,
+      (value) => {
+        // Obtenemos los tipos de entidad
+        getEntityes(value);
       }
     );
 
@@ -596,9 +595,6 @@ export default defineComponent({
     return {
       disability,
       optionsCompanies,
-      optionsArls,
-      optionsAfps,
-      optionsEps,
       optionsDocumentTypes,
       optionsEmployes,
       optionsDisabilityType,
@@ -608,11 +604,10 @@ export default defineComponent({
       formatter,
       idTipoIncapacidad,
       optionsDisabilityTypeTwo,
+      optionsEntyties,
       onSubmit,
       filterCompany,
-      filterArl,
-      filterAfp,
-      filterEps,
+      filterEntyties,
       filterEmployes,
       filterDisabilityType,
       addFiles,
