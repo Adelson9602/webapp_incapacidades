@@ -45,6 +45,10 @@ const getEmployes = async () => {
   return await api.get<InformationEmploye[]>('employe')
 }
 
+const getEmploye = async (documentoPersona: number) => {
+  return await api.get<InformationEmploye>(`employe?documentoPersona=${documentoPersona}`)
+}
+
 const getEmployesSelect = async () => {
   return await api.get<Persona[]>('employe_select')
 }
@@ -91,5 +95,6 @@ export default {
   getDisabilityType,
   getDataDashboard,
   getLatestDisabilities,
-  getSalary
+  getSalary,
+  getEmploye
 }

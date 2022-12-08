@@ -83,6 +83,24 @@
           </q-select>
         </div>
         <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
+          <q-field outlined label="DOCUMENTO" stack-label>
+            <template v-slot:control>
+              <div class="self-center full-width no-outline" tabindex="0">
+                {{ employe.documentoPersona }}
+              </div>
+            </template>
+          </q-field>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
+          <q-field outlined label="CARGO" stack-label>
+            <template v-slot:control>
+              <div class="self-center full-width no-outline" tabindex="0">
+                {{ employe.nombreCargo }}
+              </div>
+            </template>
+          </q-field>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
           <q-select
             outlined
             v-model="idTipoIncapacidad"
@@ -210,6 +228,18 @@
             </template>
           </q-input>
         </div>
+        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
+          <q-field outlined label="TOTAL DÍAS" stack-label>
+            <template v-slot:control>
+              <div class="self-center full-width no-outline" tabindex="0">
+                {{ numberDays }}
+              </div>
+            </template>
+          </q-field>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-3 q-pa-sm"></div>
       </div>
       <div>
         <q-btn label="Submit" type="submit" color="primary" />
@@ -239,6 +269,7 @@ import {
   DisabilityType,
   DocumentType,
   InformationDisability,
+  InformationEmploye,
   Persona,
 } from 'src/models/generals.models';
 import { controlError } from 'src/helpers/controlError';
@@ -258,7 +289,7 @@ export default defineComponent({
       numeroIncapacidad: 0,
       fechaInicio: '',
       fechaFin: '',
-      totalDias: 4,
+      totalDias: 0,
       ibc: 0,
       valor: 0,
       fkIdEstadoIncapacidad: 8,
@@ -266,6 +297,32 @@ export default defineComponent({
       fkEntidad: '',
     });
     const idTipoIncapacidad = ref<number>(0);
+    const employe = ref<InformationEmploye>({
+      documentoPersona: null,
+      primerNombre: '',
+      segundoNombre: '',
+      primerApellido: '',
+      segundoApellido: '',
+      genero: '',
+      fechaNacimiento: '',
+      fkIdTipoDocumento: 0,
+      fkIdContacto: 0,
+      fkDocumentoPersona: 0,
+      idContacto: 0,
+      direccion: '',
+      barrio: '',
+      correo: '',
+      celular: '',
+      telefonoFijo: '',
+      fkIdCiudad: 0,
+      nombreCiudad: '',
+      fkIdDepartamento: 0,
+      nombreDepartamento: '',
+      fkIdCargo: 0,
+      nombreCargo: '',
+      nombreTipoDocumento: '',
+      isEmploye: false,
+    });
     const isLoading = ref<boolean>(false);
     const companies = ref<Company[]>([]);
     const optionsCompanies = ref<Company[]>([]);
@@ -288,9 +345,7 @@ export default defineComponent({
         codigoDianostico: '',
       },
     ]);
-    const files = ref<File[]>([]);
     const minimumSalary = ref<number>(0);
-    const filesInput = ref();
     const today = ref<string>('');
     const numberDays = ref<number>(0);
     const formatter = new Intl.NumberFormat('es-CO', {
@@ -298,6 +353,12 @@ export default defineComponent({
       currency: 'COP',
       minimumFractionDigits: 0,
     });
+    const files = ref([
+      {
+        label: '',
+        file: null,
+      },
+    ]);
 
     const getData = async () => {
       isLoading.value = true;
@@ -394,7 +455,9 @@ export default defineComponent({
       update(() => {
         const needle = val.toLowerCase();
         optionsCompanies.value = companies.value.filter(
-          (v) => v.razonSocial.toLowerCase().indexOf(needle) > -1
+          (v) =>
+            v.razonSocial.toLowerCase().indexOf(needle) > -1 ||
+            v.nit.toLowerCase().indexOf(needle) > -1
         );
       });
     };
@@ -410,7 +473,9 @@ export default defineComponent({
       update(() => {
         const needle = val.toLowerCase();
         optionsEntyties.value = entyties.value.filter(
-          (v) => v.razonSocial.toLowerCase().indexOf(needle) > -1
+          (v) =>
+            v.razonSocial.toLowerCase().indexOf(needle) > -1 ||
+            v.nit.toLowerCase().indexOf(needle) > -1
         );
       });
     };
@@ -429,7 +494,8 @@ export default defineComponent({
           (v) =>
             `${v.primerApellido} ${v.segundoApellido} ${v.primerNombre} ${v.segundoNombre}`
               .toLowerCase()
-              .indexOf(needle) > -1
+              .indexOf(needle) > -1 ||
+            `${v.documentoPersona}`.toLowerCase().indexOf(needle) > -1
         );
       });
     };
@@ -450,11 +516,9 @@ export default defineComponent({
       });
     };
 
+    // Otras funciones
     const addFiles = (value: File[]) => {
       files.value = value;
-    };
-    const onClick = () => {
-      filesInput.value.upload();
     };
 
     const getEntityes = async (tipoIncapacidad: number) => {
@@ -543,11 +607,9 @@ export default defineComponent({
           type: 'warning',
         });
       } else {
-        numberDays.value = date.getDateDiff(
-          endDate,
-          disability.value.fechaInicio,
-          'days'
-        );
+        numberDays.value =
+          date.getDateDiff(endDate, disability.value.fechaInicio, 'days') + 1;
+        disability.value.totalDias = numberDays.value;
       }
     };
 
@@ -565,6 +627,23 @@ export default defineComponent({
       (value, oldValue) => {
         if (oldValue != value) {
           calculateDisabilityCost();
+        }
+      }
+    );
+
+    watch(
+      () => disability.value.fkDocumentoPersona,
+      async (value) => {
+        if (value) {
+          isLoading.value = true;
+          try {
+            const { data } = await get.getEmploye(+value);
+            employe.value = { ...data };
+          } catch (error) {
+            controlError(error);
+          } finally {
+            isLoading.value = false;
+          }
         }
       }
     );
@@ -600,18 +679,18 @@ export default defineComponent({
       optionsDisabilityType,
       isLoading,
       files,
-      filesInput,
       formatter,
       idTipoIncapacidad,
       optionsDisabilityTypeTwo,
       optionsEntyties,
+      numberDays,
+      employe,
       onSubmit,
       filterCompany,
       filterEntyties,
       filterEmployes,
       filterDisabilityType,
       addFiles,
-      onClick,
     };
   },
 });
