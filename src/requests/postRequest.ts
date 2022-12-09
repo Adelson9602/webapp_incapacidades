@@ -1,5 +1,17 @@
 import { api } from 'boot/axios';
-import { UserData, Rols, DocumentType, StateDisability, Department, City, Position, InformationCompany, InformationEmploye, Disability, DisabilityType } from '../models/generals.models'
+import {
+  UserData,
+  Rols,
+  DocumentType,
+  StateDisability,
+  Department,
+  City,
+  Position,
+  InformationCompany,
+  InformationEmploye,
+  Disability,
+  DisabilityType,
+} from '../models/generals.models'
 import { User } from '../models/auth.models'
 
 const createUser = async (data: UserData) => {
@@ -50,6 +62,10 @@ const createDisabilityType = async (data: DisabilityType) => {
   return await api.post('/disability_type', data);
 }
 
+const uploadFiles = async (data: FormData) => {
+  return await api.post(`/upload_file/${api.defaults.headers.common.base}/documents`, data);
+}
+
 export default {
   createUser,
   updateRecovery,
@@ -62,5 +78,6 @@ export default {
   createCompany,
   createPerson,
   createDisability,
-  createDisabilityType
+  createDisabilityType,
+  uploadFiles
 };

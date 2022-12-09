@@ -244,7 +244,12 @@
           v-for="(item, key) in files"
           :key="key"
         >
-          <q-file outlined v-model="item.file" :label="item.label">
+          <q-file
+            outlined
+            v-model="item.file"
+            :label="item.label"
+            accept=".pdf"
+          >
             <template v-slot:prepend>
               <q-icon name="attach_file" />
             </template>
@@ -451,9 +456,19 @@ export default defineComponent({
     const onSubmit = async () => {
       isLoading.value = true;
       try {
-        const response = await post.createDisability(disability.value);
-        console.log(response);
-        emit('onReload');
+        const formDataInd = new FormData();
+        // let tempFiles: any = [];
+        files.value.forEach((element) => {
+          if (element.file) {
+            formDataInd.append('files', element.file);
+            formDataInd.append('typeFile', '1');
+          }
+        });
+        // const response = await post.createDisability(disability.value);
+        // console.log(response);
+        const { data } = await post.uploadFiles(formDataInd);
+        console.log(data);
+        // emit('onReload');
       } catch (error) {
         controlError(error);
       } finally {
