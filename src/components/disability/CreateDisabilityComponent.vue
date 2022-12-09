@@ -238,7 +238,6 @@
           </q-field>
         </div>
       </div>
-      {{ files }}
       <div class="row" v-if="idTipoIncapacidad">
         <div
           class="col-xs-12 col-sm-6 col-md-3 q-pa-sm"
@@ -284,6 +283,13 @@ import {
   Persona,
 } from 'src/models/generals.models';
 import { controlError } from 'src/helpers/controlError';
+import {
+  filesAccidente,
+  filesAccidenteLaboral,
+  filesEnfermedadGeneral,
+  filesEnfermedadLaboral,
+  filesLicencias,
+} from 'src/helpers/requiredFiles';
 
 interface Adjuntos {
   label: string;
@@ -371,106 +377,6 @@ export default defineComponent({
       minimumFractionDigits: 0,
     });
     const files = ref<Adjuntos[]>([]);
-    // ACCIDENTE TRANSITO
-    const filesAccidente = [
-      {
-        label: 'Formato de  Incapacidad',
-        file: null,
-      },
-      {
-        label: 'Documento FURIPS accidente de tránsito',
-        file: null,
-      },
-      {
-        label: 'Documento SOAT',
-        file: null,
-      },
-      {
-        label: 'Fotocopia de la cédula',
-        file: null,
-      },
-      {
-        label: 'Fotocopia de documentos del vehículo',
-        file: null,
-      },
-      {
-        label:
-          'licencia para conducción (obligatorio si es régimen subsidiado)',
-        file: null,
-      },
-    ];
-
-    // ENFERMEDAD GENERAL
-    const filesEnfermedadGeneral = [
-      {
-        label: 'Formato de Incapacidad',
-        file: null,
-      },
-      {
-        label: 'Epicrisis o Historia clínica',
-        file: null,
-      },
-      {
-        label: 'Fotocopia de la cédula',
-        file: null,
-      },
-    ];
-
-    // LICENCIA MATERNIDAD Y PATERNIDAD
-    const filesLicencias = [
-      {
-        label: 'Registro Civil o Nacido Vivo',
-        file: null,
-      },
-      {
-        label: 'Formato de Incapacidad de la madre',
-        file: null,
-      },
-      {
-        label: 'Formato de Incapacidad de la madre',
-        file: null,
-      },
-    ];
-
-    const filesAccidenteLaboral = [
-      {
-        label: 'Formato de Incapacidad',
-        file: null,
-      },
-      {
-        label: 'Historia clínica o epicrisis',
-        file: null,
-      },
-      {
-        label: 'FURAT',
-        file: null,
-      },
-      {
-        label:
-          'Fotocopia de la cédula (obligatorio en caso de tramitar directamente con ARL)',
-        file: null,
-      },
-    ];
-
-    const filesEnfermedadLaboral = [
-      {
-        label: 'Formato de Incapacidad',
-        file: null,
-      },
-      {
-        label: 'Historia clínica o epicrisis',
-        file: null,
-      },
-      {
-        label: 'FURAT',
-        file: null,
-      },
-      {
-        label:
-          'Dictamen de calificación de origen profesional (opcional de acuerdo con la entidad)',
-        file: null,
-      },
-    ];
 
     const getData = async () => {
       isLoading.value = true;
@@ -792,8 +698,7 @@ export default defineComponent({
         files.value = [
           ...filesLicencias,
           {
-            label:
-              'Historia clínica que evidencie las semanas de  gestación al momento de ingresar a la clínica',
+            label: 'Fotocopia de la cédula de la madre (opcional)',
             file: null,
           },
         ];
@@ -804,12 +709,7 @@ export default defineComponent({
         files.value = [
           ...filesLicencias,
           {
-            label:
-              'Historia clínica de la madre que evidencie las  semanas de gestación al momento del parto',
-            file: null,
-          },
-          {
-            label: 'Fotocopia de la cédula (obligatorio)',
+            label: 'Fotocopia de la cédula del padre (obligatorio)',
             file: null,
           },
         ];
@@ -818,7 +718,9 @@ export default defineComponent({
       // ACCIDENTE LABORAL
       if (value == 5) {
         files.value = [...filesAccidenteLaboral];
-      } else {
+      }
+
+      if (value == 6) {
         // ENFERMEDAD LABORAL
         files.value = [...filesEnfermedadLaboral];
       }
