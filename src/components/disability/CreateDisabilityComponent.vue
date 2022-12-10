@@ -177,6 +177,53 @@
           </q-select>
         </div>
         <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
+          <q-select
+            outlined
+            v-model="cieCategorySelected"
+            clearable
+            use-input
+            hide-selected
+            fill-input
+            input-debounce="0"
+            label="GRUPO CIE"
+            :options="optionsCieCategory"
+            @filter="filterCieCategory"
+            option-label="descripcion"
+            :disable="disability.fkIdTipoIncapacidad ? false : true"
+          >
+            <template v-slot:no-option>
+              <q-item>
+                <q-item-section class="text-grey"> No results </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
+          <q-select
+            outlined
+            v-model="disability.cie"
+            clearable
+            use-input
+            hide-selected
+            fill-input
+            input-debounce="0"
+            label="CÓDIGO CIE"
+            :options="optionsCieCode"
+            @filter="filterCieCode"
+            option-label="descripcion"
+            option-value="codigo"
+            map-options
+            emit-value
+            :disable="cieCategorySelected ? false : true"
+          >
+            <template v-slot:no-option>
+              <q-item>
+                <q-item-section class="text-grey"> No results </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
           <q-input
             outlined
             v-model="disability.fechaInicio"
@@ -282,6 +329,8 @@ import { date, useQuasar } from 'quasar';
 import { get, post } from 'src/requests';
 import {
   Adjunto,
+  Cie,
+  CieCode,
   Company,
   Disability,
   DisabilityType,
@@ -322,6 +371,7 @@ export default defineComponent({
       fechaFin: '',
       totalDias: 0,
       ibc: 0,
+      cie: '',
       valor: 0,
       fkIdEstadoIncapacidad: 8,
       fkDocumentoPersona: 0,
@@ -386,10 +436,19 @@ export default defineComponent({
       minimumFractionDigits: 0,
     });
     const files = ref<Adjuntos[]>([]);
+    const optionsCieCategory = ref<Cie[]>([]);
+    const cieCategory = ref<Cie[]>([]);
+    const optionsCieCode = ref<CieCode[]>([]);
+    const cieCode = ref<CieCode[]>([]);
+    const cieCategorySelected = ref<Cie>();
 
     const getData = async () => {
       isLoading.value = true;
       try {
+        const resCie = await get.getCie().then((response) => response.data);
+        cieCategory.value = [...resCie];
+        optionsCieCategory.value = [...resCie];
+
         const resCompany = await get
           .getCompanyByType(5)
           .then((response) => response.data);
@@ -450,6 +509,7 @@ export default defineComponent({
         fechaFin: `${disabilityEdit.value?.fechaFin}`,
         totalDias: disabilityEdit.value?.totalDias || 0,
         ibc: disabilityEdit.value?.ibc || 0,
+        cie: `${disabilityEdit.value?.cie}`,
         valor: disabilityEdit.value?.valor || 0,
         fkIdEstadoIncapacidad: disabilityEdit.value?.fkIdEstadoIncapacidad || 0,
         fkDocumentoPersona: disabilityEdit.value?.fkDocumentoPersona || 0,
@@ -569,6 +629,42 @@ export default defineComponent({
       });
     };
 
+    const filterCieCategory = (val: string, update: any) => {
+      if (val === '') {
+        update(() => {
+          optionsCieCategory.value = cieCategory.value;
+        });
+        return;
+      }
+
+      update(() => {
+        const needle = val.toLowerCase();
+        optionsCieCategory.value = cieCategory.value.filter(
+          (v) =>
+            v.descripcion.toLowerCase().indexOf(needle) > -1 ||
+            v.grupoSubgrupo.toLowerCase().indexOf(needle) > -1
+        );
+      });
+    };
+
+    const filterCieCode = (val: string, update: any) => {
+      if (val === '') {
+        update(() => {
+          optionsCieCode.value = cieCode.value;
+        });
+        return;
+      }
+
+      update(() => {
+        const needle = val.toLowerCase();
+        optionsCieCode.value = cieCode.value.filter(
+          (v) =>
+            v.descripcion.toLowerCase().indexOf(needle) > -1 ||
+            v.codigo.toLowerCase().indexOf(needle) > -1
+        );
+      });
+    };
+
     // Otras funciones
 
     const getEntityes = async (tipoIncapacidad: number) => {
@@ -681,6 +777,13 @@ export default defineComponent({
       }
     );
 
+    watch(cieCategorySelected, (value) => {
+      if (value) {
+        cieCode.value = [...value.cieCodes];
+        // optionsCieCode.value = [...value.cieCodes];
+      }
+    });
+
     watch(
       () => disability.value.fkDocumentoPersona,
       async (value) => {
@@ -777,11 +880,16 @@ export default defineComponent({
       optionsEntyties,
       numberDays,
       employe,
+      cieCategorySelected,
+      optionsCieCategory,
+      optionsCieCode,
       onSubmit,
       filterCompany,
       filterEntyties,
       filterEmployes,
       filterDisabilityType,
+      filterCieCategory,
+      filterCieCode,
     };
   },
 });

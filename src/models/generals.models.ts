@@ -208,6 +208,7 @@ export interface Disability {
   fkIdEstadoIncapacidad: number;
   fkDocumentoPersona: number;
   fkEntidad: string;
+  cie: string;
   files?: Adjunto[]
 }
 
@@ -222,6 +223,7 @@ export interface InformationDisability extends ActionsUser {
   ibc: number;
   valor: number;
   fkIdEstadoIncapacidad: number;
+  cie: string;
   fkDocumentoPersona: number;
   fkEntidad: string;
   primerNombre: string;
@@ -322,3 +324,16 @@ export interface ResponseFile {
   url: string;
 }
 
+export interface Cie {
+  idGrupoCie:    number;
+  grupoSubgrupo: string;
+  descripcion:   string;
+  cieCodes:      CieCode[];
+}
+
+export interface CieCode {
+  idCodigoCie: number;
+  codigo:      string;
+  descripcion: string;
+  idGrupo:     number;
+}
