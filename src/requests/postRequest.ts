@@ -11,6 +11,7 @@ import {
   InformationEmploye,
   Disability,
   DisabilityType,
+  ResponseFile,
 } from '../models/generals.models'
 import { User } from '../models/auth.models'
 
@@ -63,7 +64,7 @@ const createDisabilityType = async (data: DisabilityType) => {
 }
 
 const uploadFiles = async (data: FormData) => {
-  return await api.post(`/upload_file/${api.defaults.headers.common.base}/documents`, data);
+  return await api.post<ResponseFile[]>(`/upload_file/${api.defaults.headers.common.base}/documents`, data);
 }
 
 export default {

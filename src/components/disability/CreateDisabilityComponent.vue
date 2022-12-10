@@ -183,6 +183,7 @@
             mask="date"
             :rules="['date']"
             label="Fecha inicio de incapacidad"
+            hide-bottom-space
             :disable="disability.fkIdTipoIncapacidad ? false : true"
           >
             <template v-slot:append>
@@ -209,6 +210,7 @@
             mask="date"
             :rules="['date']"
             label="Fecha fin de incapacidad"
+            hide-bottom-space
             :disable="disability.fkIdTipoIncapacidad ? false : true"
           >
             <template v-slot:append>
@@ -279,6 +281,7 @@ import { defineComponent, onMounted, PropType, ref, toRefs, watch } from 'vue';
 import { date, useQuasar } from 'quasar';
 import { get, post } from 'src/requests';
 import {
+  Adjunto,
   Company,
   Disability,
   DisabilityType,
@@ -323,6 +326,7 @@ export default defineComponent({
       fkIdEstadoIncapacidad: 8,
       fkDocumentoPersona: 0,
       fkEntidad: '',
+      files: [],
     });
     const idTipoIncapacidad = ref<number>(0);
     const employe = ref<InformationEmploye>({
@@ -464,11 +468,27 @@ export default defineComponent({
             formDataInd.append('typeFile', '1');
           }
         });
-        // const response = await post.createDisability(disability.value);
-        // console.log(response);
+
+        let filesSend: Adjunto[] = [];
         const { data } = await post.uploadFiles(formDataInd);
-        console.log(data);
-        // emit('onReload');
+        if (data) {
+          data.forEach((file) => {
+            filesSend.push({
+              idFiles: null,
+              fkIdTipoFile: 1,
+              fkRadicado: disability.value.radicado,
+              url: file.url,
+            });
+          });
+          disability.value.files = [...filesSend];
+        }
+        const response = await post.createDisability(disability.value);
+        $q.notify({
+          message: response.data.message,
+          type: 'positive',
+          position: 'bottom-right',
+        });
+        emit('onReload');
       } catch (error) {
         controlError(error);
       } finally {
@@ -604,8 +624,8 @@ export default defineComponent({
       if (tempValue < minimumSalary.value) {
         // Cálculo para enfermedad general y
         if (
-          disability.value.fkIdTipoIncapacidad == 2 ||
-          disability.value.fkIdTipoIncapacidad == 6
+          (disability.value.fkIdTipoIncapacidad == 2 && numberDays.value > 2) ||
+          (disability.value.fkIdTipoIncapacidad == 6 && numberDays.value > 2)
         ) {
           const value = Math.round(
             (minimumSalary.value / 30) * (numberDays.value - 2)

@@ -208,6 +208,7 @@ export interface Disability {
   fkIdEstadoIncapacidad: number;
   fkDocumentoPersona: number;
   fkEntidad: string;
+  files?: Adjunto[]
 }
 
 export interface InformationDisability extends ActionsUser {
@@ -309,9 +310,15 @@ export interface Salary {
 }
 
 export interface Adjunto {
-  idFiles?: number;
+  idFiles?: number | null;
   fkRadicado: string;
   url: string;
   fkIdTipoFile: number
+}
+
+export interface ResponseFile {
+  saved: boolean;
+  typeFile: number | null;
+  url: string;
 }
 
