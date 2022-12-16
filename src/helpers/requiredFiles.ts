@@ -3,6 +3,10 @@
 // ACCIDENTE TRANSITO
 export const filesAccidente = [
   {
+    label: 'Epicrisis o Historia clínica',
+    file: null,
+  },
+  {
     label: 'Formato de  Incapacidad',
     file: null,
   },
@@ -19,7 +23,7 @@ export const filesAccidente = [
     file: null,
   },
   {
-    label: 'Fotocopia de documentos del vehículo',
+    label: 'Fotocopia tarjeta de propiedad',
     file: null,
   },
   {

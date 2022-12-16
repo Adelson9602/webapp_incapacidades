@@ -7,14 +7,6 @@
     <q-form @submit="onSubmit" class="q-gutter-md">
       <div class="row">
         <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
-          <q-input
-            outlined
-            v-model="disability.radicado"
-            type="text"
-            label="RADICADO"
-          />
-        </div>
-        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
           <q-input outlined v-model="disability.ibc" type="text" label="IBC" />
         </div>
         <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
@@ -196,6 +188,13 @@
                 <q-item-section class="text-grey"> No results </q-item-section>
               </q-item>
             </template>
+            <template v-slot:option="scope">
+              <q-item v-bind="scope.itemProps" style="max-width: 500px">
+                <q-item-section>
+                  <q-item-label>{{ scope.opt.descripcion }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </template>
           </q-select>
         </div>
         <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
@@ -363,7 +362,7 @@ export default defineComponent({
     const $q = useQuasar();
     const { disabilityEdit } = toRefs(props);
     const disability = ref<Disability>({
-      radicado: '',
+      radicado: null,
       fkIdTipoIncapacidad: 0,
       fkNitEmpresa: '',
       numeroIncapacidad: 0,
@@ -501,7 +500,7 @@ export default defineComponent({
 
     const assignDataEdit = () => {
       disability.value = {
-        radicado: `${disabilityEdit.value?.radicado}`,
+        radicado: disabilityEdit.value?.radicado,
         fkIdTipoIncapacidad: disabilityEdit.value?.fkIdTipoIncapacidad || 0,
         fkNitEmpresa: `${disabilityEdit.value?.fkNitEmpresa}`,
         numeroIncapacidad: disabilityEdit.value?.numeroIncapacidad || 0,
@@ -536,7 +535,7 @@ export default defineComponent({
             filesSend.push({
               idFiles: null,
               fkIdTipoFile: 1,
-              fkRadicado: disability.value.radicado,
+              fkRadicado: null, // Se envia 0 y en el servidor se asigna
               url: file.url,
             });
           });
@@ -779,6 +778,7 @@ export default defineComponent({
 
     watch(cieCategorySelected, (value) => {
       if (value) {
+        disability.value.cie = '';
         cieCode.value = [...value.cieCodes];
         // optionsCieCode.value = [...value.cieCodes];
       }

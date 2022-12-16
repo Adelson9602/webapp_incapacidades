@@ -196,7 +196,7 @@ export interface StateInability {
 }
 
 export interface Disability {
-  radicado: string;
+  radicado?: number | null;
   fkIdTipoIncapacidad: number;
   fkNitEmpresa: string;
   numeroIncapacidad: number;
@@ -213,7 +213,7 @@ export interface Disability {
 }
 
 export interface InformationDisability extends ActionsUser {
-  radicado: string;
+  radicado: number;
   fkIdTipoIncapacidad: number;
   fkNitEmpresa: string;
   numeroIncapacidad: number;
@@ -251,7 +251,7 @@ export interface InformationDisability extends ActionsUser {
 
 export interface HistoryDisability {
   idHistorialIncapacidad: number;
-  fkRadicado: string;
+  fkRadicado: number;
   estadoIncapidad: number;
   fechaFin: string;
   fechaProrroga: string;
@@ -290,7 +290,7 @@ export interface Cards {
 
 export interface LatestDisabilities {
   id: number;
-  radicado: string;
+  radicado: number;
   fkIdTipoIncapacidad: number;
   fkNitEmpresa: string;
   numeroIncapacidad: number;
@@ -313,7 +313,7 @@ export interface Salary {
 
 export interface Adjunto {
   idFiles?: number | null;
-  fkRadicado: string;
+  fkRadicado?: number | null;
   url: string;
   fkIdTipoFile: number
 }
