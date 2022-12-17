@@ -320,7 +320,15 @@
           v-for="(item, key) in filesUploade"
           :key="key"
         >
-          {{ item.url }}
+          <q-btn
+            round
+            dense
+            icon="download"
+            color="green"
+            @click="openURL(`//${item.url}`)"
+          >
+            <q-tooltip> Descargar archivo </q-tooltip>
+          </q-btn>
         </div>
       </div>
       <div>
@@ -343,7 +351,7 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, PropType, ref, toRefs, watch } from 'vue';
-import { date, useQuasar } from 'quasar';
+import { date, useQuasar, openURL } from 'quasar';
 import { get, post } from 'src/requests';
 import {
   Adjunto,
@@ -557,8 +565,10 @@ export default defineComponent({
         // let tempFiles: any = [];
         files.value.forEach((element) => {
           if (element.file) {
-            formDataInd.append('files', element.file);
-            formDataInd.append('nameFile', element.label);
+            const newFile = new File([element.file], `${element.label}.pdf`, {
+              type: 'application/pdf',
+            });
+            formDataInd.append('files', newFile);
             formDataInd.append('typeFile', '1');
           }
         });
@@ -583,7 +593,7 @@ export default defineComponent({
           type: 'positive',
           position: 'bottom-right',
         });
-        emit('onReload');
+        // emit('onReload');
       } catch (error) {
         controlError(error);
       } finally {
@@ -927,6 +937,7 @@ export default defineComponent({
       filterDisabilityType,
       filterCieCategory,
       filterCieCode,
+      openURL,
     };
   },
 });

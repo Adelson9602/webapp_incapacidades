@@ -1,203 +1,217 @@
 <template>
   <div class="q-pa-md">
-    <q-table
-      :grid="isGrid"
-      :rows="rows"
-      :columns="columns"
-      row-key="rowKey"
-      flat
-      :filter="filter"
-      :hide-header="isGrid ? true : false"
-      :pagination="pagination"
+    <transition
+      appear
+      enter-active-class="animated fadeIn"
+      leave-active-class="animated fadeOut"
     >
-      <template v-slot:top-left>
-        <div class="text-h6">
-          {{ title }}
-          &nbsp;
-          <q-btn
-            color="primary"
-            :icon="
-              isGrid
-                ? 'fa-solid fa-table-list'
-                : 'fa-solid fa-table-cells-large'
-            "
+      <q-table
+        :grid="isGrid"
+        :rows="rows"
+        :columns="columns"
+        row-key="rowKey"
+        flat
+        :filter="filter"
+        :hide-header="isGrid ? true : false"
+        :pagination="pagination"
+        style="min-height: 70vh"
+      >
+        <template v-slot:top-left>
+          <div class="text-h6">
+            {{ title }}
+            &nbsp;
+            <q-btn
+              color="primary"
+              :icon="
+                isGrid
+                  ? 'fa-solid fa-table-list'
+                  : 'fa-solid fa-table-cells-large'
+              "
+              dense
+              flat
+              @click="isGrid = !isGrid"
+            >
+              <q-tooltip> Cambiar vista de tabla </q-tooltip>
+            </q-btn>
+          </div>
+        </template>
+        <template v-slot:top-right>
+          <q-input
+            borderless
             dense
-            flat
-            @click="isGrid = !isGrid"
+            filled
+            debounce="300"
+            v-model="filter"
+            placeholder="Buscar"
           >
-            <q-tooltip> Cambiar vista de tabla </q-tooltip>
-          </q-btn>
-        </div>
-      </template>
-      <template v-slot:top-right>
-        <q-input
-          borderless
-          dense
-          filled
-          debounce="300"
-          v-model="filter"
-          placeholder="Buscar"
-        >
-          <template v-slot:append>
-            <q-icon name="search" />
-          </template>
-        </q-input>
-      </template>
+            <template v-slot:append>
+              <q-icon name="search" />
+            </template>
+          </q-input>
+        </template>
 
-      <!-- Modo grid -->
-      <template v-slot:item="props">
-        <div class="q-pa-xs col-xs-12 col-sm-6 col-md-4 col-lg-3">
-          <q-card>
-            <q-card-section class="q-pb-xs">
-              <div class="text-overline ellipsis" style="line-height: 1.5">
-                {{ props.row.title }}
-              </div>
-            </q-card-section>
-            <q-separator v-if="props.row.title" />
-            <q-card-section horizontal>
-              <q-card-section class="col-5 flex flex-center" v-if="avatar">
-                <q-img
-                  class="rounded-borders"
-                  :src="props.row.avatar"
-                  height="100px"
-                  fit="contain"
-                />
-              </q-card-section>
-
-              <q-card-section class="q-pa-none">
-                <div class="text-caption text-grey">
-                  <q-list dense>
-                    <q-item
-                      v-for="(col, key) in dataFiltered(props.cols, props.row)"
-                      :key="key"
-                    >
-                      <q-item-section>
-                        <q-item-label class="text-black">
-                          {{ col.label }}
-                        </q-item-label>
-                        <q-item-label>{{ col.value }}</q-item-label>
-                      </q-item-section>
-                    </q-item>
-                  </q-list>
+        <!-- Modo grid -->
+        <template v-slot:item="props">
+          <div class="q-pa-xs col-xs-12 col-sm-6 col-md-4 col-lg-3">
+            <q-card>
+              <q-card-section class="q-pb-xs">
+                <div class="text-overline ellipsis" style="line-height: 1.5">
+                  {{ props.row.title }}
                 </div>
               </q-card-section>
-            </q-card-section>
+              <q-separator v-if="props.row.title" />
+              <q-card-section horizontal>
+                <q-card-section class="col-5 flex flex-center" v-if="avatar">
+                  <q-img
+                    class="rounded-borders"
+                    :src="props.row.avatar"
+                    height="100px"
+                    fit="contain"
+                  />
+                </q-card-section>
 
-            <q-separator />
+                <q-card-section class="q-pa-none">
+                  <div class="text-caption text-grey">
+                    <q-list dense>
+                      <q-item
+                        v-for="(col, key) in dataFiltered(
+                          props.cols,
+                          props.row
+                        )"
+                        :key="key"
+                      >
+                        <q-item-section>
+                          <q-item-label class="text-black">
+                            {{ col.label }}
+                          </q-item-label>
+                          <q-item-label>{{ col.value }}</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                    </q-list>
+                  </div>
+                </q-card-section>
+              </q-card-section>
 
-            <q-card-actions align="right">
-              <q-btn
-                unelevated
-                dense
-                class="custom-btn primary no-shadow"
-                size="md"
-                label="Editar"
-                no-caps
-                @click="onEdit(props.row)"
-                v-if="props.row.btnEdit"
-              />
-              <q-btn
-                unelevated
-                dense
-                class="custom-btn primary no-shadow"
-                size="md"
-                label="Inhabilitar"
-                no-caps
-                @click="onStatus(props.row)"
-                v-if="props.row.btnStatus"
-              />
-              <q-btn
-                unelevated
-                dense
-                class="custom-btn primary no-shadow"
-                size="md"
-                label="Detalle"
-                no-caps
-                @click="onDetail(props.row)"
-                v-if="props.row.btnDetail"
-              />
-            </q-card-actions>
-          </q-card>
-        </div>
-      </template>
+              <q-separator />
 
-      <!-- Modo normal -->
-      <template v-slot:header="props">
-        <q-tr :props="props">
-          <q-th v-if="avatar"></q-th>
-          <q-th v-for="col in props.cols" :key="col.name" :props="props">
-            {{ col.label }}
-          </q-th>
-          <q-th auto-width />
-        </q-tr>
-      </template>
+              <q-card-actions align="right">
+                <q-btn
+                  unelevated
+                  dense
+                  class="custom-btn primary no-shadow"
+                  size="md"
+                  label="Editar"
+                  no-caps
+                  @click="onEdit(props.row)"
+                  v-if="props.row.btnEdit"
+                />
+                <q-btn
+                  unelevated
+                  dense
+                  class="custom-btn primary no-shadow"
+                  size="md"
+                  label="Inhabilitar"
+                  no-caps
+                  @click="onStatus(props.row)"
+                  v-if="props.row.btnStatus"
+                />
+                <q-btn
+                  unelevated
+                  dense
+                  class="custom-btn primary no-shadow"
+                  size="md"
+                  label="Detalle"
+                  no-caps
+                  @click="onDetail(props.row)"
+                  v-if="props.row.btnDetail"
+                />
+              </q-card-actions>
+            </q-card>
+          </div>
+        </template>
 
-      <template v-slot:body="props">
-        <q-tr :props="props">
-          <q-td v-if="avatar">
-            <q-avatar size="50px">
-              <q-img
-                :src="props.row.fotoPerfil || props.row.avatar"
-                spinner-color="primary"
-                spinner-size="20px"
+        <!-- Modo normal -->
+        <template v-slot:header="props">
+          <q-tr :props="props">
+            <q-th v-if="avatar"></q-th>
+            <q-th v-for="col in props.cols" :key="col.name" :props="props">
+              {{ col.label }}
+            </q-th>
+            <q-th auto-width />
+          </q-tr>
+        </template>
+
+        <template v-slot:body="props">
+          <q-tr :props="props">
+            <q-td v-if="avatar">
+              <q-avatar size="50px">
+                <q-img
+                  :src="props.row.fotoPerfil || props.row.avatar"
+                  spinner-color="primary"
+                  spinner-size="20px"
+                />
+              </q-avatar>
+            </q-td>
+            <q-td v-for="col in props.cols" :key="col.name" :props="props">
+              <div v-if="col.label != 'ESTADO'">{{ col.value }}</div>
+              <q-badge
+                v-else
+                :color="assingColor(props.row)"
+                :label="col.value == 1 ? 'ACTIVO' : 'INACTIVO'"
+                class="q-pa-sm text-center"
               />
-            </q-avatar>
-          </q-td>
-          <q-td v-for="col in props.cols" :key="col.name" :props="props">
-            <div v-if="col.label != 'ESTADO'">{{ col.value }}</div>
-            <q-badge
-              v-else
-              :color="assingColor(props.row)"
-              :label="col.value == 1 ? 'ACTIVO' : 'INACTIVO'"
-              class="q-pa-sm text-center"
-            />
-          </q-td>
-          <q-td auto-width>
-            <div class="full-width q-gutter-sm">
-              <q-btn
-                unelevated
-                dense
-                round
-                class="custom-btn primary no-shadow"
-                size="md"
-                icon="fa-solid fa-pen-to-square"
-                no-caps
-                @click="onEdit(props.row)"
-                v-if="props.row.btnEdit"
-              >
-                <q-tooltip> Editar </q-tooltip>
-              </q-btn>
-              <q-btn
-                unelevated
-                dense
-                round
-                class="custom-btn warning no-shadow"
-                size="md"
-                icon="fa-solid fa-power-off"
-                no-caps
-                @click="onStatus(props.row)"
-                v-if="props.row.btnStatus"
-              >
-                <q-tooltip> Cambiar estado </q-tooltip>
-              </q-btn>
-              <q-btn
-                unelevated
-                dense
-                round
-                class="custom-btn secondary no-shadow"
-                size="md"
-                icon="fa-solid fa-eye"
-                no-caps
-                @click="onDetail(props.row)"
-                v-if="props.row.btnDetail"
-              >
-                <q-tooltip> Ver detalle </q-tooltip>
-              </q-btn>
-            </div>
-          </q-td>
-        </q-tr>
-      </template>
-    </q-table>
+            </q-td>
+            <q-td auto-width>
+              <div class="full-width q-gutter-sm">
+                <q-btn
+                  unelevated
+                  dense
+                  round
+                  class="custom-btn primary no-shadow"
+                  size="md"
+                  icon="fa-solid fa-pen-to-square"
+                  no-caps
+                  @click="onEdit(props.row)"
+                  v-if="props.row.btnEdit"
+                >
+                  <q-tooltip> Editar </q-tooltip>
+                </q-btn>
+                <q-btn
+                  unelevated
+                  dense
+                  round
+                  class="custom-btn warning no-shadow"
+                  size="md"
+                  icon="fa-solid fa-power-off"
+                  no-caps
+                  @click="onStatus(props.row)"
+                  v-if="props.row.btnStatus"
+                >
+                  <q-tooltip> Cambiar estado </q-tooltip>
+                </q-btn>
+                <q-btn
+                  unelevated
+                  dense
+                  round
+                  class="custom-btn secondary no-shadow"
+                  size="md"
+                  icon="fa-solid fa-eye"
+                  no-caps
+                  @click="onDetail(props.row)"
+                  v-if="props.row.btnDetail"
+                >
+                  <q-tooltip> Ver detalle </q-tooltip>
+                </q-btn>
+              </div>
+            </q-td>
+          </q-tr>
+        </template>
+      </q-table>
+    </transition>
+    <q-inner-loading :showing="isLoading" class="full-height full-width">
+      <q-spinner-gears size="100px" color="primary" />
+      <p class="text-grey-6 text-body1">Por favor espere....</p>
+    </q-inner-loading>
   </div>
 </template>
 
@@ -228,7 +242,7 @@ export default {
   emits: ['onEdit', 'onDetail', 'onStatus', 'input'],
   setup(props: any, { emit }: any) {
     const $q = useQuasar();
-    const { grid } = toRefs(props);
+    const { grid, rows } = toRefs(props);
     const filter = ref('');
     const pagination = ref({
       sortBy: 'desc',
@@ -238,6 +252,7 @@ export default {
       // rowsNumber: xx if getting data from a server
     });
     const isGrid = ref(false);
+    const isLoading = ref(true);
 
     watch(
       () => $q.screen.name,
@@ -290,6 +305,12 @@ export default {
       }
     };
 
+    watch(rows, () => {
+      if (rows.value.length > 0) {
+        isLoading.value = false;
+      }
+    });
+
     onMounted(() => {
       isGrid.value = grid.value;
     });
@@ -298,6 +319,7 @@ export default {
       filter,
       pagination,
       isGrid,
+      isLoading,
       upDateVmodel,
       onEdit,
       onStatus,
