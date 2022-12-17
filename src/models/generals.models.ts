@@ -222,6 +222,7 @@ export interface InformationDisability extends ActionsUser {
   totalDias: number;
   ibc: number;
   valor: number;
+  idGrupoCie: number;
   fkIdEstadoIncapacidad: number;
   cie: string;
   fkDocumentoPersona: number;
@@ -237,6 +238,7 @@ export interface InformationDisability extends ActionsUser {
   nombreTipoIncapacidad: string;
   codigoDianostico: string;
   nit: string;
+  nitEntidad: string;
   razonSocial: string;
   fkIdTipoEmpresa: number;
   nitArl: string;
@@ -247,6 +249,7 @@ export interface InformationDisability extends ActionsUser {
   razonSocialEps: string;
   nombreEstadoIncapacidad: string;
   title?: string;
+  files: Adjunto[]
 }
 
 export interface HistoryDisability {
@@ -314,6 +317,7 @@ export interface Salary {
 export interface Adjunto {
   idFiles?: number | null;
   fkRadicado?: number | null;
+  nombreArchivo: string;
   url: string;
   fkIdTipoFile: number
 }
@@ -321,6 +325,7 @@ export interface Adjunto {
 export interface ResponseFile {
   saved: boolean;
   typeFile: number | null;
+  nameFile: string;
   url: string;
 }
 

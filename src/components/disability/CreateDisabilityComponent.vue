@@ -293,15 +293,34 @@
           :key="key"
         >
           <q-file
-            outlined
+            bottom-slots
             v-model="item.file"
             :label="item.label"
+            counter
             accept=".pdf"
+            use-chips
+            outlined
           >
             <template v-slot:prepend>
-              <q-icon name="attach_file" />
+              <q-icon name="attach_file" @click.stop.prevent />
+            </template>
+            <template v-slot:append>
+              <q-icon
+                name="close"
+                @click.stop.prevent="item.file = null"
+                class="cursor-pointer"
+              />
             </template>
           </q-file>
+        </div>
+      </div>
+      <div class="row">
+        <div
+          class="col-xs-12 col-sm-6 col-md-3 q-pa-sm"
+          v-for="(item, key) in filesUploade"
+          :key="key"
+        >
+          {{ item.url }}
         </div>
       </div>
       <div>
@@ -435,6 +454,7 @@ export default defineComponent({
       minimumFractionDigits: 0,
     });
     const files = ref<Adjuntos[]>([]);
+    const filesUploade = ref<Adjunto[]>([]); // contiene los archivos que se han adjuntado a la incapacidad, se visualiza cuando se edite la incapacidad
     const optionsCieCategory = ref<Cie[]>([]);
     const cieCategory = ref<Cie[]>([]);
     const optionsCieCode = ref<CieCode[]>([]);
@@ -499,6 +519,12 @@ export default defineComponent({
     };
 
     const assignDataEdit = () => {
+      const tempCategory = cieCategory.value.find(
+        (e) => e.idGrupoCie == disabilityEdit.value?.idGrupoCie
+      );
+
+      cieCategorySelected.value = tempCategory;
+      idTipoIncapacidad.value = disabilityEdit.value?.fkIdTipoIncapacidad || 0;
       disability.value = {
         radicado: disabilityEdit.value?.radicado,
         fkIdTipoIncapacidad: disabilityEdit.value?.fkIdTipoIncapacidad || 0,
@@ -512,8 +538,16 @@ export default defineComponent({
         valor: disabilityEdit.value?.valor || 0,
         fkIdEstadoIncapacidad: disabilityEdit.value?.fkIdEstadoIncapacidad || 0,
         fkDocumentoPersona: disabilityEdit.value?.fkDocumentoPersona || 0,
-        fkEntidad: `${disabilityEdit.value?.fkEntidad}`,
+        fkEntidad: `${disabilityEdit.value?.nitEntidad}`,
       };
+
+      if (disabilityEdit.value?.files) {
+        filesUploade.value = disabilityEdit.value?.files;
+      }
+
+      setTimeout(() => {
+        disability.value.cie = `${disabilityEdit.value?.cie}`;
+      }, 1000);
     };
 
     const onSubmit = async () => {
@@ -524,6 +558,7 @@ export default defineComponent({
         files.value.forEach((element) => {
           if (element.file) {
             formDataInd.append('files', element.file);
+            formDataInd.append('nameFile', element.label);
             formDataInd.append('typeFile', '1');
           }
         });
@@ -535,6 +570,7 @@ export default defineComponent({
             filesSend.push({
               idFiles: null,
               fkIdTipoFile: 1,
+              nombreArchivo: file.nameFile,
               fkRadicado: null, // Se envia 0 y en el servidor se asigna
               url: file.url,
             });
@@ -883,6 +919,7 @@ export default defineComponent({
       cieCategorySelected,
       optionsCieCategory,
       optionsCieCode,
+      filesUploade,
       onSubmit,
       filterCompany,
       filterEntyties,
