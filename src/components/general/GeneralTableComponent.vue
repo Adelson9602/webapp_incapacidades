@@ -238,11 +238,15 @@ export default {
       type: Boolean,
       default: false,
     },
+    isLoading: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: ['onEdit', 'onDetail', 'onStatus', 'input'],
   setup(props: any, { emit }: any) {
     const $q = useQuasar();
-    const { grid, rows } = toRefs(props);
+    const { grid } = toRefs(props);
     const filter = ref('');
     const pagination = ref({
       sortBy: 'desc',
@@ -252,7 +256,6 @@ export default {
       // rowsNumber: xx if getting data from a server
     });
     const isGrid = ref(false);
-    const isLoading = ref(true);
 
     watch(
       () => $q.screen.name,
@@ -305,12 +308,6 @@ export default {
       }
     };
 
-    watch(rows, () => {
-      if (rows.value.length > 0) {
-        isLoading.value = false;
-      }
-    });
-
     onMounted(() => {
       isGrid.value = grid.value;
     });
@@ -319,7 +316,6 @@ export default {
       filter,
       pagination,
       isGrid,
-      isLoading,
       upDateVmodel,
       onEdit,
       onStatus,

@@ -314,32 +314,29 @@
           </q-file>
         </div>
       </div>
-      <div class="row">
+      <div class="row" v-if="filesUploade.length > 0">
+        <div class="text-h6 col-xs-12 q-pa-sm text-grey-8">
+          Archivos adjuntos
+        </div>
         <div
-          class="col-xs-12 col-sm-6 col-md-3 q-pa-sm"
+          class="q-pa-sm row column items-center"
           v-for="(item, key) in filesUploade"
           :key="key"
         >
           <q-btn
-            round
             dense
-            icon="download"
+            icon="fa-solid fa-file-pdf"
             color="green"
             @click="openURL(`//${item.url}`)"
+            size="40px"
           >
             <q-tooltip> Descargar archivo </q-tooltip>
           </q-btn>
+          <p class="q-mt-md">{{ item.nombreArchivo }}</p>
         </div>
       </div>
-      <div>
-        <q-btn label="Submit" type="submit" color="primary" />
-        <q-btn
-          label="Reset"
-          type="reset"
-          color="primary"
-          flat
-          class="q-ml-sm"
-        />
+      <div class="row justify-end">
+        <q-btn label="Guardar" type="submit" color="primary" />
       </div>
     </q-form>
   </transition>
@@ -593,7 +590,7 @@ export default defineComponent({
           type: 'positive',
           position: 'bottom-right',
         });
-        // emit('onReload');
+        emit('onReload');
       } catch (error) {
         controlError(error);
       } finally {

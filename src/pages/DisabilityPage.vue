@@ -12,7 +12,10 @@
         narrow-indicator
       >
         <q-tab name="disabilities" label="Incapacidades" />
-        <q-tab name="add_disability" label="Agregar incapacidad" />
+        <q-tab
+          name="add_disability"
+          :label="disability ? 'Editar incapacidad' : 'Agregar incapacidad'"
+        />
       </q-tabs>
 
       <q-separator />
@@ -25,14 +28,14 @@
             @onEdit="onEdit"
             @onDetail="onDetail"
             :grid="false"
+            :is-loading="isLoading"
           />
-
-          <q-dialog v-model="dialogDetail" persistent>
-            <q-card style="width: 720px; max-width: 90vw">
+          <q-dialog v-model="dialogDetail" persistent full-width>
+            <q-card>
               <q-bar dark class="bg-primary text-white">
                 <q-icon dense round name="list" color="white" />
                 <div class="col text-center text-weight-bold">
-                  Detalle de incapacidad {{ disability?.radicado }}
+                  Detalle de incapacidad No. {{ disability?.radicado }}
                 </div>
                 <q-btn
                   dense
@@ -43,19 +46,23 @@
                   v-close-popup
                 />
               </q-bar>
-              <q-card-section class="row">
+              <q-card-section
+                class="row"
+                v-for="(item, key) in disabilityDetail"
+                :key="key"
+              >
                 <div
-                  class="col-xs-12 col-sm-6 q-pa-sm"
-                  v-for="(item, key) in disabilityDetail"
+                  class="col-xs-12 col-sm-6 col-md-3 q-pa-sm"
+                  v-for="(sbItem, key) in item"
                   :key="key"
                 >
-                  <q-field :label="`${key}`" stack-label>
+                  <q-field :label="`${key}`" stack-label dense>
                     <template v-slot:control>
                       <div
                         class="self-center full-width no-outline"
                         tabindex="0"
                       >
-                        {{ item }}
+                        {{ sbItem }}
                       </div>
                     </template>
                   </q-field>
@@ -80,9 +87,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue';
+import { defineComponent, ref, onMounted, watch } from 'vue';
 import { get } from 'src/requests';
-import { InformationDisability } from 'src/models/generals.models';
+import {
+  DetailDisability,
+  InformationDisability,
+} from 'src/models/generals.models';
 import { controlError } from 'src/helpers/controlError';
 import GeneralTableComponent from 'src/components/general/GeneralTableComponent.vue';
 import CreateDisabilityComponent from 'src/components/disability/CreateDisabilityComponent.vue';
@@ -173,8 +183,10 @@ export default defineComponent({
     const disability = ref<InformationDisability>();
     const disabilityDetail = ref<any>();
     const dialogDetail = ref(false);
+    const isLoading = ref(false);
 
     const getData = async () => {
+      isLoading.value = true;
       try {
         const resDisabilities = await get
           .getDisability()
@@ -190,6 +202,8 @@ export default defineComponent({
         ];
       } catch (error) {
         controlError(error);
+      } finally {
+        isLoading.value = false;
       }
     };
 
@@ -203,22 +217,64 @@ export default defineComponent({
       tab.value = 'add_disability';
     };
 
-    const onDetail = (row: InformationDisability) => {
-      // disabilityDetail.value = {
-      //   NIT: row.nit,
-      //   'RAZÓN SOCIAL': row.razonSocial,
-      //   'TIPO EMPRESA': row.nombreTipoEmpresa,
-      //   DIRECCIÓN: row.direccion,
-      //   BARRIO: row.barrio,
-      //   CORREO: row.correo,
-      //   CELULAR: row.celular,
-      //   TELÉFONO: row.telefonoFijo,
-      //   CIUDAD: row.nombreCiudad,
-      //   DEPARTAMENTO: row.nombreDepartamento,
-      // };
-      disability.value = row;
-      dialogDetail.value = true;
+    const onDetail = async (row: InformationDisability) => {
+      try {
+        const { data } = await get.getDisabilityById(row.radicado);
+        disabilityDetail.value = {
+          disability: {
+            RADICADO: data.disability.radicado,
+            CIE: data.disability.cie,
+            'NIT EMPRESA': data.disability.fkNitEmpresa,
+            'EMPRESA EMPLEADO': data.disability.empresaEmpleado,
+            'NÚMERO INCAPACIDAD': data.disability.numeroIncapacidad,
+            'FECHA INICIO': data.disability.fechaInicio,
+            'FECHA FIN': data.disability.fechaFin,
+            'TOTAL DÍAS': data.disability.totalDias,
+            IBC: data.disability.ibc,
+            VALOR: data.disability.valor,
+            'ESTADO INCAPACIDAD': data.disability.nombreEstadoIncapacidad,
+            'TIPO INCAPACIDAD': data.disability.nombreTipoIncapacidad,
+            'NIT ENTIDAD': data.disability.fkEntidad,
+            ENTIDAD: data.disability.razonSocialEntidad,
+            'TIPO ENTIDAD': data.disability.tipoEntidad,
+            CÓDIGO: data.disability.codigo,
+            DESCRIPCIÓN: data.disability.descripcion,
+            'CÓDIGO GRUPO': data.disability.grupoSubgrupo,
+            'FECHA REGIRSTRO': data.disability.fechaRegistro,
+          },
+          employe: {
+            DOCUMENTO: data.employe.documentoPersona,
+            'PRIMER NOMBRE': data.employe.primerNombre,
+            'SEGUNDO NOMBRE': data.employe.segundoNombre,
+            'PRIMERA PELLIDO': data.employe.primerApellido,
+            'SEGUNDO APELLIDO': data.employe.segundoApellido,
+            GÉNERO: data.employe.genero,
+            'FECHA NACIMIENTO': data.employe.fechaNacimiento,
+            'DOCUMENTO EMPLEADO': data.employe.fkDocumentoPersona,
+            DIRECCIÓN: data.employe.direccion,
+            BARRIO: data.employe.barrio,
+            CORREO: data.employe.correo,
+            CELULAR: data.employe.celular,
+            TELEFONO: data.employe.telefonoFijo,
+            'CIUDAD RESIDENCIA': data.employe.nombreCiudad,
+            'DEPARTAMENTO RESIDENCIA': data.employe.nombreDepartamento,
+            CARGO: data.employe.nombreCargo,
+            'TIPO DOCUMENTO': data.employe.nombreTipoDocumento,
+          },
+        };
+        disability.value = row;
+        dialogDetail.value = true;
+      } catch (error) {
+        controlError(error);
+      } finally {
+      }
     };
+
+    watch(tab, (value) => {
+      if (value == 'disabilities') {
+        disability.value = undefined;
+      }
+    });
 
     onMounted(() => getData());
 
@@ -229,6 +285,7 @@ export default defineComponent({
       disability,
       dialogDetail,
       disabilityDetail,
+      isLoading,
       onReload,
       onEdit,
       onDetail,
