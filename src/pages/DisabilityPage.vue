@@ -89,10 +89,7 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted, watch } from 'vue';
 import { get } from 'src/requests';
-import {
-  DetailDisability,
-  InformationDisability,
-} from 'src/models/generals.models';
+import { InformationDisability } from 'src/models/generals.models';
 import { controlError } from 'src/helpers/controlError';
 import GeneralTableComponent from 'src/components/general/GeneralTableComponent.vue';
 import CreateDisabilityComponent from 'src/components/disability/CreateDisabilityComponent.vue';

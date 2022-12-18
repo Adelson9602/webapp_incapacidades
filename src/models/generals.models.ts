@@ -319,7 +319,9 @@ export interface Adjunto {
   fkRadicado?: number | null;
   nombreArchivo: string;
   url: string;
-  fkIdTipoFile: number
+  fkIdTipoFile: number;
+  label?: string;
+  file?: File | null;
 }
 
 export interface ResponseFile {

@@ -314,13 +314,13 @@
           </q-file>
         </div>
       </div>
-      <div class="row" v-if="filesUploade.length > 0">
+      <div class="row" v-if="isHaveFile > 0">
         <div class="text-h6 col-xs-12 q-pa-sm text-grey-8">
           Archivos adjuntos
         </div>
         <div
           class="q-pa-sm row column items-center"
-          v-for="(item, key) in filesUploade"
+          v-for="(item, key) in files.filter((f) => f.url)"
           :key="key"
         >
           <q-btn
@@ -363,6 +363,7 @@ import {
   Persona,
 } from 'src/models/generals.models';
 import { controlError } from 'src/helpers/controlError';
+import { resetFilesAdjuntos } from '../../helpers/requiredFiles';
 import {
   filesAccidente,
   filesAccidenteLaboral,
@@ -370,11 +371,6 @@ import {
   filesEnfermedadLaboral,
   filesLicencias,
 } from 'src/helpers/requiredFiles';
-
-interface Adjuntos {
-  label: string;
-  file: File | null;
-}
 
 export default defineComponent({
   name: 'ComponentCreateDisability',
@@ -458,13 +454,14 @@ export default defineComponent({
       currency: 'COP',
       minimumFractionDigits: 0,
     });
-    const files = ref<Adjuntos[]>([]);
-    const filesUploade = ref<Adjunto[]>([]); // contiene los archivos que se han adjuntado a la incapacidad, se visualiza cuando se edite la incapacidad
+    const files = ref<Adjunto[]>([]);
+    // const filesUploade = ref<Adjunto[]>([]); // contiene los archivos que se han adjuntado a la incapacidad, se visualiza cuando se edite la incapacidad
     const optionsCieCategory = ref<Cie[]>([]);
     const cieCategory = ref<Cie[]>([]);
     const optionsCieCode = ref<CieCode[]>([]);
     const cieCode = ref<CieCode[]>([]);
     const cieCategorySelected = ref<Cie>();
+    const isHaveFile = ref(0); // Permite validar si hay archivos para editar
 
     const getData = async () => {
       isLoading.value = true;
@@ -546,10 +543,6 @@ export default defineComponent({
         fkEntidad: `${disabilityEdit.value?.nitEntidad}`,
       };
 
-      if (disabilityEdit.value?.files) {
-        filesUploade.value = disabilityEdit.value?.files;
-      }
-
       setTimeout(() => {
         disability.value.cie = `${disabilityEdit.value?.cie}`;
       }, 1000);
@@ -574,8 +567,12 @@ export default defineComponent({
         const { data } = await post.uploadFiles(formDataInd);
         if (data) {
           data.forEach((file) => {
+            const fileUpdate = files.value.find((e) =>
+              e.nombreArchivo.includes(file.nameFile)
+            );
+            console.log(fileUpdate);
             filesSend.push({
-              idFiles: null,
+              idFiles: fileUpdate?.idFiles,
               fkIdTipoFile: 1,
               nombreArchivo: file.nameFile,
               fkRadicado: null, // Se envia 0 y en el servidor se asigna
@@ -708,7 +705,6 @@ export default defineComponent({
     };
 
     // Otras funciones
-
     const getEntityes = async (tipoIncapacidad: number) => {
       isLoading.value = true;
       try {
@@ -856,8 +852,27 @@ export default defineComponent({
       (value) => {
         // Obtenemos los tipos de entidad
         getEntityes(value);
+        resetFilesAdjuntos();
       }
     );
+
+    watch(files, (value) => {
+      if (disabilityEdit.value?.files && value) {
+        value.forEach((e) => {
+          const fileEdit = disabilityEdit.value?.files.find((i) =>
+            i.nombreArchivo.includes(`${e.label}`)
+          );
+          if (fileEdit) {
+            isHaveFile.value++;
+            e.idFiles = fileEdit.idFiles;
+            e.fkRadicado = fileEdit.fkRadicado;
+            e.nombreArchivo = fileEdit.nombreArchivo;
+            e.url = fileEdit.url;
+            e.fkIdTipoFile = fileEdit.fkIdTipoFile;
+          }
+        });
+      }
+    });
 
     watch(idTipoIncapacidad, (value) => {
       if (value != 1) {
@@ -879,6 +894,11 @@ export default defineComponent({
         files.value = [
           ...filesLicencias,
           {
+            idFiles: 0,
+            fkRadicado: 0,
+            nombreArchivo: '',
+            url: '',
+            fkIdTipoFile: 0,
             label: 'Fotocopia de la cédula de la madre (opcional)',
             file: null,
           },
@@ -890,6 +910,11 @@ export default defineComponent({
         files.value = [
           ...filesLicencias,
           {
+            idFiles: 0,
+            fkRadicado: 0,
+            nombreArchivo: '',
+            url: '',
+            fkIdTipoFile: 0,
             label: 'Fotocopia de la cédula del padre (obligatorio)',
             file: null,
           },
@@ -926,7 +951,7 @@ export default defineComponent({
       cieCategorySelected,
       optionsCieCategory,
       optionsCieCode,
-      filesUploade,
+      isHaveFile,
       onSubmit,
       filterCompany,
       filterEntyties,
