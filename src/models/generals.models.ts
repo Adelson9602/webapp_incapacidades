@@ -1,8 +1,8 @@
-
 export interface ActionsUser {
   btnEdit?: boolean;
   btnStatus?: boolean;
   btnDetail?: boolean;
+  btnAddExtension?: boolean;
 }
 
 export interface Persona {
@@ -18,7 +18,7 @@ export interface Persona {
   completeName?: string;
 }
 
-export interface UserData extends Persona, ActionsUser{
+export interface UserData extends Persona, ActionsUser {
   password: string;
   usuario: number | null;
   fkIdRol: number | null;
@@ -43,10 +43,9 @@ export interface DocumentType extends ActionsUser {
 
 export interface StateDisability extends ActionsUser {
   idEstadoIncapacidad: number;
-  nombreEstadoIncapacidad : string;
+  nombreEstadoIncapacidad: string;
   title?: string; // Titulo en la tabla
 }
-
 
 export interface TypeCompany {
   idTipoEmpresa?: number;
@@ -81,7 +80,7 @@ export interface ContactPerson {
 }
 
 export interface InformationEmploye extends ActionsUser {
-  documentoPersona:  number | null;
+  documentoPersona: number | null;
   primerNombre: string;
   segundoNombre: string;
   primerApellido: string;
@@ -97,11 +96,11 @@ export interface InformationEmploye extends ActionsUser {
   correo: string;
   celular: string;
   telefonoFijo: string;
-  fkIdCiudad: number | null,
+  fkIdCiudad: number | null;
   nombreCiudad?: string;
-  fkIdDepartamento?: number | null,
+  fkIdDepartamento?: number | null;
   nombreDepartamento?: string;
-  fkIdCargo: number | null,
+  fkIdCargo: number | null;
   nombreCargo?: string;
   nombreTipoDocumento?: string;
   title?: string;
@@ -127,14 +126,14 @@ export interface Employe {
 }
 
 export interface ResultSql {
-  fieldCount: number,
-  affectedRows: number,
-  insertId: number,
-  serverStatus: number,
-  warningCount: number,
-  message: string,
-  protocol41: boolean,
-  changedRows: number
+  fieldCount: number;
+  affectedRows: number;
+  insertId: number;
+  serverStatus: number;
+  warningCount: number;
+  message: string;
+  protocol41: boolean;
+  changedRows: number;
 }
 
 export interface Rol {
@@ -161,7 +160,7 @@ export interface City extends ActionsUser {
 }
 
 export interface DepartemtAndCity extends Department {
-  cities: City[]
+  cities: City[];
 }
 
 export interface InformationCompany extends ActionsUser {
@@ -209,7 +208,7 @@ export interface Disability {
   fkDocumentoPersona: number;
   fkEntidad: string;
   cie: string;
-  files?: Adjunto[]
+  files?: Adjunto[];
 }
 
 export interface InformationDisability extends ActionsUser {
@@ -249,7 +248,7 @@ export interface InformationDisability extends ActionsUser {
   razonSocialEps: string;
   nombreEstadoIncapacidad: string;
   title?: string;
-  files: Adjunto[]
+  files: Adjunto[];
 }
 
 export interface HistoryDisability {
@@ -262,26 +261,26 @@ export interface HistoryDisability {
 }
 
 export interface ResponseDashboard {
-  totalDisabilities:         TotalDisabilities;
-  totalDisabilitiesByEps:    TotalDisabilitiesByEps[];
+  totalDisabilities: TotalDisabilities;
+  totalDisabilitiesByEps: TotalDisabilitiesByEps[];
   totalDisabilitiesByStatus: TotalDisabilitiesByStatus[];
 }
 
 export interface TotalDisabilities {
   numeroIncapacidades: number;
-  totalIncapacidades:  number;
+  totalIncapacidades: number;
 }
 
 export interface TotalDisabilitiesByEps {
-  razonSocial:         string;
+  razonSocial: string;
   numeroIncapacidades: number;
-  totalIncapacidades:  number;
+  totalIncapacidades: number;
 }
 
 export interface TotalDisabilitiesByStatus {
   nombreEstadoIncapacidad: string;
-  numeroIncapacidades:     number;
-  totalIncapacidades:      number;
+  numeroIncapacidades: number;
+  totalIncapacidades: number;
 }
 
 export interface Cards {
@@ -332,17 +331,25 @@ export interface ResponseFile {
 }
 
 export interface Cie {
-  idGrupoCie:    number;
+  idGrupoCie: number;
   grupoSubgrupo: string;
-  descripcion:   string;
-  cieCodes:      CieCode[];
+  descripcion: string;
+  cieCodes: CieCode[];
 }
 
 export interface CieCode {
   idCodigoCie: number;
-  codigo:      string;
+  codigo: string;
   descripcion: string;
-  idGrupo:     number;
+  idGrupo: number;
+}
+
+export interface DisabilityHistory {
+  idHistorialIncapacidad: number | null;
+  fkRadicado: number;
+  fechaProrroga: string;
+  usuario: number;
+  observacion: string;
 }
 
 export interface DisabilityWithCie {
@@ -375,7 +382,37 @@ export interface DisabilityWithCie {
 }
 
 export interface DetailDisability {
-  disability: DisabilityWithCie,
-  employe: InformationEmploye,
-  files: Adjunto[]
+  disability: DisabilityWithCie;
+  employe: InformationEmploye;
+  files: Adjunto[];
+}
+
+export interface CompanyLogged {
+  ididEmpresa: number;
+  razonSocial: string;
+  nitEmpresa: string;
+  nombreSistema: string;
+  urlLogo: string;
+  nombreBase: string;
+  estado: number;
+  direccion: string;
+  telefono: string;
+  email: string;
+  dataUser: DataUser;
+}
+
+export interface DataUser {
+  usuario: number;
+  password: string;
+  fkIdRol: number;
+  estadoUsuario: number;
+  fotoPerfil: string;
+  documentoPersona: number;
+  primerNombre: string;
+  segundoNombre: string;
+  primerApellido: string;
+  segundoApellido: string;
+  genero: string;
+  fechaNacimiento: string;
+  fkIdTipoDocumento: number;
 }

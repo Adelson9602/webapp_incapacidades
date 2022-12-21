@@ -202,6 +202,19 @@
                 >
                   <q-tooltip> Ver detalle </q-tooltip>
                 </q-btn>
+                <q-btn
+                  unelevated
+                  dense
+                  round
+                  class="custom-btn warning no-shadow"
+                  size="md"
+                  icon="add"
+                  no-caps
+                  @click="onAddExtension(props.row)"
+                  v-if="props.row.btnAddExtension"
+                >
+                  <q-tooltip> Agregar prorroga </q-tooltip>
+                </q-btn>
               </div>
             </q-td>
           </q-tr>
@@ -290,6 +303,10 @@ export default {
       emit('onDetail', row);
     };
 
+    const onAddExtension = (row: any) => {
+      emit('onAddExtension', row);
+    };
+
     // Filta los datos que se mostraran en la tabla, evitando que se repita el titulo con alguno de los rows
     const dataFiltered = (cols: any, row?: any) => {
       if (row) {
@@ -320,6 +337,7 @@ export default {
       onEdit,
       onStatus,
       onDetail,
+      onAddExtension,
       dataFiltered,
       assingColor,
     };
