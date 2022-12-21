@@ -251,15 +251,6 @@ export interface InformationDisability extends ActionsUser {
   files: Adjunto[];
 }
 
-export interface HistoryDisability {
-  idHistorialIncapacidad: number;
-  fkRadicado: number;
-  estadoIncapidad: number;
-  fechaFin: string;
-  fechaProrroga: string;
-  observacion: string;
-}
-
 export interface ResponseDashboard {
   totalDisabilities: TotalDisabilities;
   totalDisabilitiesByEps: TotalDisabilitiesByEps[];
@@ -348,6 +339,8 @@ export interface DisabilityHistory {
   idHistorialIncapacidad: number | null;
   fkRadicado: number;
   fechaProrroga: string;
+  diasProrroga: number;
+  valor: number;
   usuario: number;
   observacion: string;
 }

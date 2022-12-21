@@ -364,6 +364,7 @@ import {
 } from 'src/models/generals.models';
 import { controlError } from 'src/helpers/controlError';
 import { resetFilesAdjuntos } from '../../helpers/requiredFiles';
+import { countDays } from '../../helpers/globalFunctions';
 import {
   filesAccidente,
   filesAccidenteLaboral,
@@ -749,17 +750,20 @@ export default defineComponent({
       // (6, 'ENFERMEDAD LABORAL', ''),
       // (7, 'PRUEBA EDIT', 'PU001');
       // Calcula el número de días
-      countDays(
+      const totalDays = countDays(
         new Date(disability.value.fechaInicio),
         new Date(disability.value.fechaFin)
       );
+      numberDays.value = totalDays;
+      disability.value.totalDias = totalDays;
 
       const tempValue = (disability.value.ibc / 3) * 2;
       if (tempValue < minimumSalary.value) {
         // Cálculo para enfermedad general y
         if (
           (disability.value.fkIdTipoIncapacidad == 2 && numberDays.value > 2) ||
-          (disability.value.fkIdTipoIncapacidad == 6 && numberDays.value > 2)
+          (disability.value.fkIdTipoIncapacidad == 6 && numberDays.value > 2) ||
+          (disability.value.fkIdTipoIncapacidad == 5 && numberDays.value > 2)
         ) {
           const value = Math.round(
             (minimumSalary.value / 30) * (numberDays.value - 2)
@@ -779,21 +783,6 @@ export default defineComponent({
       } else {
         const value = Math.round((tempValue / 30) * numberDays.value);
         disability.value.valor = value;
-      }
-    };
-
-    // Calcula el número de dias entre 2 fechas
-    const countDays = (startDate: Date, endDate: Date) => {
-      if (endDate < startDate) {
-        disability.value.fechaFin = today.value;
-        $q.notify({
-          message: 'La fecha final no puede ser inferior a la fecha de inicio',
-          type: 'warning',
-        });
-      } else {
-        numberDays.value =
-          date.getDateDiff(endDate, disability.value.fechaInicio, 'days') + 1;
-        disability.value.totalDias = numberDays.value;
       }
     };
 

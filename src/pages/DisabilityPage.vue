@@ -98,53 +98,88 @@
           <q-dialog v-model="dialogExtension" persistent>
             <q-card style="width: 700px; max-width: 90vw">
               <q-form @submit="onSubmit" class="q-gutter-md">
-                <q-card-section class="q-pb-none">
-                  <q-input
-                    v-model="historyDisability.fechaProrroga"
-                    mask="date"
-                    :rules="['date']"
-                    label="Fecha de prorroga"
+                <q-card-section class="q-pb-none row">
+                  <q-field
                     outlined
+                    class="col-xs-12 col-sm-6 q-pa-sm"
+                    stack-label
+                    label="Fecha inicio incapacidad"
                   >
-                    <template v-slot:append>
-                      <q-icon name="event" class="cursor-pointer">
-                        <q-popup-proxy
-                          cover
-                          transition-show="scale"
-                          transition-hide="scale"
-                        >
-                          <q-date v-model="historyDisability.fechaProrroga">
-                            <div class="row items-center justify-end">
-                              <q-btn
-                                v-close-popup
-                                label="Close"
-                                color="primary"
-                                flat
-                              />
-                            </div>
-                          </q-date>
-                        </q-popup-proxy>
-                      </q-icon>
+                    <template v-slot:control>
+                      <div
+                        class="self-center full-width no-outline"
+                        tabindex="0"
+                      >
+                        {{ disability?.fechaInicio }}
+                      </div>
                     </template>
-                  </q-input>
-                  <q-input
-                    v-model="historyDisability.observacion"
+                  </q-field>
+                  <q-field
                     outlined
-                    :rules="[
-                      (val) =>
-                        (val && val.length > 0) || 'Observación es requerida',
-                    ]"
-                    type="textarea"
-                    label="Observación"
-                  />
+                    class="col-xs-12 col-sm-6 q-pa-sm"
+                    stack-label
+                    label="Fecha fin incapacidad"
+                  >
+                    <template v-slot:control>
+                      <div
+                        class="self-center full-width no-outline"
+                        tabindex="0"
+                      >
+                        {{ disability?.fechaFin }}
+                      </div>
+                    </template>
+                  </q-field>
+                  <div class="col-xs-12 q-pa-sm">
+                    <q-input
+                      v-model="historyDisability.fechaProrroga"
+                      mask="date"
+                      :rules="['date']"
+                      label="Fecha de prorroga"
+                      hide-bottom-space
+                      outlined
+                    >
+                      <template v-slot:append>
+                        <q-icon name="event" class="cursor-pointer">
+                          <q-popup-proxy
+                            cover
+                            transition-show="scale"
+                            transition-hide="scale"
+                          >
+                            <q-date v-model="historyDisability.fechaProrroga">
+                              <div class="row items-center justify-end">
+                                <q-btn
+                                  v-close-popup
+                                  label="Aceptar"
+                                  color="primary"
+                                  flat
+                                />
+                              </div>
+                            </q-date>
+                          </q-popup-proxy>
+                        </q-icon>
+                      </template>
+                    </q-input>
+                  </div>
+                  <div class="col-xs-12 q-pa-sm">
+                    <q-input
+                      v-model="historyDisability.observacion"
+                      outlined
+                      :rules="[
+                        (val) =>
+                          (val && val.length > 0) || 'Observación es requerida',
+                      ]"
+                      type="textarea"
+                      label="Observación"
+                    />
+                  </div>
                 </q-card-section>
                 <q-card-actions align="right" class="q-px-md q-pb-md q-pt-none">
                   <q-btn
                     label="Cancelar"
-                    type="reset"
                     color="primary"
                     flat
                     class="q-ml-sm"
+                    v-close-popup
                   />
                   <q-btn
                     label="Agregar prorroga"
@@ -180,8 +215,9 @@ import {
 import { controlError } from 'src/helpers/controlError';
 import GeneralTableComponent from 'src/components/general/GeneralTableComponent.vue';
 import CreateDisabilityComponent from 'src/components/disability/CreateDisabilityComponent.vue';
-import { QTableColumn, openURL, useQuasar } from 'quasar';
+import { QTableColumn, openURL, useQuasar, date } from 'quasar';
 import { decryptJSON } from 'src/helpers/encrypt';
+import { calculateDisabilityCost } from 'src/helpers/globalFunctions';
 
 const columns: QTableColumn[] = [
   {
@@ -279,9 +315,12 @@ export default defineComponent({
       idHistorialIncapacidad: null,
       fkRadicado: 0,
       fechaProrroga: '',
+      diasProrroga: 0,
+      valor: 0,
       usuario: 0,
       observacion: '',
     });
+    const minimumSalary = ref<number>(0);
 
     const getData = async () => {
       isLoading.value = true;
@@ -299,6 +338,11 @@ export default defineComponent({
             return c;
           }),
         ];
+
+        const resSalary = await get
+          .getSalary()
+          .then((response) => response.data);
+        minimumSalary.value = resSalary.salarioMinimo;
       } catch (error) {
         controlError(error);
       } finally {
@@ -372,6 +416,14 @@ export default defineComponent({
     const addExtension = (row: InformationDisability) => {
       historyDisability.value.fkRadicado = row.radicado;
       historyDisability.value.usuario = dataUser.documentoPersona;
+      disability.value = row;
+      // Asignamos a los inputs tipo date la fecha actual del sistema
+      const timeStamp = Date.now();
+      historyDisability.value.fechaProrroga = date.formatDate(
+        timeStamp,
+        'YYYY/MM/DD'
+      );
+
       dialogExtension.value = true;
     };
 
@@ -386,6 +438,18 @@ export default defineComponent({
           type: 'positive',
           position: 'bottom-right',
         });
+
+        dialogExtension.value = false;
+        disability.value = undefined;
+        historyDisability.value = {
+          idHistorialIncapacidad: null,
+          fkRadicado: 0,
+          fechaProrroga: '',
+          diasProrroga: 0,
+          valor: 0,
+          usuario: 0,
+          observacion: '',
+        };
       } catch (error) {
         controlError(error);
       } finally {
@@ -398,6 +462,35 @@ export default defineComponent({
         disability.value = undefined;
       }
     });
+
+    watch(
+      () => historyDisability.value.fechaProrroga,
+      (value) => {
+        if (disability.value?.fechaInicio) {
+          if (value < disability.value?.fechaFin) {
+            historyDisability.value.fechaProrroga = `${disability.value?.fechaFin}`;
+            $q.notify({
+              message:
+                'La fecha de prorroga no puede ser inferior a la fecha fin de incapacidad',
+              type: 'warning',
+            });
+          } else {
+            const totalDaysPro =
+              date.getDateDiff(value, disability.value.fechaFin, 'days') + 1;
+            const totalDays =
+              date.getDateDiff(value, disability.value.fechaInicio, 'days') + 1;
+            historyDisability.value.diasProrroga = totalDaysPro;
+
+            historyDisability.value.valor = calculateDisabilityCost(
+              disability.value.fkIdTipoIncapacidad,
+              minimumSalary.value,
+              totalDays,
+              disability.value.ibc
+            );
+          }
+        }
+      }
+    );
 
     onMounted(() => getData());
 
