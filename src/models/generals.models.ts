@@ -378,6 +378,7 @@ export interface DetailDisability {
   disability: DisabilityWithCie;
   employe: InformationEmploye;
   files: Adjunto[];
+  history?: DisabilityHistory[]
 }
 
 export interface CompanyLogged {

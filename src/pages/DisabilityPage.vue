@@ -53,12 +53,19 @@
                 v-for="(item, key) in disabilityDetail"
                 :key="key"
               >
+                <div class="col-xs-12 text-h6 text-grey-8 text-weight-light">
+                  {{
+                    `${key}` == 'employe'
+                      ? 'Datos de empleado'
+                      : 'Datos empresa'
+                  }}
+                </div>
                 <div
-                  class="col-xs-12 col-sm-6 col-md-3 col-lg-2 q-pa-sm"
+                  class="col-xs-12 col-sm-6 col-md-3 col-lg-2 q-pa-xs"
                   v-for="(sbItem, key) in item"
                   :key="key"
                 >
-                  <q-field :label="`${key}`" stack-label dense borderless>
+                  <q-field :label="`${key}`" stack-label dense>
                     <template v-slot:control>
                       <div
                         class="self-center full-width no-outline"
@@ -71,7 +78,20 @@
                 </div>
               </q-card-section>
               <q-card-section>
-                <div class="text-h6 text-grey-8">Archivos adjuntos</div>
+                <div class="text-h6 text-grey-8 text-weight-light q-mb-md">
+                  Prorrogas
+                </div>
+                <q-table
+                  :rows="history"
+                  flat
+                  :columns="columnsProrroga"
+                  row-key="name"
+                />
+              </q-card-section>
+              <q-card-section>
+                <div class="text-h6 text-grey-8 text-weight-light q-mb-md">
+                  Archivos adjuntos
+                </div>
                 <q-list bordered separator>
                   <q-item v-for="(file, index) in files" :key="index">
                     <q-item-section>
@@ -292,6 +312,51 @@ const columns: QTableColumn[] = [
   },
 ];
 
+const columnsProrroga: QTableColumn[] = [
+  {
+    name: 'idHistorialIncapacidad',
+    align: 'center',
+    label: '#',
+    sortable: true,
+    field: 'idHistorialIncapacidad',
+  },
+  {
+    name: 'fechaProrroga',
+    align: 'center',
+    label: 'FECHA PRORROGA',
+    sortable: true,
+    field: 'fechaProrroga',
+  },
+  {
+    name: 'diasProrroga',
+    align: 'center',
+    label: 'DÍAS PRORROGA',
+    sortable: true,
+    field: 'diasProrroga',
+  },
+  {
+    name: 'valor',
+    align: 'center',
+    label: 'VALOR',
+    sortable: true,
+    field: 'valor',
+  },
+  {
+    name: 'observacion',
+    align: 'center',
+    label: 'OBSERVACIÓN',
+    sortable: true,
+    field: 'observacion',
+  },
+  {
+    name: 'usuario',
+    align: 'center',
+    label: 'USUARIO',
+    sortable: true,
+    field: 'usuario',
+  },
+];
+
 export default defineComponent({
   name: 'CompanyPage',
   components: {
@@ -321,6 +386,7 @@ export default defineComponent({
       observacion: '',
     });
     const minimumSalary = ref<number>(0);
+    const history = ref<DisabilityHistory[]>([]);
 
     const getData = async () => {
       isLoading.value = true;
@@ -361,6 +427,9 @@ export default defineComponent({
     };
 
     const onDetail = async (row: InformationDisability) => {
+      $q.loading.show({
+        message: 'Por favor espere...',
+      });
       try {
         const { data } = await get.getDisabilityById(row.radicado);
         disabilityDetail.value = {
@@ -405,11 +474,17 @@ export default defineComponent({
           },
         };
         files.value = [...data.files];
+
+        if (data.history) {
+          history.value = [...data.history];
+        }
+
         disability.value = row;
         dialogDetail.value = true;
       } catch (error) {
         controlError(error);
       } finally {
+        $q.loading.hide();
       }
     };
 
@@ -505,6 +580,8 @@ export default defineComponent({
       files,
       dialogExtension,
       historyDisability,
+      history,
+      columnsProrroga,
       onSubmit,
       addExtension,
       openURL,
