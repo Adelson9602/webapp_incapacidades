@@ -1,5 +1,5 @@
 <template>
-  <q-layout view="hHh lpR fFf" class="bg-grey-1">
+  <q-layout view="hHh LpR fFf" class="bg-grey-1">
     <q-header elevated class="bg-white text-grey-8 q-py-xs" height-hint="58">
       <q-toolbar>
         <q-btn
@@ -92,121 +92,42 @@
       class="bg-grey-2"
       :width="240"
     >
-      <q-scroll-area class="fit">
-        <q-list padding>
-          <q-item
-            v-for="link in links1"
-            :key="link.text"
-            v-ripple
-            clickable
-            :to="link.route"
-          >
-            <q-item-section avatar>
-              <q-icon color="grey" :name="link.icon" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label>{{ link.text }}</q-item-label>
-            </q-item-section>
-          </q-item>
-
-          <q-separator class="q-mt-md q-mb-xs" />
-
-          <q-item-label header class="text-weight-bold text-uppercase">
-            PRINCIPALES DEL SISTEMA
-          </q-item-label>
-
-          <q-item
-            v-for="link in links3"
-            :key="link.text"
-            v-ripple
-            clickable
-            :to="link.route"
-          >
-            <q-item-section avatar>
-              <q-icon color="grey" :name="link.icon" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label>{{ link.text }}</q-item-label>
-            </q-item-section>
-          </q-item>
-
-          <q-separator class="q-my-md" />
-
-          <q-item-label header class="text-weight-bold text-uppercase">
-            DATOS MAESTROS
-          </q-item-label>
-
-          <q-item
-            v-for="link in links2"
-            :key="link.text"
-            v-ripple
-            clickable
-            :to="link.route"
-          >
-            <q-item-section avatar>
-              <q-icon color="grey" :name="link.icon" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label>{{ link.text }}</q-item-label>
-            </q-item-section>
-          </q-item>
-
-          <q-separator class="q-my-md" />
-
-          <q-item
-            v-for="link in links4"
-            :key="link.text"
-            v-ripple
-            clickable
-            :to="link.route"
-            active-class="custom-color"
-            class="item"
-          >
-            <q-item-section avatar>
-              <q-icon :name="link.icon" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label>{{ link.text }}</q-item-label>
-            </q-item-section>
-          </q-item>
-
-          <q-separator class="q-mt-md q-mb-lg" />
-          <q-item v-ripple clickable @click="logout">
-            <q-item-section avatar>
-              <q-icon color="grey" name="logout" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label>Cerrar sesión</q-item-label>
-            </q-item-section>
-          </q-item>
-          <q-separator class="q-mt-md q-mb-lg" />
-
-          <div class="q-px-md text-grey-9">
-            <div class="row items-center q-gutter-x-sm q-gutter-y-xs">
-              <a
-                v-for="button in buttons1"
-                :key="button.text"
-                class="YL__drawer-footer-link"
-                href="javascript:void(0)"
-              >
-                {{ button.text }}
-              </a>
-            </div>
-          </div>
-          <div class="q-py-md q-px-md text-grey-9">
-            <div class="row items-center q-gutter-x-sm q-gutter-y-xs">
-              <a
-                v-for="button in buttons2"
-                :key="button.text"
-                class="YL__drawer-footer-link"
-                href="javascript:void(0)"
-              >
-                {{ button.text }}
-              </a>
-            </div>
-          </div>
-        </q-list>
-      </q-scroll-area>
+      <transition
+        appear
+        enter-active-class="animated fadeIn"
+        leave-active-class="animated fadeOut"
+      >
+        <q-scroll-area class="fit">
+          <q-list v-for="(item, key) in menu" :key="key">
+            <q-item-label
+              header
+              class="text-weight-bold text-uppercase"
+              v-if="item.modulo != 'Inicio'"
+            >
+              {{ item.modulo }}
+            </q-item-label>
+            <q-item
+              v-for="link in item.items"
+              :key="link.text"
+              v-ripple
+              clickable
+              :to="link.route"
+            >
+              <q-item-section avatar>
+                <q-icon color="grey" :name="link.icon" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>{{ link.text }}</q-item-label>
+              </q-item-section>
+            </q-item>
+            <q-separator spaced />
+          </q-list>
+        </q-scroll-area>
+      </transition>
+      <q-inner-loading :showing="isLoading" class="full-height full-width">
+        <q-spinner-gears size="40px" color="primary" />
+        <p class="text-grey-6 text-body1">Por favor espere....</p>
+      </q-inner-loading>
     </q-drawer>
 
     <q-page-container>
@@ -215,11 +136,14 @@
   </q-layout>
 </template>
 
-<script>
-import { ref } from 'vue';
-import { fabAccusoft } from '@quasar/extras/fontawesome-v6';
+<script lang="ts">
+import { onMounted, ref } from 'vue';
 import { useQuasar, LocalStorage } from 'quasar';
 import { useRouter } from 'vue-router';
+import { controlError } from 'src/helpers/controlError';
+import { decryptJSON } from 'src/helpers/encrypt';
+import { CompanyLogged, Modulo } from 'src/models/generals.models';
+import { get } from 'src/requests';
 
 export default {
   name: 'MyLayout',
@@ -228,9 +152,28 @@ export default {
     const router = useRouter();
     const leftDrawerOpen = ref(false);
     const search = ref('');
-    function toggleLeftDrawer() {
+    const isLoading = ref(false);
+    const { dataUser } = decryptJSON(
+      `${$q.localStorage.getItem('dataUsuario')}`
+    ) as unknown as CompanyLogged;
+    const menu = ref<Modulo[]>([]);
+
+    const getData = async () => {
+      isLoading.value = true;
+      try {
+        const { data } = await get.getPermissions(dataUser.documentoPersona);
+        menu.value = [...data.permisos];
+      } catch (error) {
+        controlError(error);
+      } finally {
+        isLoading.value = false;
+      }
+    };
+
+    const toggleLeftDrawer = () => {
       leftDrawerOpen.value = !leftDrawerOpen.value;
-    }
+    };
+
     const logout = () => {
       $q.loading.show({
         message: 'Cerrando sesión...',
@@ -241,55 +184,12 @@ export default {
         $q.loading.hide();
       }, 1000);
     };
+
+    onMounted(() => getData());
+
     return {
-      fabAccusoft,
       leftDrawerOpen,
       search,
-      links1: [{ icon: 'home', text: 'Home', route: '/inicio' }],
-      links2: [
-        { icon: 'admin_panel_settings', text: 'Roles', route: '/rols' },
-        { icon: 'folder', text: 'Tipo documentos', route: '/document_type' },
-        {
-          icon: 'hourglass_empty',
-          text: 'Estado incapacidad',
-          route: '/disability_state',
-        },
-        { icon: 'location_on', text: 'Ubicación', route: '/ubication' },
-        { icon: 'groups', text: 'Cargos', route: '/position' },
-        {
-          icon: 'assist_walker',
-          text: 'Tipos de incapacidad',
-          route: '/disability_type',
-        },
-      ],
-      links3: [
-        {
-          icon: 'fa-solid fa-notes-medical',
-          text: 'Incapacidades',
-          route: 'disability',
-        },
-        {
-          icon: 'fa-solid fa-people-group',
-          text: 'Empleados',
-          route: 'employes',
-        },
-        {
-          icon: 'fa-solid fa-building',
-          text: 'Empresas',
-          route: 'company',
-        },
-        {
-          icon: 'fa-solid fa-users-between-lines',
-          text: 'Usuarios',
-          route: '/users',
-        },
-      ],
-      links4: [
-        { icon: 'settings', text: 'Settings', route: 'settings' },
-        { icon: 'flag', text: 'Report history', route: '' },
-        { icon: 'help', text: 'Help', route: '' },
-        { icon: 'feedback', text: 'Send feedback', route: '' },
-      ],
       buttons1: [
         { text: 'About', route: '' },
         { text: 'Press', route: '' },
@@ -299,12 +199,8 @@ export default {
         { text: 'Advertise', route: '' },
         { text: 'Developers', route: '' },
       ],
-      buttons2: [
-        { text: 'Terms' },
-        { text: 'Privacy' },
-        { text: 'Policy & Safety' },
-        { text: 'Test new features' },
-      ],
+      menu,
+      isLoading,
       toggleLeftDrawer,
       logout,
     };

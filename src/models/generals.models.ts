@@ -411,3 +411,28 @@ export interface DataUser {
   fechaNacimiento: string;
   fkIdTipoDocumento: number;
 }
+
+export interface Item {
+  icon: string;
+  text: string;
+  route: string;
+}
+
+export interface Modulo {
+  modulo: string;
+  items: Item[];
+}
+
+export interface Actions {
+  leer: boolean;
+  borrar: boolean;
+  update: boolean;
+  insert: boolean;
+}
+
+export interface Permisos {
+  idPermisosUsuario: number;
+  permisos: Modulo[];
+  usuario: number;
+  actions?: Actions;
+}
