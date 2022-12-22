@@ -149,7 +149,16 @@
                       </div>
                     </template>
                   </q-field>
-                  <div class="col-xs-12 q-pa-sm">
+                  <div class="col-xs-12 col-sm-6 q-pa-sm">
+                    <q-input
+                      v-model="historyDisability.ibc"
+                      :rules="[(val) => !!val || 'Ingreso base es requerido']"
+                      label="IBC"
+                      hide-bottom-space
+                      outlined
+                    />
+                  </div>
+                  <div class="col-xs-12 col-sm-6 q-pa-sm">
                     <q-input
                       v-model="historyDisability.fechaProrroga"
                       mask="date"
@@ -229,7 +238,7 @@ import { get, post } from 'src/requests';
 import {
   Adjunto,
   CompanyLogged,
-  DisabilityHistory,
+  HistoryDisability,
   InformationDisability,
 } from 'src/models/generals.models';
 import { controlError } from 'src/helpers/controlError';
@@ -335,6 +344,13 @@ const columnsProrroga: QTableColumn[] = [
     field: 'diasProrroga',
   },
   {
+    name: 'ibc',
+    align: 'center',
+    label: 'IBC',
+    sortable: true,
+    field: 'ibc',
+  },
+  {
     name: 'valor',
     align: 'center',
     label: 'VALOR',
@@ -376,17 +392,18 @@ export default defineComponent({
     const isLoading = ref(false);
     const dialogExtension = ref(false);
     const files = ref<Adjunto[]>([]);
-    const historyDisability = ref<DisabilityHistory>({
+    const historyDisability = ref<HistoryDisability>({
       idHistorialIncapacidad: null,
       fkRadicado: 0,
       fechaProrroga: '',
       diasProrroga: 0,
+      ibc: 0,
       valor: 0,
       usuario: 0,
       observacion: '',
     });
     const minimumSalary = ref<number>(0);
-    const history = ref<DisabilityHistory[]>([]);
+    const history = ref<HistoryDisability[]>([]);
 
     const getData = async () => {
       isLoading.value = true;
@@ -522,6 +539,7 @@ export default defineComponent({
           fechaProrroga: '',
           diasProrroga: 0,
           valor: 0,
+          ibc: 0,
           usuario: 0,
           observacion: '',
         };
