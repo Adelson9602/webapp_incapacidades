@@ -97,6 +97,7 @@ export interface InformationEmploye extends ActionsUser {
   celular: string;
   telefonoFijo: string;
   fkIdCiudad: number | null;
+  razonSocial?: string;
   fkIdEmpresa: number;
   nombreCiudad?: string;
   fkIdDepartamento?: number | null;

@@ -143,6 +143,13 @@ const columns: QTableColumn[] = [
     sortable: true,
     field: 'celular',
   },
+  {
+    name: 'razonSocial',
+    align: 'center',
+    label: 'EMPRESA',
+    sortable: true,
+    field: 'razonSocial',
+  },
 ];
 
 export default defineComponent({
