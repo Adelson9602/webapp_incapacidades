@@ -40,6 +40,30 @@
             </template>
           </q-select>
         </div>
+        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
+          <q-select
+            outlined
+            v-model="fkIdEmpresa"
+            clearable
+            use-input
+            hide-selected
+            fill-input
+            input-debounce="0"
+            label="EMPRESA DONDE ES EMPLEADO"
+            :options="optionsCompanies"
+            @filter="filterCompany"
+            option-label="razonSocial"
+            option-value="nit"
+            map-options
+            emit-value
+          >
+            <template v-slot:no-option>
+              <q-item>
+                <q-item-section class="text-grey"> No results </q-item-section>
+              </q-item>
+            </template>
+          </q-select>
+        </div>
       </div>
       <div class="row justify-end">
         <q-btn icon="save" label="Guardar" type="submit" color="primary" />
@@ -57,7 +81,11 @@
 import { defineComponent, onMounted, PropType, ref, toRefs } from 'vue';
 import CreatePersonComponent from './CreatePersonComponent.vue';
 import CreateContactComponent from '../general/CreateContactComponent.vue';
-import { InformationEmploye, Position } from 'src/models/generals.models';
+import {
+  Company,
+  InformationEmploye,
+  Position,
+} from 'src/models/generals.models';
 import { get, post } from 'src/requests';
 import { controlError } from 'src/helpers/controlError';
 import { useQuasar } from 'quasar';
@@ -78,10 +106,12 @@ export default defineComponent({
     const $q = useQuasar();
     const myForm = ref<any>(null);
     const fkIdCargo = ref<number>();
-
+    const fkIdEmpresa = ref<number>();
     const isLoading = ref(false);
     const positions = ref<Position[]>();
     const optionsPositions = ref<Position[]>();
+    const companies = ref<Company[]>([]);
+    const optionsCompanies = ref<Company[]>([]);
     const { employeEdit } = toRefs(props);
     const { person, contact } = storeToRefs(employeStore());
 
@@ -97,6 +127,12 @@ export default defineComponent({
         if (employeEdit.value) {
           fkIdCargo.value = Number(employeEdit.value.fkIdCargo);
         }
+
+        const resCompany = await get
+          .getCompanyByType(5)
+          .then((response) => response.data);
+        companies.value = [...resCompany];
+        optionsCompanies.value = [...resCompany];
       } catch (error) {
         controlError(error);
       } finally {
@@ -114,6 +150,7 @@ export default defineComponent({
           fkIdContacto: contact.value.idContacto,
           isEmploye: true,
           fkDocumentoPersona: person.value.documentoPersona,
+          fkIdEmpresa: fkIdEmpresa.value || 0,
         };
         const resCreate = await post
           .createPerson(dataSend)
@@ -134,6 +171,25 @@ export default defineComponent({
 
     const onReset = (value: any) => {
       console.log(value);
+    };
+
+    // Funciones para filtar datos de los selects
+    const filterCompany = (val: string, update: any) => {
+      if (val === '') {
+        update(() => {
+          optionsCompanies.value = companies.value;
+        });
+        return;
+      }
+
+      update(() => {
+        const needle = val.toLowerCase();
+        optionsCompanies.value = companies.value.filter(
+          (v) =>
+            v.razonSocial.toLowerCase().indexOf(needle) > -1 ||
+            v.nit.toLowerCase().indexOf(needle) > -1
+        );
+      });
     };
 
     const filterPosition = (val: string, update: any) => {
@@ -158,9 +214,12 @@ export default defineComponent({
       fkIdCargo,
       optionsPositions,
       isLoading,
+      optionsCompanies,
+      fkIdEmpresa,
       onSubmit,
       onReset,
       filterPosition,
+      filterCompany,
     };
   },
 });
