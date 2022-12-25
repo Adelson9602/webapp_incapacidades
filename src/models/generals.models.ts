@@ -339,8 +339,9 @@ export interface CieCode {
 
 export interface HistoryDisability {
   idHistorialIncapacidad: number | null;
-  fkRadicado: number;
-  fechaProrroga: string;
+  fkIdIncapacidad: number;
+  fechaIniciaProrroga: string;
+  fechaFinProrroga: string;
   diasProrroga: number;
   valor: number;
   ibc: number;

@@ -158,14 +158,30 @@
                       outlined
                     />
                   </div>
+                  <q-field
+                    outlined
+                    class="col-xs-12 col-sm-6 q-pa-sm"
+                    stack-label
+                    label="Valor prorroga"
+                  >
+                    <template v-slot:control>
+                      <div
+                        class="self-center full-width no-outline"
+                        tabindex="0"
+                      >
+                        {{ historyDisability.valor }}
+                      </div>
+                    </template>
+                  </q-field>
                   <div class="col-xs-12 col-sm-6 q-pa-sm">
                     <q-input
-                      v-model="historyDisability.fechaProrroga"
+                      v-model="historyDisability.fechaIniciaProrroga"
                       mask="date"
                       :rules="['date']"
-                      label="Fecha de prorroga"
+                      label="Fecha inicia prorroga"
                       hide-bottom-space
                       outlined
+                      :disable="historyDisability.ibc ? false : true"
                     >
                       <template v-slot:append>
                         <q-icon name="event" class="cursor-pointer">
@@ -174,7 +190,43 @@
                             transition-show="scale"
                             transition-hide="scale"
                           >
-                            <q-date v-model="historyDisability.fechaProrroga">
+                            <q-date
+                              v-model="historyDisability.fechaIniciaProrroga"
+                            >
+                              <div class="row items-center justify-end">
+                                <q-btn
+                                  v-close-popup
+                                  label="Aceptar"
+                                  color="primary"
+                                  flat
+                                />
+                              </div>
+                            </q-date>
+                          </q-popup-proxy>
+                        </q-icon>
+                      </template>
+                    </q-input>
+                  </div>
+                  <div class="col-xs-12 col-sm-6 q-pa-sm">
+                    <q-input
+                      v-model="historyDisability.fechaFinProrroga"
+                      mask="date"
+                      :rules="['date']"
+                      label="Fecha fin prorroga"
+                      hide-bottom-space
+                      outlined
+                      :disable="historyDisability.ibc ? false : true"
+                    >
+                      <template v-slot:append>
+                        <q-icon name="event" class="cursor-pointer">
+                          <q-popup-proxy
+                            cover
+                            transition-show="scale"
+                            transition-hide="scale"
+                          >
+                            <q-date
+                              v-model="historyDisability.fechaFinProrroga"
+                            >
                               <div class="row items-center justify-end">
                                 <q-btn
                                   v-close-popup
@@ -330,11 +382,18 @@ const columnsProrroga: QTableColumn[] = [
     field: 'idHistorialIncapacidad',
   },
   {
-    name: 'fechaProrroga',
+    name: 'fechaIniciaProrroga',
     align: 'center',
     label: 'FECHA PRORROGA',
     sortable: true,
-    field: 'fechaProrroga',
+    field: 'fechaIniciaProrroga',
+  },
+  {
+    name: 'fechaFinProrroga',
+    align: 'center',
+    label: 'FECHA FIN PRORROGA',
+    sortable: true,
+    field: 'fechaFinProrroga',
   },
   {
     name: 'diasProrroga',
@@ -394,14 +453,16 @@ export default defineComponent({
     const files = ref<Adjunto[]>([]);
     const historyDisability = ref<HistoryDisability>({
       idHistorialIncapacidad: null,
-      fkRadicado: 0,
-      fechaProrroga: '',
+      fkIdIncapacidad: 0,
+      fechaIniciaProrroga: '',
+      fechaFinProrroga: '',
       diasProrroga: 0,
       ibc: 0,
       valor: 0,
       usuario: 0,
       observacion: '',
     });
+    const dateToday = ref<string>('');
     const minimumSalary = ref<number>(0);
     const history = ref<HistoryDisability[]>([]);
 
@@ -506,15 +567,20 @@ export default defineComponent({
     };
 
     const addExtension = (row: InformationDisability) => {
-      historyDisability.value.fkRadicado = row.radicado;
+      historyDisability.value.fkIdIncapacidad = row.radicado;
       historyDisability.value.usuario = dataUser.documentoPersona;
       disability.value = row;
       // Asignamos a los inputs tipo date la fecha actual del sistema
-      const timeStamp = Date.now();
-      historyDisability.value.fechaProrroga = date.formatDate(
-        timeStamp,
-        'YYYY/MM/DD'
-      );
+      // const timeStamp = Date.now();
+      // historyDisability.value.fechaIniciaProrroga = date.formatDate(
+      //   timeStamp,
+      //   'YYYY/MM/DD'
+      // );
+      // historyDisability.value.fechaFinProrroga = date.formatDate(
+      //   timeStamp,
+      //   'YYYY/MM/DD'
+      // );
+      dateToday.value = historyDisability.value.fechaFinProrroga;
 
       dialogExtension.value = true;
     };
@@ -535,8 +601,9 @@ export default defineComponent({
         disability.value = undefined;
         historyDisability.value = {
           idHistorialIncapacidad: null,
-          fkRadicado: 0,
-          fechaProrroga: '',
+          fkIdIncapacidad: 0,
+          fechaIniciaProrroga: '',
+          fechaFinProrroga: '',
           diasProrroga: 0,
           valor: 0,
           ibc: 0,
@@ -550,6 +617,10 @@ export default defineComponent({
       }
     };
 
+    const calculateDays = (fecha1: string, fecha2: string) => {
+      return date.getDateDiff(new Date(fecha1), new Date(fecha2), 'days') + 1;
+    };
+
     watch(tab, (value) => {
       if (value == 'disabilities') {
         disability.value = undefined;
@@ -557,28 +628,58 @@ export default defineComponent({
     });
 
     watch(
-      () => historyDisability.value.fechaProrroga,
+      () => historyDisability.value.fechaIniciaProrroga,
       (value) => {
-        if (disability.value?.fechaInicio) {
+        if (disability.value?.fechaFin) {
           if (value < disability.value?.fechaFin) {
-            historyDisability.value.fechaProrroga = `${disability.value?.fechaFin}`;
+            historyDisability.value.fechaIniciaProrroga = dateToday.value;
+            historyDisability.value.fechaFinProrroga = dateToday.value;
             $q.notify({
               message:
                 'La fecha de prorroga no puede ser inferior a la fecha fin de incapacidad',
               type: 'warning',
             });
-          } else {
-            const totalDaysPro =
-              date.getDateDiff(value, disability.value.fechaFin, 'days') + 1;
-            const totalDays =
-              date.getDateDiff(value, disability.value.fechaInicio, 'days') + 1;
+          } else if (historyDisability.value.ibc) {
+            const totalDaysPro = calculateDays(
+              historyDisability.value.fechaFinProrroga,
+              value
+            );
             historyDisability.value.diasProrroga = totalDaysPro;
 
             historyDisability.value.valor = calculateDisabilityCost(
               disability.value.fkIdTipoIncapacidad,
               minimumSalary.value,
-              totalDays,
-              disability.value.ibc
+              totalDaysPro,
+              historyDisability.value.ibc
+            );
+          }
+        }
+      }
+    );
+
+    watch(
+      () => historyDisability.value.fechaFinProrroga,
+      (value) => {
+        if (disability.value?.fechaInicio) {
+          if (value < historyDisability.value.fechaIniciaProrroga) {
+            historyDisability.value.fechaFinProrroga = dateToday.value;
+            $q.notify({
+              message:
+                'La fecha de prorroga no puede ser inferior a la fecha fin de incapacidad',
+              type: 'warning',
+            });
+          } else if (historyDisability.value.ibc) {
+            const totalDaysPro = calculateDays(
+              value,
+              historyDisability.value.fechaIniciaProrroga
+            );
+            historyDisability.value.diasProrroga = totalDaysPro;
+
+            historyDisability.value.valor = calculateDisabilityCost(
+              disability.value.fkIdTipoIncapacidad,
+              minimumSalary.value,
+              totalDaysPro,
+              historyDisability.value.ibc
             );
           }
         }

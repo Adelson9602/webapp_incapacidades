@@ -415,6 +415,7 @@ export default defineComponent({
       barrio: '',
       correo: '',
       celular: '',
+      fkIdEmpresa: 0, // para cuando se crea empleado
       telefonoFijo: '',
       fkIdCiudad: 0,
       nombreCiudad: '',
