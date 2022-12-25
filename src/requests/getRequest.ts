@@ -21,6 +21,7 @@ import {
   Cie,
   DetailDisability,
   Permisos,
+  Modulo,
 } from 'src/models/generals.models';
 
 const getRols = async () => {
@@ -113,6 +114,10 @@ const getPermissions = async (usuario: number) => {
   return await api.get<Permisos>(`permissions/${usuario}`);
 };
 
+const getPermissionsByRol = async (rol: number) => {
+  return await api.get<Modulo[]>(`permissions_rol/${rol}`);
+};
+
 export default {
   getRols,
   getDocumentsType,
@@ -135,5 +140,6 @@ export default {
   getEmploye,
   getCie,
   getDisabilityById,
-  getPermissions
+  getPermissions,
+  getPermissionsByRol
 };

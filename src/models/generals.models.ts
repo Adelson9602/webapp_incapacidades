@@ -379,7 +379,7 @@ export interface DetailDisability {
   disability: DisabilityWithCie;
   employe: InformationEmploye;
   files: Adjunto[];
-  history?: HistoryDisability[]
+  history?: HistoryDisability[];
 }
 
 export interface CompanyLogged {
@@ -412,17 +412,6 @@ export interface DataUser {
   fkIdTipoDocumento: number;
 }
 
-export interface Item {
-  icon: string;
-  text: string;
-  route: string;
-}
-
-export interface Modulo {
-  modulo: string;
-  items: Item[];
-}
-
 export interface Actions {
   leer: boolean;
   borrar: boolean;
@@ -430,9 +419,21 @@ export interface Actions {
   insert: boolean;
 }
 
+export interface Item {
+  icon: string;
+  text: string;
+  route: string;
+  actions: Actions;
+  selected?: boolean;
+}
+
+export interface Modulo {
+  modulo: string;
+  items: Item[];
+}
+
 export interface Permisos {
   idPermisosUsuario: number;
-  permisos: Modulo[];
+  permisos: Item[];
   usuario: number;
-  actions?: Actions;
 }
