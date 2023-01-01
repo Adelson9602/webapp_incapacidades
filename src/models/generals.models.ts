@@ -437,7 +437,7 @@ export interface Modulo {
 
 export interface Permisos {
   idPermisosUsuario: number;
-  permisos: Item[];
+  permisos: Modulo[];
   usuario: number;
 }
 

@@ -122,6 +122,16 @@
             </q-item>
             <q-separator spaced />
           </q-list>
+          <q-list>
+            <q-item v-ripple clickable @click="logout">
+              <q-item-section avatar>
+                <q-icon color="grey" name="logout" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>Cerrar sesión</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
         </q-scroll-area>
       </transition>
       <q-inner-loading :showing="isLoading" class="full-height full-width">
