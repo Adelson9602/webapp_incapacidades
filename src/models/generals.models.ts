@@ -440,3 +440,7 @@ export interface Permisos {
   permisos: Item[];
   usuario: number;
 }
+
+export interface ResDocumentsAttach {
+  documento: string;
+}

@@ -363,15 +363,7 @@ import {
   Persona,
 } from 'src/models/generals.models';
 import { controlError } from 'src/helpers/controlError';
-import { resetFilesAdjuntos } from '../../helpers/requiredFiles';
 import { countDays } from '../../helpers/globalFunctions';
-import {
-  filesAccidente,
-  filesAccidenteLaboral,
-  filesEnfermedadGeneral,
-  filesEnfermedadLaboral,
-  filesLicencias,
-} from 'src/helpers/requiredFiles';
 
 export default defineComponent({
   name: 'ComponentCreateDisability',
@@ -842,7 +834,6 @@ export default defineComponent({
       (value) => {
         // Obtenemos los tipos de entidad
         getEntityes(value);
-        resetFilesAdjuntos();
       }
     );
 
@@ -864,61 +855,30 @@ export default defineComponent({
       }
     });
 
-    watch(idTipoIncapacidad, (value) => {
+    watch(idTipoIncapacidad, async (value) => {
       if (value != 1) {
         disability.value.fkIdTipoIncapacidad = value;
       }
 
-      // ACCIDENTE TRANSITO
-      if (value == 1) {
-        files.value = [...filesAccidente];
-      }
-
-      // ENFERMEDAD GENERAL
-      if (value == 2) {
-        files.value = [...filesEnfermedadGeneral];
-      }
-
-      // LICENCIA MATERNIDAD
-      if (value == 3) {
-        files.value = [
-          ...filesLicencias,
-          {
+      isLoading.value = true;
+      try {
+        files.value.length = 0;
+        const { data } = await get.getDocumentsAttachByDisabilityType(value);
+        data.forEach((e) => {
+          files.value.push({
             idFiles: 0,
             fkRadicado: 0,
             nombreArchivo: '',
             url: '',
             fkIdTipoFile: 0,
-            label: 'Fotocopia de la cédula de la madre (opcional)',
+            label: e.documento,
             file: null,
-          },
-        ];
-      }
-
-      // LICENCIA PATERNIDAD
-      if (value == 4) {
-        files.value = [
-          ...filesLicencias,
-          {
-            idFiles: 0,
-            fkRadicado: 0,
-            nombreArchivo: '',
-            url: '',
-            fkIdTipoFile: 0,
-            label: 'Fotocopia de la cédula del padre (obligatorio)',
-            file: null,
-          },
-        ];
-      }
-
-      // ACCIDENTE LABORAL
-      if (value == 5) {
-        files.value = [...filesAccidenteLaboral];
-      }
-
-      if (value == 6) {
-        // ENFERMEDAD LABORAL
-        files.value = [...filesEnfermedadLaboral];
+          });
+        });
+      } catch (error) {
+        controlError(error);
+      } finally {
+        isLoading.value = false;
       }
     });
 
