@@ -386,7 +386,7 @@ export interface DetailDisability {
 }
 
 export interface CompanyLogged {
-  ididEmpresa: number;
+  idEmpresa: number;
   razonSocial: string;
   nitEmpresa: string;
   nombreSistema: string;
