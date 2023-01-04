@@ -44,6 +44,34 @@
           <q-btn round dense flat color="grey-8" icon="notifications">
             <q-badge color="red" text-color="white" floating> 2 </q-badge>
             <q-tooltip>Notifications</q-tooltip>
+            <q-menu>
+              <q-list style="min-width: 100px">
+                <q-item clickable v-close-popup>
+                  <q-item-section>New tab</q-item-section>
+                </q-item>
+                <q-item clickable v-close-popup>
+                  <q-item-section>New incognito tab</q-item-section>
+                </q-item>
+                <q-separator />
+                <q-item clickable v-close-popup>
+                  <q-item-section>Recent tabs</q-item-section>
+                </q-item>
+                <q-item clickable v-close-popup>
+                  <q-item-section>History</q-item-section>
+                </q-item>
+                <q-item clickable v-close-popup>
+                  <q-item-section>Downloads</q-item-section>
+                </q-item>
+                <q-separator />
+                <q-item clickable v-close-popup>
+                  <q-item-section>Settings</q-item-section>
+                </q-item>
+                <q-separator />
+                <q-item clickable v-close-popup>
+                  <q-item-section>Help &amp; Feedback</q-item-section>
+                </q-item>
+              </q-list>
+            </q-menu>
           </q-btn>
           <q-btn round flat>
             <q-avatar size="26px">
@@ -111,7 +139,7 @@
     </q-drawer>
 
     <q-page-container>
-      <router-view />
+      <router-view v-if="isAvaiable" />
     </q-page-container>
   </q-layout>
 </template>
@@ -137,12 +165,15 @@ export default {
       `${$q.localStorage.getItem('dataUsuario')}`
     ) as unknown as CompanyLogged;
     const menu = ref<Modulo[]>([]);
+    const isAvaiable = ref(false);
 
     const getData = async () => {
       isLoading.value = true;
+      isAvaiable.value = false;
       try {
         const { data } = await get.getPermissions(dataUser.documentoPersona);
         menu.value = [...data.permisos];
+        isAvaiable.value = true;
       } catch (error) {
         controlError(error);
       } finally {
@@ -181,6 +212,7 @@ export default {
       ],
       menu,
       isLoading,
+      isAvaiable,
       toggleLeftDrawer,
       logout,
     };
