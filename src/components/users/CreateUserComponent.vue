@@ -231,7 +231,9 @@
                     :label="item.modulo"
                     v-for="(item, key) in permissionsByRol"
                     :key="key"
-                    :default-opened="key == 0 ? true : false"
+                    v-model="item.selected"
+                    :icon="item.selected ? 'check_circle' : 'highlight_off'"
+                    color="primary"
                   >
                     <q-card>
                       <q-card-section class="row">
@@ -320,7 +322,7 @@
 import { defineComponent, ref, onMounted, PropType, toRefs, watch } from 'vue';
 import { get, post } from 'src/requests';
 import { useQuasar } from 'quasar';
-import { UserData, Rols, Modulo, Item } from 'src/models/generals.models';
+import { UserData, Rols, Modulo } from 'src/models/generals.models';
 import { controlError } from 'src/helpers/controlError';
 import { decryptedAES } from 'src/helpers/encrypt';
 export default defineComponent({
@@ -384,7 +386,25 @@ export default defineComponent({
           if (step.value == 2) {
             isLoading.value = true;
             try {
+              person.value.fotoPerfil = `https://ui-avatars.com/api/?name=${person.value.primerNombre}&background=00ab55&color=fff&rounded=true`;
+
+              const permissionsSelected: Modulo[] = [];
+              permissionsByRol.value.forEach((element) => {
+                const numberElement = element.items.filter((i) => i.selected);
+                if (element.selected && numberElement.length > 0) {
+                  permissionsSelected.push({
+                    modulo: element.modulo,
+                    items: [...element.items.filter((i) => i.selected)],
+                  });
+                }
+              });
+
               person.value.usuario = person.value.documentoPersona;
+              person.value.permisos = {
+                usuario: person.value.documentoPersona || 0,
+                idPermisosUsuario: 0,
+                permisos: JSON.stringify(permissionsSelected),
+              };
               const resCreate = await post
                 .createUser(person.value)
                 .then((response) => response.data);
@@ -436,13 +456,13 @@ export default defineComponent({
             const { data } = await get.getPermissionsByRol(value);
             permissionsByRol.value = [
               ...data.map((e) => {
+                e.selected = false;
                 e.items.forEach((i) => {
                   i.selected = false;
                 });
                 return e;
               }),
             ];
-            console.log(permissionsByRol.value);
           } catch (error) {
             controlError(error);
           } finally {

@@ -27,6 +27,7 @@ export interface UserData extends Persona, ActionsUser {
   title?: string; // Titulo en la tabla
   rowKey?: number; // Idenfiticador único en la tabla
   avatar?: string; // Avatar en la tabla
+  permisos?: Permisos
 }
 
 export interface Rols extends ActionsUser {
@@ -431,13 +432,14 @@ export interface Item {
 }
 
 export interface Modulo {
+  selected?: boolean;
   modulo: string;
   items: Item[];
 }
 
 export interface Permisos {
   idPermisosUsuario: number;
-  permisos: Modulo[];
+  permisos: Modulo[] | string;
   usuario: number;
 }
 

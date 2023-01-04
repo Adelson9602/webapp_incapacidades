@@ -12,7 +12,7 @@ import {
   Disability,
   DisabilityType,
   ResponseFile,
-  DisabilityHistory,
+  HistoryDisability,
 } from '../models/generals.models'
 import { User } from '../models/auth.models'
 
@@ -64,7 +64,7 @@ const createDisabilityType = async (data: DisabilityType) => {
   return await api.post('/disability_type', data);
 }
 
-const createHistoryDisability = async (data: DisabilityHistory) => {
+const createHistoryDisability = async (data: HistoryDisability) => {
   return await api.post('/history_disability', data);
 }
 

@@ -172,7 +172,8 @@ export default {
       isAvaiable.value = false;
       try {
         const { data } = await get.getPermissions(dataUser.documentoPersona);
-        menu.value = [...data.permisos];
+        const permisos = data.permisos as unknown as Modulo[];
+        menu.value = [...permisos];
         isAvaiable.value = true;
       } catch (error) {
         controlError(error);
