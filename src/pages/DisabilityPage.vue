@@ -350,6 +350,7 @@
                       label="Generar reporte"
                       type="submit"
                       color="primary"
+                      v-if="typeReport"
                     />
                   </div>
                 </q-form>
@@ -727,6 +728,10 @@ export default defineComponent({
       if (value == 'disabilities') {
         disability.value = undefined;
       }
+    });
+
+    watch(typeReport, () => {
+      document.value = '';
     });
 
     watch(
