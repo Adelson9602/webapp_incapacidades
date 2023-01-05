@@ -30,7 +30,20 @@
             @onAddExtension="addExtension"
             :grid="false"
             :is-loading="isLoading"
-          />
+          >
+            <v-slot>
+              <q-btn
+                color="primary"
+                icon="mdi-microsoft-excel"
+                class="q-ml-sm"
+                dense
+                outline
+                @click="dialogReport = true"
+              >
+                <q-tooltip> Generar reportes </q-tooltip>
+              </q-btn>
+            </v-slot>
+          </general-table-component>
           <!-- Dialogo para el detalle de incapacidad -->
           <q-dialog v-model="dialogDetail" persistent full-width>
             <q-card>
@@ -271,6 +284,78 @@
               </q-form>
             </q-card>
           </q-dialog>
+
+          <q-dialog v-model="dialogReport" persistent>
+            <q-card>
+              <q-bar dark class="bg-primary text-white">
+                <div class="col text-center text-weight-bold">
+                  Seleccione tipo de reporte
+                </div>
+                <q-btn
+                  dense
+                  flat
+                  round
+                  icon="close"
+                  color="white"
+                  v-close-popup
+                />
+              </q-bar>
+              <q-card-section class="row items-center">
+                <q-form @submit="genreReport" class="q-gutter-md">
+                  <span class="q-ml-sm">
+                    <q-radio
+                      name="shape"
+                      v-model="typeReport"
+                      val="empleador"
+                      label="Empleador"
+                    />
+                    <q-radio
+                      name="shape"
+                      v-model="typeReport"
+                      val="cliente"
+                      label="Cliente"
+                    />
+                    <q-radio
+                      name="shape"
+                      v-model="typeReport"
+                      val="empleado"
+                      label="Empleado"
+                    />
+                    <q-radio
+                      name="shape"
+                      v-model="typeReport"
+                      val="entidad"
+                      label="Entidad"
+                    />
+                  </span>
+                  <q-input
+                    filled
+                    v-model="document"
+                    :label="
+                      typeReport === 'cliente'
+                        ? 'Ingrese nit del cliente'
+                        : typeReport === 'empleado'
+                        ? 'Ingrese documento del empleado'
+                        : 'Ingrese nit de la entidad'
+                    "
+                    :rules="[(val) => !!val || 'Campo requerido']"
+                    v-if="
+                      typeReport === 'cliente' ||
+                      typeReport === 'empleado' ||
+                      typeReport === 'entidad'
+                    "
+                  />
+                  <div class="row justify-end">
+                    <q-btn
+                      label="Generar reporte"
+                      type="submit"
+                      color="primary"
+                    />
+                  </div>
+                </q-form>
+              </q-card-section>
+            </q-card>
+          </q-dialog>
         </q-tab-panel>
 
         <q-tab-panel name="add_disability">
@@ -465,6 +550,9 @@ export default defineComponent({
     const dateToday = ref<string>('');
     const minimumSalary = ref<number>(0);
     const history = ref<HistoryDisability[]>([]);
+    const dialogReport = ref(false);
+    const typeReport = ref('');
+    const document = ref('');
 
     const getData = async () => {
       isLoading.value = true;
@@ -617,6 +705,20 @@ export default defineComponent({
       }
     };
 
+    const genreReport = async () => {
+      $q.loading.show({
+        message: 'Generando reporte, por favor espere...',
+      });
+      try {
+        const { data } = await get.getReport(typeReport.value, document.value);
+        openURL(data.urlFile);
+      } catch (error) {
+        controlError(error);
+      } finally {
+        $q.loading.hide();
+      }
+    };
+
     const calculateDays = (fecha1: string, fecha2: string) => {
       return date.getDateDiff(new Date(fecha1), new Date(fecha2), 'days') + 1;
     };
@@ -701,7 +803,11 @@ export default defineComponent({
       historyDisability,
       history,
       columnsProrroga,
+      dialogReport,
+      typeReport,
+      document,
       onSubmit,
+      genreReport,
       addExtension,
       openURL,
       onReload,

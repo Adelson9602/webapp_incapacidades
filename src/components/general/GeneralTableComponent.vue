@@ -17,22 +17,20 @@
         style="min-height: 70vh"
       >
         <template v-slot:top-left>
-          <div class="text-h6">
-            {{ title }}
-            &nbsp;
-            <q-btn
-              color="primary"
-              :icon="
-                isGrid
-                  ? 'fa-solid fa-table-list'
-                  : 'fa-solid fa-table-cells-large'
-              "
-              dense
-              flat
-              @click="isGrid = !isGrid"
-            >
-              <q-tooltip> Cambiar vista de tabla </q-tooltip>
-            </q-btn>
+          <div class="row">
+            <div class="text-h6">{{ title }}</div>
+            <div class="q-ml-sm">
+              <q-btn
+                color="primary"
+                :icon="isGrid ? 'fa-solid fa-table-list' : 'mdi-grid'"
+                dense
+                outline
+                @click="isGrid = !isGrid"
+              >
+                <q-tooltip> Cambiar vista de tabla </q-tooltip>
+              </q-btn>
+              <slot> </slot>
+            </div>
           </div>
         </template>
         <template v-slot:top-right>

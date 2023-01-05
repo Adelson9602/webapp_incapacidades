@@ -123,6 +123,18 @@ const getDocumentsAttachByDisabilityType = async (idTipoIncapacidad: number) => 
   return await api.get<ResDocumentsAttach[]>(`documents_attach_by_disability_type/${idTipoIncapacidad}`);
 };
 
+const getReport = async (typeReport: string, queryParameter?: string) => {
+  let parameter = ''
+  if(typeReport === 'cliente'){
+    parameter = `?nit=${queryParameter}`
+  } else if ( typeReport === 'empleado') {
+    parameter = `?cc=${queryParameter}`
+  }else if ( typeReport === 'entidad'){
+    parameter = `?nitEntidad=${queryParameter}`
+  }
+  return await api.get<any>(`/excel_report/${typeReport}${parameter}`);
+};
+
 export default {
   getRols,
   getDocumentsType,
@@ -147,5 +159,6 @@ export default {
   getDisabilityById,
   getPermissions,
   getPermissionsByRol,
-  getDocumentsAttachByDisabilityType
+  getDocumentsAttachByDisabilityType,
+  getReport
 };
