@@ -28,10 +28,11 @@
             @onEdit="onEdit"
             @onDetail="onDetail"
             @onAddExtension="addExtension"
+            @onDelete="deleteDIsability"
             :grid="false"
             :is-loading="isLoading"
           >
-            <v-slot>
+            <template v-slot:btn-1>
               <q-btn
                 color="primary"
                 icon="mdi-microsoft-excel"
@@ -42,7 +43,19 @@
               >
                 <q-tooltip> Generar reportes </q-tooltip>
               </q-btn>
-            </v-slot>
+            </template>
+            <template v-slot:btn-2>
+              <q-btn
+                color="negative"
+                icon="delete"
+                class="q-ml-sm"
+                dense
+                outline
+                @click="viewDeleteDisability"
+              >
+                <q-tooltip> Ver incapacidades eliminadas </q-tooltip>
+              </q-btn>
+            </template>
           </general-table-component>
           <!-- Dialogo para el detalle de incapacidad -->
           <q-dialog v-model="dialogDetail" persistent full-width>
@@ -285,6 +298,7 @@
             </q-card>
           </q-dialog>
 
+          <!-- Dialogo para generar reportes de excel -->
           <q-dialog v-model="dialogReport" persistent>
             <q-card>
               <q-bar dark class="bg-primary text-white">
@@ -357,6 +371,27 @@
               </q-card-section>
             </q-card>
           </q-dialog>
+
+          <!-- Dailogo para ver las incapacidades eliminadas -->
+          <q-dialog v-model="dialogDeleteDisability" persistent>
+            <q-card style="width: 1366px; max-width: 90vw">
+              <q-bar dark class="bg-primary text-white">
+                <q-icon name="delete" />
+                <div class="col text-center text-weight-bold">
+                  Vista de incapacidades eliminadas
+                </div>
+                <q-btn dense flat round icon="close" v-close-popup />
+              </q-bar>
+              <q-card-section>
+                <q-table
+                  flat
+                  :rows="rowsDisabilityDelete"
+                  :columns="columns"
+                  row-key="name"
+                />
+              </q-card-section>
+            </q-card>
+          </q-dialog>
         </q-tab-panel>
 
         <q-tab-panel name="add_disability">
@@ -372,7 +407,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted, watch } from 'vue';
-import { get, post } from 'src/requests';
+import { delet, get, post } from 'src/requests';
 import {
   Adjunto,
   CompanyLogged,
@@ -385,12 +420,13 @@ import CreateDisabilityComponent from 'src/components/disability/CreateDisabilit
 import { QTableColumn, openURL, useQuasar, date } from 'quasar';
 import { decryptJSON } from 'src/helpers/encrypt';
 import { calculateDisabilityCost } from 'src/helpers/globalFunctions';
+import DeleteDialogComponent from 'src/components/general/DeleteDialogComponent.vue';
 
 const columns: QTableColumn[] = [
   {
     name: 'radicado',
     align: 'center',
-    label: 'No. RADICADO',
+    label: '# INCAPACIDAD',
     sortable: true,
     field: 'radicado',
   },
@@ -531,6 +567,7 @@ export default defineComponent({
       `${$q.localStorage.getItem('dataUsuario')}`
     ) as unknown as CompanyLogged;
     const rows = ref<InformationDisability[]>();
+    const rowsDisabilityDelete = ref<InformationDisability[]>();
     const disability = ref<InformationDisability>();
     const disabilityDetail = ref<any>();
     const dialogDetail = ref(false);
@@ -552,6 +589,7 @@ export default defineComponent({
     const minimumSalary = ref<number>(0);
     const history = ref<HistoryDisability[]>([]);
     const dialogReport = ref(false);
+    const dialogDeleteDisability = ref(false);
     const typeReport = ref('');
     const document = ref('');
 
@@ -564,9 +602,10 @@ export default defineComponent({
 
         rows.value = [
           ...resDisabilities.map((c) => {
-            c.btnDetail = true;
-            c.btnEdit = true;
-            c.btnAddExtension = true;
+            // c.btnDetail = true;
+            // c.btnEdit = true;
+            // c.btnAddExtension = true;
+            // c.btnDelete = true;
             c.title = `${c.primerNombre} ${c.primerApellido}`;
             return c;
           }),
@@ -724,6 +763,46 @@ export default defineComponent({
       return date.getDateDiff(new Date(fecha1), new Date(fecha2), 'days') + 1;
     };
 
+    const viewDeleteDisability = async () => {
+      isLoading.value = true;
+      try {
+        const { data } = await get.getDisabilityDelete();
+        rowsDisabilityDelete.value = [
+          ...data.map((c) => {
+            c.btnDetail = true;
+            c.title = `${c.primerNombre} ${c.primerApellido}`;
+            return c;
+          }),
+        ];
+        dialogDeleteDisability.value = true;
+      } catch (error) {
+        controlError(error);
+      } finally {
+        isLoading.value = false;
+      }
+    };
+
+    const deleteDIsability = (row: InformationDisability) => {
+      $q.dialog({
+        component: DeleteDialogComponent,
+        componentProps: {
+          title: 'Eliminar incapacidad',
+          message: 'Esta seguro de eliminar esta incapacidad?',
+        },
+      }).onOk(async () => {
+        try {
+          const { data } = await delet.deleteDisability(row.numeroIncapacidad);
+          $q.notify({
+            message: data.message,
+            type: 'positive',
+          });
+        } catch (error) {
+          controlError(error);
+        } finally {
+        }
+      });
+    };
+
     watch(tab, (value) => {
       if (value == 'disabilities') {
         disability.value = undefined;
@@ -811,6 +890,8 @@ export default defineComponent({
       dialogReport,
       typeReport,
       document,
+      dialogDeleteDisability,
+      rowsDisabilityDelete,
       onSubmit,
       genreReport,
       addExtension,
@@ -818,6 +899,8 @@ export default defineComponent({
       onReload,
       onEdit,
       onDetail,
+      deleteDIsability,
+      viewDeleteDisability,
     };
   },
 });

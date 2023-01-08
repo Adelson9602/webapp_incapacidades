@@ -29,7 +29,8 @@
               >
                 <q-tooltip> Cambiar vista de tabla </q-tooltip>
               </q-btn>
-              <slot> </slot>
+              <slot name="btn-1"> </slot>
+              <slot name="btn-2"> </slot>
             </div>
           </div>
         </template>
@@ -213,6 +214,20 @@
                 >
                   <q-tooltip> Agregar prorroga </q-tooltip>
                 </q-btn>
+                <q-btn
+                  unelevated
+                  dense
+                  round
+                  color="negative"
+                  class="custom-btn no-shadow"
+                  size="md"
+                  icon="delete"
+                  no-caps
+                  @click="onDelete(props.row)"
+                  v-if="props.row.btnDelete"
+                >
+                  <q-tooltip> Eliminar </q-tooltip>
+                </q-btn>
               </div>
             </q-td>
           </q-tr>
@@ -305,6 +320,10 @@ export default {
       emit('onAddExtension', row);
     };
 
+    const onDelete = (row: any) => {
+      emit('onDelete', row);
+    };
+
     // Filta los datos que se mostraran en la tabla, evitando que se repita el titulo con alguno de los rows
     const dataFiltered = (cols: any, row?: any) => {
       if (row) {
@@ -331,6 +350,7 @@ export default {
       filter,
       pagination,
       isGrid,
+      onDelete,
       upDateVmodel,
       onEdit,
       onStatus,

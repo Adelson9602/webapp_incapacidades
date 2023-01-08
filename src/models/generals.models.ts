@@ -1,6 +1,7 @@
 export interface ActionsUser {
   btnEdit?: boolean;
   btnStatus?: boolean;
+  btnDelete?: boolean;
   btnDetail?: boolean;
   btnAddExtension?: boolean;
 }

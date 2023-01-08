@@ -123,6 +123,10 @@ const getDocumentsAttachByDisabilityType = async (idTipoIncapacidad: number) => 
   return await api.get<ResDocumentsAttach[]>(`documents_attach_by_disability_type/${idTipoIncapacidad}`);
 };
 
+const getDisabilityDelete = async () => {
+  return await api.get<InformationDisability[]>('disability_delete');
+};
+
 const getReport = async (typeReport: string, queryParameter?: string) => {
   let parameter = ''
   if(typeReport === 'cliente'){
@@ -160,5 +164,6 @@ export default {
   getPermissions,
   getPermissionsByRol,
   getDocumentsAttachByDisabilityType,
-  getReport
+  getDisabilityDelete,
+  getReport,
 };
