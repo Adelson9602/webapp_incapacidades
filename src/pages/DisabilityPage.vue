@@ -602,10 +602,10 @@ export default defineComponent({
 
         rows.value = [
           ...resDisabilities.map((c) => {
-            // c.btnDetail = true;
-            // c.btnEdit = true;
-            // c.btnAddExtension = true;
-            // c.btnDelete = true;
+            c.btnDetail = true;
+            c.btnEdit = true;
+            c.btnAddExtension = true;
+            c.btnDelete = true;
             c.title = `${c.primerNombre} ${c.primerApellido}`;
             return c;
           }),
@@ -769,7 +769,6 @@ export default defineComponent({
         const { data } = await get.getDisabilityDelete();
         rowsDisabilityDelete.value = [
           ...data.map((c) => {
-            c.btnDetail = true;
             c.title = `${c.primerNombre} ${c.primerApellido}`;
             return c;
           }),
