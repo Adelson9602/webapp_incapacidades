@@ -29,6 +29,7 @@
             @onDetail="onDetail"
             @onAddExtension="addExtension"
             @onDelete="deleteDIsability"
+            @onStatus="openDialogchangeStatus"
             :grid="false"
             :is-loading="isLoading"
           >
@@ -392,6 +393,59 @@
               </q-card-section>
             </q-card>
           </q-dialog>
+
+          <!-- Dialogo para cambiar estado de la incapacidad -->
+          <q-dialog v-model="dialogStatus" persistent>
+            <q-card style="width: 480px; max-width: 90vw">
+              <q-bar dark class="bg-primary text-white">
+                <q-icon name="list" />
+                <div class="col text-center text-weight-bold">
+                  Actualizar estado incapacidad
+                </div>
+                <q-btn dense flat round icon="close" v-close-popup />
+              </q-bar>
+              <q-form @submit="changeStatus">
+                <q-card-section class="row items-center">
+                  <div class="col-xs-12">
+                    <q-select
+                      v-model="newStateInability.estado"
+                      :options="optionsStatus"
+                      label="Estado incapacidad"
+                      option-label="nombreEstadoIncapacidad"
+                      option-value="idEstadoIncapacidad"
+                      emit-value
+                      map-options
+                    />
+                  </div>
+                  <div
+                    class="col-xs-12 q-py-md"
+                    v-if="
+                      newStateInability.estado == 5 ||
+                      newStateInability.estado == 6
+                    "
+                  >
+                    <q-input
+                      v-model="newStateInability.observacion"
+                      filled
+                      label="Observaciones"
+                      :rules="[(val) => !!val || 'Observaciones es requerido']"
+                      row="3"
+                      type="textarea"
+                    />
+                  </div>
+                </q-card-section>
+                <q-card-actions align="right">
+                  <q-btn flat label="Cancel" color="negative" v-close-popup />
+                  <q-btn
+                    flat
+                    label="Actualizar"
+                    color="primary"
+                    type="submit"
+                  />
+                </q-card-actions>
+              </q-form>
+            </q-card>
+          </q-dialog>
         </q-tab-panel>
 
         <q-tab-panel name="add_disability">
@@ -407,12 +461,14 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted, watch } from 'vue';
-import { delet, get, post } from 'src/requests';
+import { delet, get, post, put } from 'src/requests';
 import {
   Adjunto,
   CompanyLogged,
   HistoryDisability,
   InformationDisability,
+  NewState,
+  StateDisability,
 } from 'src/models/generals.models';
 import { controlError } from 'src/helpers/controlError';
 import GeneralTableComponent from 'src/components/general/GeneralTableComponent.vue';
@@ -590,8 +646,15 @@ export default defineComponent({
     const history = ref<HistoryDisability[]>([]);
     const dialogReport = ref(false);
     const dialogDeleteDisability = ref(false);
+    const dialogStatus = ref(false);
     const typeReport = ref('');
     const document = ref('');
+    const optionsStatus = ref<StateDisability[]>([]);
+    const newStateInability = ref<NewState>({
+      numeroIncapacidad: 0,
+      estado: 0,
+      observacion: '',
+    });
 
     const getData = async () => {
       isLoading.value = true;
@@ -802,6 +865,81 @@ export default defineComponent({
       });
     };
 
+    const openDialogchangeStatus = async (row: InformationDisability) => {
+      isLoading.value = true;
+      try {
+        const estado = row.fkIdEstadoIncapacidad;
+        const { data } = await get.getStateDisability();
+        optionsStatus.value = [
+          ...data.filter((e) => {
+            const idEstado = e.idEstadoIncapacidad;
+            if (estado == 1 && idEstado == 2) {
+              return e;
+            } else if (
+              (estado == 2 && idEstado == 3) ||
+              (estado == 2 && idEstado == 5)
+            ) {
+              return e;
+            } else if (
+              (estado == 3 && idEstado == 4) ||
+              (estado == 3 && idEstado == 5) ||
+              (estado == 3 && idEstado == 6)
+            ) {
+              return e;
+            } else if (estado == 4 && idEstado == 5) {
+              return e;
+            } else if (
+              (estado == 5 && idEstado == 6) ||
+              (estado == 5 && idEstado == 3)
+            ) {
+              return e;
+            }
+          }),
+        ];
+        newStateInability.value.numeroIncapacidad = row.numeroIncapacidad;
+        dialogStatus.value = true;
+      } catch (error) {
+        controlError(error);
+      } finally {
+        isLoading.value = false;
+      }
+    };
+
+    const changeStatus = async () => {
+      isLoading.value = true;
+      try {
+        const { data } = await put.updateStateDisability(
+          newStateInability.value
+        );
+        dialogStatus.value = false;
+        newStateInability.value = {
+          numeroIncapacidad: 0,
+          estado: 0,
+          observacion: '',
+        };
+        setTimeout(() => getData(), 300);
+        $q.notify({
+          message: data.message,
+          type: 'positive',
+          position: 'bottom-right',
+        });
+      } catch (error) {
+        controlError(error);
+      } finally {
+        isLoading.value = false;
+      }
+    };
+
+    watch(dialogStatus, (value) => {
+      if (!value) {
+        newStateInability.value = {
+          numeroIncapacidad: 0,
+          estado: 0,
+          observacion: '',
+        };
+      }
+    });
+
     watch(tab, (value) => {
       if (value == 'disabilities') {
         disability.value = undefined;
@@ -891,6 +1029,9 @@ export default defineComponent({
       document,
       dialogDeleteDisability,
       rowsDisabilityDelete,
+      dialogStatus,
+      optionsStatus,
+      newStateInability,
       onSubmit,
       genreReport,
       addExtension,
@@ -900,6 +1041,8 @@ export default defineComponent({
       onDetail,
       deleteDIsability,
       viewDeleteDisability,
+      changeStatus,
+      openDialogchangeStatus,
     };
   },
 });

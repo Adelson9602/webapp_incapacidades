@@ -142,6 +142,7 @@
 
         <template v-slot:body="props">
           <q-tr :props="props">
+            <!-- Imagen en la tabla -->
             <q-td v-if="avatar">
               <q-avatar size="50px">
                 <q-img
@@ -151,8 +152,21 @@
                 />
               </q-avatar>
             </q-td>
+            <!-- Contenido texto en la tabla -->
             <q-td v-for="col in props.cols" :key="col.name" :props="props">
-              <div v-if="col.label != 'ESTADO'">{{ col.value }}</div>
+              <div v-if="col.label != 'ESTADO'">
+                <!-- acción para estado incapacidad -->
+                <label
+                  v-if="col.label === 'ESTADO INCAPACIDAD'"
+                  class="cursor-pointer"
+                  @click="onStatus(props.row)"
+                >
+                  {{ col.value }}
+                  <q-tooltip> Actualizar estado </q-tooltip>
+                </label>
+                <!-- Muesta valor de la celda normal sin ningua acción -->
+                <label v-else>{{ col.value }}</label>
+              </div>
               <q-badge
                 v-else
                 :color="assingColor(props.row)"

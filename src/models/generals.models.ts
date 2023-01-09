@@ -188,16 +188,11 @@ export interface InformationCompany extends ActionsUser {
   title?: string;
 }
 
-export interface InabilityType {
-  idEstadoIncapacidad: number;
-  nombreEstadoIncapacidad: string;
+export interface NewState {
+  numeroIncapacidad: number,
+  estado: number,
+  observacion: string
 }
-
-export interface StateInability {
-  nombreEstadoIncapacidad: string;
-  idEstadoIncapacidad: number;
-}
-
 export interface Disability {
   radicado?: number | null;
   fkIdTipoIncapacidad: number;

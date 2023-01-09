@@ -385,7 +385,7 @@ export default defineComponent({
       ibc: 0,
       cie: '',
       valor: 0,
-      fkIdEstadoIncapacidad: 8,
+      fkIdEstadoIncapacidad: 1,
       fkDocumentoPersona: 0,
       fkEntidad: '',
       files: [],
