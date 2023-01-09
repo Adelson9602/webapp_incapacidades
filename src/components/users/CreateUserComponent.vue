@@ -456,9 +456,9 @@ export default defineComponent({
             const { data } = await get.getPermissionsByRol(value);
             permissionsByRol.value = [
               ...data.map((e) => {
-                e.selected = false;
+                e.selected = e.selected || false;
                 e.items.forEach((i) => {
-                  i.selected = false;
+                  i.selected = i.selected || false;
                 });
                 return e;
               }),

@@ -334,8 +334,8 @@ export interface CieCode {
   idGrupo: number;
 }
 
-export interface HistoryDisability {
-  idHistorialIncapacidad: number | null;
+export interface DisabilityExtension {
+  idProrrogaIncapacidad: number | null;
   fkIdIncapacidad: number;
   fechaIniciaProrroga: string;
   fechaFinProrroga: string;
@@ -344,6 +344,12 @@ export interface HistoryDisability {
   ibc: number;
   usuario: number;
   observacion: string;
+}
+
+export interface HistoricalDisability {
+  idHistorico?: number | null,
+  usuario: number,
+  observaciones: string
 }
 
 export interface DisabilityWithCie {
@@ -379,7 +385,7 @@ export interface DetailDisability {
   disability: DisabilityWithCie;
   employe: InformationEmploye;
   files: Adjunto[];
-  history?: HistoryDisability[];
+  history?: DisabilityExtension[];
 }
 
 export interface CompanyLogged {

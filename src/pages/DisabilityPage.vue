@@ -28,7 +28,7 @@
             @onEdit="onEdit"
             @onDetail="onDetail"
             @onAddExtension="addExtension"
-            @onDelete="deleteDIsability"
+            @onDelete="deleteDisability"
             @onStatus="openDialogchangeStatus"
             :grid="false"
             :is-loading="isLoading"
@@ -178,7 +178,7 @@
                   </q-field>
                   <div class="col-xs-12 col-sm-6 q-pa-sm">
                     <q-input
-                      v-model="historyDisability.ibc"
+                      v-model="DisabilityExtension.ibc"
                       :rules="[(val) => !!val || 'Ingreso base es requerido']"
                       label="IBC"
                       hide-bottom-space
@@ -196,19 +196,19 @@
                         class="self-center full-width no-outline"
                         tabindex="0"
                       >
-                        {{ historyDisability.valor }}
+                        {{ DisabilityExtension.valor }}
                       </div>
                     </template>
                   </q-field>
                   <div class="col-xs-12 col-sm-6 q-pa-sm">
                     <q-input
-                      v-model="historyDisability.fechaIniciaProrroga"
+                      v-model="DisabilityExtension.fechaIniciaProrroga"
                       mask="date"
                       :rules="['date']"
                       label="Fecha inicia prorroga"
                       hide-bottom-space
                       outlined
-                      :disable="historyDisability.ibc ? false : true"
+                      :disable="DisabilityExtension.ibc ? false : true"
                     >
                       <template v-slot:append>
                         <q-icon name="event" class="cursor-pointer">
@@ -218,7 +218,7 @@
                             transition-hide="scale"
                           >
                             <q-date
-                              v-model="historyDisability.fechaIniciaProrroga"
+                              v-model="DisabilityExtension.fechaIniciaProrroga"
                             >
                               <div class="row items-center justify-end">
                                 <q-btn
@@ -236,13 +236,13 @@
                   </div>
                   <div class="col-xs-12 col-sm-6 q-pa-sm">
                     <q-input
-                      v-model="historyDisability.fechaFinProrroga"
+                      v-model="DisabilityExtension.fechaFinProrroga"
                       mask="date"
                       :rules="['date']"
                       label="Fecha fin prorroga"
                       hide-bottom-space
                       outlined
-                      :disable="historyDisability.ibc ? false : true"
+                      :disable="DisabilityExtension.ibc ? false : true"
                     >
                       <template v-slot:append>
                         <q-icon name="event" class="cursor-pointer">
@@ -252,7 +252,7 @@
                             transition-hide="scale"
                           >
                             <q-date
-                              v-model="historyDisability.fechaFinProrroga"
+                              v-model="DisabilityExtension.fechaFinProrroga"
                             >
                               <div class="row items-center justify-end">
                                 <q-btn
@@ -270,7 +270,7 @@
                   </div>
                   <div class="col-xs-12 q-pa-sm">
                     <q-input
-                      v-model="historyDisability.observacion"
+                      v-model="DisabilityExtension.observacion"
                       outlined
                       :rules="[
                         (val) =>
@@ -465,7 +465,7 @@ import { delet, get, post, put } from 'src/requests';
 import {
   Adjunto,
   CompanyLogged,
-  HistoryDisability,
+  DisabilityExtension,
   InformationDisability,
   NewState,
   StateDisability,
@@ -553,11 +553,11 @@ const columns: QTableColumn[] = [
 
 const columnsProrroga: QTableColumn[] = [
   {
-    name: 'idHistorialIncapacidad',
+    name: 'idProrrogaIncapacidad',
     align: 'center',
     label: '#',
     sortable: true,
-    field: 'idHistorialIncapacidad',
+    field: 'idProrrogaIncapacidad',
   },
   {
     name: 'fechaIniciaProrroga',
@@ -630,8 +630,8 @@ export default defineComponent({
     const isLoading = ref(false);
     const dialogExtension = ref(false);
     const files = ref<Adjunto[]>([]);
-    const historyDisability = ref<HistoryDisability>({
-      idHistorialIncapacidad: null,
+    const DisabilityExtension = ref<DisabilityExtension>({
+      idProrrogaIncapacidad: null,
       fkIdIncapacidad: 0,
       fechaIniciaProrroga: '',
       fechaFinProrroga: '',
@@ -643,7 +643,7 @@ export default defineComponent({
     });
     const dateToday = ref<string>('');
     const minimumSalary = ref<number>(0);
-    const history = ref<HistoryDisability[]>([]);
+    const history = ref<DisabilityExtension[]>([]);
     const dialogReport = ref(false);
     const dialogDeleteDisability = ref(false);
     const dialogStatus = ref(false);
@@ -703,7 +703,6 @@ export default defineComponent({
         const { data } = await get.getDisabilityById(row.radicado);
         disabilityDetail.value = {
           disability: {
-            CIE: data.disability.cie,
             'NIT EMPRESA': data.disability.fkNitEmpresa,
             'EMPRESA EMPLEADO': data.disability.empresaEmpleado,
             'NÚMERO INCAPACIDAD': data.disability.numeroIncapacidad,
@@ -717,6 +716,7 @@ export default defineComponent({
             'NIT ENTIDAD': data.disability.fkEntidad,
             ENTIDAD: data.disability.razonSocialEntidad,
             'TIPO ENTIDAD': data.disability.tipoEntidad,
+            CIE: data.disability.cie,
             CÓDIGO: data.disability.codigo,
             DESCRIPCIÓN: data.disability.descripcion,
             'CÓDIGO GRUPO': data.disability.grupoSubgrupo,
@@ -758,20 +758,20 @@ export default defineComponent({
     };
 
     const addExtension = (row: InformationDisability) => {
-      historyDisability.value.fkIdIncapacidad = row.radicado;
-      historyDisability.value.usuario = dataUser.documentoPersona;
+      DisabilityExtension.value.fkIdIncapacidad = row.radicado;
+      DisabilityExtension.value.usuario = dataUser.documentoPersona;
       disability.value = row;
       // Asignamos a los inputs tipo date la fecha actual del sistema
       // const timeStamp = Date.now();
-      // historyDisability.value.fechaIniciaProrroga = date.formatDate(
+      // DisabilityExtension.value.fechaIniciaProrroga = date.formatDate(
       //   timeStamp,
       //   'YYYY/MM/DD'
       // );
-      // historyDisability.value.fechaFinProrroga = date.formatDate(
+      // DisabilityExtension.value.fechaFinProrroga = date.formatDate(
       //   timeStamp,
       //   'YYYY/MM/DD'
       // );
-      dateToday.value = historyDisability.value.fechaFinProrroga;
+      dateToday.value = DisabilityExtension.value.fechaFinProrroga;
 
       dialogExtension.value = true;
     };
@@ -781,7 +781,7 @@ export default defineComponent({
         message: 'Guardando, por favor espere...',
       });
       try {
-        await post.createHistoryDisability(historyDisability.value);
+        await post.createDisabilityExtension(DisabilityExtension.value);
         $q.notify({
           message: 'Prorroga adicionada',
           type: 'positive',
@@ -790,8 +790,8 @@ export default defineComponent({
 
         dialogExtension.value = false;
         disability.value = undefined;
-        historyDisability.value = {
-          idHistorialIncapacidad: null,
+        DisabilityExtension.value = {
+          idProrrogaIncapacidad: null,
           fkIdIncapacidad: 0,
           fechaIniciaProrroga: '',
           fechaFinProrroga: '',
@@ -844,7 +844,7 @@ export default defineComponent({
       }
     };
 
-    const deleteDIsability = (row: InformationDisability) => {
+    const deleteDisability = (row: InformationDisability) => {
       $q.dialog({
         component: DeleteDialogComponent,
         componentProps: {
@@ -951,29 +951,29 @@ export default defineComponent({
     });
 
     watch(
-      () => historyDisability.value.fechaIniciaProrroga,
+      () => DisabilityExtension.value.fechaIniciaProrroga,
       (value) => {
         if (disability.value?.fechaFin) {
           if (value < disability.value?.fechaFin) {
-            historyDisability.value.fechaIniciaProrroga = dateToday.value;
-            historyDisability.value.fechaFinProrroga = dateToday.value;
+            DisabilityExtension.value.fechaIniciaProrroga = dateToday.value;
+            DisabilityExtension.value.fechaFinProrroga = dateToday.value;
             $q.notify({
               message:
                 'La fecha de prorroga no puede ser inferior a la fecha fin de incapacidad',
               type: 'warning',
             });
-          } else if (historyDisability.value.ibc) {
+          } else if (DisabilityExtension.value.ibc) {
             const totalDaysPro = calculateDays(
-              historyDisability.value.fechaFinProrroga,
+              DisabilityExtension.value.fechaFinProrroga,
               value
             );
-            historyDisability.value.diasProrroga = totalDaysPro;
+            DisabilityExtension.value.diasProrroga = totalDaysPro;
 
-            historyDisability.value.valor = calculateDisabilityCost(
+            DisabilityExtension.value.valor = calculateDisabilityCost(
               disability.value.fkIdTipoIncapacidad,
               minimumSalary.value,
               totalDaysPro,
-              historyDisability.value.ibc
+              DisabilityExtension.value.ibc
             );
           }
         }
@@ -981,28 +981,28 @@ export default defineComponent({
     );
 
     watch(
-      () => historyDisability.value.fechaFinProrroga,
+      () => DisabilityExtension.value.fechaFinProrroga,
       (value) => {
         if (disability.value?.fechaInicio) {
-          if (value < historyDisability.value.fechaIniciaProrroga) {
-            historyDisability.value.fechaFinProrroga = dateToday.value;
+          if (value < DisabilityExtension.value.fechaIniciaProrroga) {
+            DisabilityExtension.value.fechaFinProrroga = dateToday.value;
             $q.notify({
               message:
                 'La fecha de prorroga no puede ser inferior a la fecha fin de incapacidad',
               type: 'warning',
             });
-          } else if (historyDisability.value.ibc) {
+          } else if (DisabilityExtension.value.ibc) {
             const totalDaysPro = calculateDays(
               value,
-              historyDisability.value.fechaIniciaProrroga
+              DisabilityExtension.value.fechaIniciaProrroga
             );
-            historyDisability.value.diasProrroga = totalDaysPro;
+            DisabilityExtension.value.diasProrroga = totalDaysPro;
 
-            historyDisability.value.valor = calculateDisabilityCost(
+            DisabilityExtension.value.valor = calculateDisabilityCost(
               disability.value.fkIdTipoIncapacidad,
               minimumSalary.value,
               totalDaysPro,
-              historyDisability.value.ibc
+              DisabilityExtension.value.ibc
             );
           }
         }
@@ -1021,7 +1021,7 @@ export default defineComponent({
       isLoading,
       files,
       dialogExtension,
-      historyDisability,
+      DisabilityExtension,
       history,
       columnsProrroga,
       dialogReport,
@@ -1039,7 +1039,7 @@ export default defineComponent({
       onReload,
       onEdit,
       onDetail,
-      deleteDIsability,
+      deleteDisability,
       viewDeleteDisability,
       changeStatus,
       openDialogchangeStatus,

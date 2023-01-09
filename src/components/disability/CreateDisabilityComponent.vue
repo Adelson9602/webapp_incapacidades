@@ -456,6 +456,7 @@ export default defineComponent({
     const cieCode = ref<CieCode[]>([]);
     const cieCategorySelected = ref<Cie>();
     const isHaveFile = ref(0); // Permite validar si hay archivos para editar
+    const isEdit = ref(false);
 
     const getData = async () => {
       isLoading.value = true;
@@ -539,10 +540,40 @@ export default defineComponent({
 
       setTimeout(() => {
         disability.value.cie = `${disabilityEdit.value?.cie}`;
+        isEdit.value = true;
       }, 1000);
     };
 
     const onSubmit = async () => {
+      if (isEdit.value) {
+        $q.dialog({
+          style: {
+            textAlign: 'center',
+          },
+          title: 'Razón de edición de incapacidad',
+          message: 'Por favor ingrese observaciones de los cambios realizados',
+          prompt: {
+            model: '',
+            isValid: (val) => val.length > 2,
+            type: 'textarea',
+            filled: true,
+          },
+          cancel: true,
+          persistent: true,
+          ok: {
+            label: 'Guardar cambios',
+          },
+        }).onOk((data) => {
+          console.log(data);
+          // console.log('>>>> OK, received', data)
+        });
+      } else {
+        saveData();
+      }
+    };
+
+    // Envia los datos al server
+    const saveData = async () => {
       isLoading.value = true;
       try {
         const formDataInd = new FormData();
