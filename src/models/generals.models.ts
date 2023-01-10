@@ -207,10 +207,12 @@ export interface Disability {
   fkDocumentoPersona: number;
   fkEntidad: string;
   cie: string;
+  usuario: number;
   files?: Adjunto[];
 }
 
 export interface InformationDisability extends ActionsUser {
+  idIncapacidad?: number;
   radicado: number;
   fkIdTipoIncapacidad: number;
   fkNitEmpresa: string;
@@ -348,6 +350,7 @@ export interface DisabilityExtension {
 
 export interface HistoricalDisability {
   idHistorico?: number | null,
+  idIncapacidad?: number;
   usuario: number,
   observaciones: string
 }

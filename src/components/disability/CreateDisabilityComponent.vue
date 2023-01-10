@@ -355,6 +355,7 @@ import {
   Cie,
   CieCode,
   Company,
+  CompanyLogged,
   Disability,
   DisabilityType,
   DocumentType,
@@ -364,6 +365,7 @@ import {
 } from 'src/models/generals.models';
 import { controlError } from 'src/helpers/controlError';
 import { countDays } from '../../helpers/globalFunctions';
+import { decryptJSON } from 'src/helpers/encrypt';
 
 export default defineComponent({
   name: 'ComponentCreateDisability',
@@ -388,6 +390,7 @@ export default defineComponent({
       fkIdEstadoIncapacidad: 1,
       fkDocumentoPersona: 0,
       fkEntidad: '',
+      usuario: 0,
       files: [],
     });
     const idTipoIncapacidad = ref<number>(0);
@@ -457,6 +460,9 @@ export default defineComponent({
     const cieCategorySelected = ref<Cie>();
     const isHaveFile = ref(0); // Permite validar si hay archivos para editar
     const isEdit = ref(false);
+    const { dataUser } = decryptJSON(
+      `${$q.localStorage.getItem('dataUsuario')}`
+    ) as unknown as CompanyLogged;
 
     const getData = async () => {
       isLoading.value = true;
@@ -536,6 +542,7 @@ export default defineComponent({
         fkIdEstadoIncapacidad: disabilityEdit.value?.fkIdEstadoIncapacidad || 0,
         fkDocumentoPersona: disabilityEdit.value?.fkDocumentoPersona || 0,
         fkEntidad: `${disabilityEdit.value?.nitEntidad}`,
+        usuario: dataUser.usuario,
       };
 
       setTimeout(() => {
@@ -563,12 +570,22 @@ export default defineComponent({
           ok: {
             label: 'Guardar cambios',
           },
-        }).onOk((data) => {
-          console.log(data);
-          // console.log('>>>> OK, received', data)
+        }).onOk(async (observaciones) => {
+          const { data } = await post.createHistoricalDisability({
+            idHistorico: null,
+            observaciones,
+            usuario: dataUser.usuario,
+            idIncapacidad: disabilityEdit.value?.idIncapacidad,
+          });
+          $q.notify({
+            message: data.message,
+            type: 'positive',
+            position: 'bottom-right',
+          });
+          await saveData();
         });
       } else {
-        saveData();
+        await saveData();
       }
     };
 
