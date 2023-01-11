@@ -570,7 +570,8 @@ export default defineComponent({
           ok: {
             label: 'Guardar cambios',
           },
-        }).onOk(async (observaciones) => {
+        }).onOk(async (input) => {
+          const observaciones = `[EDICIÓN] - ${input}`;
           const { data } = await post.createHistoricalDisability({
             idHistorico: null,
             observaciones,

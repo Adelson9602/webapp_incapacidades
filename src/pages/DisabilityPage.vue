@@ -104,18 +104,18 @@
                   </q-field>
                 </div>
               </q-card-section>
-              <q-card-section>
+              <q-card-section v-if="prorroga.length > 0">
                 <div class="text-h6 text-grey-8 text-weight-light q-mb-md">
                   Prorrogas
                 </div>
                 <q-table
-                  :rows="history"
+                  :rows="prorroga"
                   flat
                   :columns="columnsProrroga"
                   row-key="name"
                 />
               </q-card-section>
-              <q-card-section>
+              <q-card-section v-if="files.length > 0">
                 <div class="text-h6 text-grey-8 text-weight-light q-mb-md">
                   Archivos adjuntos
                 </div>
@@ -134,6 +134,17 @@
                     </q-item-section>
                   </q-item>
                 </q-list>
+              </q-card-section>
+              <q-card-section>
+                <div class="text-h6 text-grey-8 text-weight-light q-mb-md">
+                  Histórico de incapacidad
+                </div>
+                <q-table
+                  :rows="history"
+                  flat
+                  :columns="columnsHistory"
+                  row-key="name"
+                />
               </q-card-section>
               <q-card-actions vertical align="right">
                 <q-btn flat label="Ok" color="primary" v-close-popup />
@@ -466,6 +477,7 @@ import {
   Adjunto,
   CompanyLogged,
   DisabilityExtension,
+  HistoricalDisability,
   InformationDisability,
   NewState,
   StateDisability,
@@ -610,6 +622,37 @@ const columnsProrroga: QTableColumn[] = [
   },
 ];
 
+const columnsHistory: QTableColumn[] = [
+  {
+    name: 'idHistorico',
+    align: 'center',
+    label: 'ID',
+    sortable: true,
+    field: 'idHistorico',
+  },
+  {
+    name: 'usuario',
+    align: 'center',
+    label: 'USUARIO',
+    sortable: true,
+    field: 'usuario',
+  },
+  {
+    name: 'nombres',
+    align: 'center',
+    label: 'NOMBRES',
+    sortable: true,
+    field: 'nombres',
+  },
+  {
+    name: 'observaciones',
+    align: 'center',
+    label: 'OBSERVACIONES',
+    sortable: true,
+    field: 'observaciones',
+  },
+];
+
 export default defineComponent({
   name: 'CompanyPage',
   components: {
@@ -643,7 +686,8 @@ export default defineComponent({
     });
     const dateToday = ref<string>('');
     const minimumSalary = ref<number>(0);
-    const history = ref<DisabilityExtension[]>([]);
+    const prorroga = ref<DisabilityExtension[]>([]);
+    const history = ref<HistoricalDisability[]>([]);
     const dialogReport = ref(false);
     const dialogDeleteDisability = ref(false);
     const dialogStatus = ref(false);
@@ -651,7 +695,7 @@ export default defineComponent({
     const document = ref('');
     const optionsStatus = ref<StateDisability[]>([]);
     const newStateInability = ref<NewState>({
-      numeroIncapacidad: 0,
+      idIncapacidad: 0,
       estado: 0,
       observacion: '',
     });
@@ -700,7 +744,7 @@ export default defineComponent({
         message: 'Por favor espere...',
       });
       try {
-        const { data } = await get.getDisabilityById(row.radicado);
+        const { data } = await get.getDisabilityById(+row.idIncapacidad);
         disabilityDetail.value = {
           disability: {
             'NIT EMPRESA': data.disability.fkNitEmpresa,
@@ -742,7 +786,12 @@ export default defineComponent({
             'TIPO DOCUMENTO': data.employe.nombreTipoDocumento,
           },
         };
+        console.log(data);
         files.value = [...data.files];
+
+        if (data.prorroga) {
+          prorroga.value = [...data.prorroga];
+        }
 
         if (data.history) {
           history.value = [...data.history];
@@ -868,6 +917,7 @@ export default defineComponent({
     const openDialogchangeStatus = async (row: InformationDisability) => {
       isLoading.value = true;
       try {
+        disabilityDetail.value = row;
         const estado = row.fkIdEstadoIncapacidad;
         const { data } = await get.getStateDisability();
         optionsStatus.value = [
@@ -896,7 +946,7 @@ export default defineComponent({
             }
           }),
         ];
-        newStateInability.value.numeroIncapacidad = row.numeroIncapacidad;
+        newStateInability.value.idIncapacidad = row.numeroIncapacidad;
         dialogStatus.value = true;
       } catch (error) {
         controlError(error);
@@ -911,18 +961,36 @@ export default defineComponent({
         const { data } = await put.updateStateDisability(
           newStateInability.value
         );
+        const observaciones = `[CAMBIO ESTADO] - ${
+          newStateInability.value.observacion
+            ? newStateInability.value.observacion
+            : 'N/A'
+        }`;
+        const resHistory = await post.createHistoricalDisability({
+          idHistorico: null,
+          observaciones,
+          usuario: dataUser.usuario,
+          idIncapacidad: newStateInability.value.idIncapacidad,
+        });
+
         dialogStatus.value = false;
         newStateInability.value = {
-          numeroIncapacidad: 0,
+          idIncapacidad: 0,
           estado: 0,
           observacion: '',
         };
-        setTimeout(() => getData(), 300);
+
+        $q.notify({
+          message: resHistory.data.message,
+          type: 'positive',
+          position: 'bottom-right',
+        });
         $q.notify({
           message: data.message,
           type: 'positive',
           position: 'bottom-right',
         });
+        setTimeout(() => getData(), 300);
       } catch (error) {
         controlError(error);
       } finally {
@@ -933,7 +1001,7 @@ export default defineComponent({
     watch(dialogStatus, (value) => {
       if (!value) {
         newStateInability.value = {
-          numeroIncapacidad: 0,
+          idIncapacidad: 0,
           estado: 0,
           observacion: '',
         };
@@ -1022,6 +1090,7 @@ export default defineComponent({
       files,
       dialogExtension,
       DisabilityExtension,
+      prorroga,
       history,
       columnsProrroga,
       dialogReport,
@@ -1032,6 +1101,7 @@ export default defineComponent({
       dialogStatus,
       optionsStatus,
       newStateInability,
+      columnsHistory,
       onSubmit,
       genreReport,
       addExtension,

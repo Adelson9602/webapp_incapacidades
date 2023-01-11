@@ -189,7 +189,7 @@ export interface InformationCompany extends ActionsUser {
 }
 
 export interface NewState {
-  numeroIncapacidad: number,
+  idIncapacidad: number,
   estado: number,
   observacion: string
 }
@@ -212,7 +212,7 @@ export interface Disability {
 }
 
 export interface InformationDisability extends ActionsUser {
-  idIncapacidad?: number;
+  idIncapacidad: number;
   radicado: number;
   fkIdTipoIncapacidad: number;
   fkNitEmpresa: string;
@@ -351,8 +351,9 @@ export interface DisabilityExtension {
 export interface HistoricalDisability {
   idHistorico?: number | null,
   idIncapacidad?: number;
-  usuario: number,
-  observaciones: string
+  usuario: number;
+  nombres?: string;
+  observaciones: string;
 }
 
 export interface DisabilityWithCie {
@@ -388,7 +389,8 @@ export interface DetailDisability {
   disability: DisabilityWithCie;
   employe: InformationEmploye;
   files: Adjunto[];
-  history?: DisabilityExtension[];
+  prorroga?: DisabilityExtension[];
+  history?: HistoricalDisability[];
 }
 
 export interface CompanyLogged {
