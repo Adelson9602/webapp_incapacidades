@@ -20,7 +20,6 @@ import {
   Salary,
   Cie,
   DetailDisability,
-  Permisos,
   Modulo,
   ResDocumentsAttach,
 } from 'src/models/generals.models';
@@ -112,7 +111,7 @@ const getDisabilityById = async (radicado: number) => {
 };
 
 const getPermissions = async (usuario: number) => {
-  return await api.get<Permisos>(`permissions/${usuario}`);
+  return await api.get<Modulo[]>(`permissions/${usuario}`);
 };
 
 const getPermissionsByRol = async (rol: number) => {

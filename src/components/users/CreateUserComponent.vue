@@ -292,19 +292,21 @@
 
           <template v-slot:navigation>
             <q-stepper-navigation>
-              <q-btn
-                :label="step == 1 ? 'Continuar' : 'Crear usuario'"
-                type="submit"
-                color="primary"
-              />
-              <!-- <q-btn
-                v-if="step > 1"
-                flat
-                color="primary"
-                @click="$refs.stepper.previous()"
-                label="Back"
-                class="q-ml-sm"
-              /> -->
+              <div class="row justify-end q-gutter-md">
+                <q-btn
+                  v-if="step > 1"
+                  flat
+                  color="primary"
+                  @click="stepper.previous()"
+                  label="Volver"
+                />
+
+                <q-btn
+                  :label="step == 1 ? 'Continuar' : 'Crear usuario'"
+                  type="submit"
+                  color="primary"
+                />
+              </div>
             </q-stepper-navigation>
           </template>
         </q-stepper>
@@ -355,7 +357,7 @@ export default defineComponent({
       fotoPerfil: '',
     });
     const step = ref(1);
-    const stepper = ref();
+    const stepper = ref<any>();
     const formUser = ref();
     const permissionsByRol = ref<Modulo[]>([]);
 
@@ -394,6 +396,7 @@ export default defineComponent({
                 if (element.selected && numberElement.length > 0) {
                   permissionsSelected.push({
                     modulo: element.modulo,
+                    selected: true,
                     items: [...element.items.filter((i) => i.selected)],
                   });
                 }
@@ -436,13 +439,13 @@ export default defineComponent({
         primerNombre: data.primerNombre,
         segundoApellido: data.segundoApellido,
         segundoNombre: data.segundoNombre,
-        password: decryptedAES(decryptedAES(data.password)),
+        password: decryptedAES(data.password),
         usuario: data.usuario,
         estadoUsuario: data.estadoUsuario,
         fkIdRol: data.fkIdRol,
         fotoPerfil: data.fotoPerfil,
       };
-      confirmPassword.value = decryptedAES(decryptedAES(data.password));
+      confirmPassword.value = decryptedAES(data.password);
     };
 
     watch(
@@ -456,10 +459,22 @@ export default defineComponent({
             const { data } = await get.getPermissionsByRol(value);
             permissionsByRol.value = [
               ...data.map((e) => {
-                e.selected = e.selected || false;
-                e.items.forEach((i) => {
-                  i.selected = i.selected || false;
-                });
+                if (userEdit.value) {
+                  const permisos: Modulo[] = JSON.parse(
+                    `${userEdit.value.permisos}`
+                  );
+                  const permiso = permisos.find((p) => p.modulo == e.modulo);
+                  e.selected = permiso?.selected || false;
+                  e.items.forEach((i) => {
+                    const item = permiso?.items.find((p) => p.route == i.route);
+                    i.selected = item?.selected || false;
+                  });
+                } else {
+                  e.selected = e.selected || false;
+                  e.items.forEach((i) => {
+                    i.selected = i.selected || false;
+                  });
+                }
                 return e;
               }),
             ];
