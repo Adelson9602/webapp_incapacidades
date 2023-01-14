@@ -75,7 +75,7 @@
           </q-btn>
           <q-btn round flat>
             <q-avatar size="26px">
-              <img src="https://cdn.quasar.dev/img/boy-avatar.png" />
+              <img :src="dataUser.fotoPerfil" />
             </q-avatar>
             <q-tooltip>Account</q-tooltip>
           </q-btn>
@@ -214,6 +214,7 @@ export default {
       menu,
       isLoading,
       isAvaiable,
+      dataUser,
       toggleLeftDrawer,
       logout,
     };
