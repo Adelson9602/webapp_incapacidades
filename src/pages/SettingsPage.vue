@@ -114,6 +114,7 @@
                   :label="isEdit ? 'Cancelar' : 'Editar'"
                   unelevated
                   @click="isEdit = !isEdit"
+                  v-if="actions.update"
                 />
                 <q-btn
                   v-if="isEdit"
@@ -135,7 +136,8 @@
 import { defineComponent, ref, onMounted } from 'vue';
 import { decryptJSON } from '../helpers/encrypt';
 import { useQuasar, LocalStorage } from 'quasar';
-import { CompanyLogged } from 'src/models/generals.models';
+import { Actions, CompanyLogged, Modulo } from 'src/models/generals.models';
+import { useRouter } from 'vue-router';
 export default defineComponent({
   name: 'PageSetting',
   setup() {
@@ -167,6 +169,14 @@ export default defineComponent({
         fkIdTipoDocumento: 0,
       },
     });
+    const permisos = $q.localStorage.getItem('permisos') as Modulo[];
+    const { currentRoute } = useRouter();
+    const actions = ref<Actions>({
+      borrar: false,
+      insert: false,
+      leer: false,
+      update: false,
+    });
 
     const getData = () => {
       $q.loading.show({
@@ -185,12 +195,22 @@ export default defineComponent({
 
     onMounted(() => {
       getData();
+
+      // Validamos las acciones del usuario, permisos que tiene asignado
+      const currentPath = currentRoute.value.path;
+      permisos.forEach((p) => {
+        const path = p.items.find((i) => i.route == currentPath);
+        if (path) {
+          actions.value = { ...path.actions };
+        }
+      });
     });
 
     return {
       accountData,
       text: ref(''),
       isEdit: ref(false),
+      actions,
     };
   },
 });

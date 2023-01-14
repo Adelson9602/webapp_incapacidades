@@ -11,8 +11,12 @@
         align="justify"
         narrow-indicator
       >
-        <q-tab name="users" label="Usuarios" />
-        <q-tab name="createUser" label="Crear usuario" />
+        <q-tab name="users" label="Usuarios" v-if="actions.leer" />
+        <q-tab
+          name="createUser"
+          label="Crear usuario"
+          v-if="actions.insert || tab == 'createUser'"
+        />
       </q-tabs>
 
       <q-separator />
@@ -42,11 +46,12 @@
 import { defineComponent, onMounted, ref } from 'vue';
 import GeneralTableComponent from 'components/general/GeneralTableComponent.vue';
 import CreateUserComponent from 'components/users/CreateUserComponent.vue';
-import { UserData } from 'src/models/generals.models';
+import { Actions, Modulo, UserData } from 'src/models/generals.models';
 import { controlError } from 'src/helpers/controlError';
 import { get, post } from 'src/requests';
 import { QTableColumn, useQuasar } from 'quasar';
 import { decryptedAES } from 'src/helpers/encrypt';
+import { useRouter } from 'vue-router';
 
 const columns: QTableColumn[] = [
   {
@@ -126,6 +131,14 @@ export default defineComponent({
     const rows = ref<UserData[]>([]);
     const isLoading = ref(false);
     const dataUserEdit = ref<UserData>();
+    const permisos = $q.localStorage.getItem('permisos') as Modulo[];
+    const { currentRoute } = useRouter();
+    const actions = ref<Actions>({
+      borrar: false,
+      insert: false,
+      leer: false,
+      update: false,
+    });
 
     const onReload = () => {
       tab.value = 'users';
@@ -198,13 +211,25 @@ export default defineComponent({
       });
     };
 
-    onMounted(() => getData());
+    onMounted(() => {
+      getData();
+
+      // Validamos las acciones del usuario, permisos que tiene asignado
+      const currentPath = currentRoute.value.path;
+      permisos.forEach((p) => {
+        const path = p.items.find((i) => i.route == currentPath);
+        if (path) {
+          actions.value = { ...path.actions };
+        }
+      });
+    });
     return {
       tab,
       isLoading,
       rows,
       columns,
       dataUserEdit,
+      actions,
       onEdit,
       onReload,
       onStatus,

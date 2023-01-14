@@ -173,6 +173,7 @@ export default {
       try {
         const { data } = await get.getPermissions(dataUser.documentoPersona);
         menu.value = [...data];
+        LocalStorage.set('permisos', data);
         isAvaiable.value = true;
       } catch (error) {
         controlError(error);

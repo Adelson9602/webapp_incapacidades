@@ -11,10 +11,11 @@
         align="justify"
         narrow-indicator
       >
-        <q-tab name="employes" label="Empleados" />
+        <q-tab name="employes" label="Empleados" v-if="actions.leer" />
         <q-tab
           name="add_employe"
           :label="isEdit ? 'Editar empleado' : 'Agregar empleado'"
+          v-if="actions.insert || tab == 'add_employe'"
         />
       </q-tabs>
 
@@ -85,13 +86,18 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted, watch } from 'vue';
 import { get } from 'src/requests';
-import { InformationEmploye } from 'src/models/generals.models';
+import {
+  Actions,
+  InformationEmploye,
+  Modulo,
+} from 'src/models/generals.models';
 import { controlError } from 'src/helpers/controlError';
 import GeneralTableComponent from 'src/components/general/GeneralTableComponent.vue';
 import CreateEmployeComponent from 'src/components/Person/CreateEmployeComponent.vue';
 import { employeStore } from 'stores/employe';
 import { storeToRefs } from 'pinia';
-import { QTableColumn } from 'quasar';
+import { QTableColumn, useQuasar } from 'quasar';
+import { useRouter } from 'vue-router';
 
 const columns: QTableColumn[] = [
   {
@@ -159,6 +165,7 @@ export default defineComponent({
     CreateEmployeComponent,
   },
   setup() {
+    const $q = useQuasar();
     const tab = ref('employes');
     const rows = ref<InformationEmploye[]>();
     const employe = ref<InformationEmploye>();
@@ -167,6 +174,14 @@ export default defineComponent({
     const { contact, isEdit, fkIdDepartamento, person } = storeToRefs(
       employeStore()
     );
+    const permisos = $q.localStorage.getItem('permisos') as Modulo[];
+    const { currentRoute } = useRouter();
+    const actions = ref<Actions>({
+      borrar: false,
+      insert: false,
+      leer: false,
+      update: false,
+    });
 
     const getData = async () => {
       try {
@@ -269,7 +284,18 @@ export default defineComponent({
       }
     });
 
-    onMounted(() => getData());
+    onMounted(() => {
+      getData();
+
+      // Validamos las acciones del usuario, permisos que tiene asignado
+      const currentPath = currentRoute.value.path;
+      permisos.forEach((p) => {
+        const path = p.items.find((i) => i.route == currentPath);
+        if (path) {
+          actions.value = { ...path.actions };
+        }
+      });
+    });
 
     return {
       tab,
@@ -279,6 +305,7 @@ export default defineComponent({
       dialogDetail,
       companyDetail,
       isEdit,
+      actions,
       onReload,
       onEdit,
       onDetail,

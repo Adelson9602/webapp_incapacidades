@@ -185,7 +185,7 @@
                   icon="fa-solid fa-pen-to-square"
                   no-caps
                   @click="onEdit(props.row)"
-                  v-if="props.row.btnEdit"
+                  v-if="props.row.btnEdit && actions.update"
                 >
                   <q-tooltip> Editar </q-tooltip>
                 </q-btn>
@@ -198,7 +198,7 @@
                   icon="fa-solid fa-power-off"
                   no-caps
                   @click="onStatus(props.row)"
-                  v-if="props.row.btnStatus"
+                  v-if="props.row.btnStatus && actions.update"
                 >
                   <q-tooltip> Cambiar estado </q-tooltip>
                 </q-btn>
@@ -211,7 +211,7 @@
                   icon="fa-solid fa-eye"
                   no-caps
                   @click="onDetail(props.row)"
-                  v-if="props.row.btnDetail"
+                  v-if="props.row.btnDetail && actions.leer"
                 >
                   <q-tooltip> Ver detalle </q-tooltip>
                 </q-btn>
@@ -224,7 +224,7 @@
                   icon="add"
                   no-caps
                   @click="onAddExtension(props.row)"
-                  v-if="props.row.btnAddExtension"
+                  v-if="props.row.btnAddExtension && actions.insert"
                 >
                   <q-tooltip> Agregar prorroga </q-tooltip>
                 </q-btn>
@@ -238,7 +238,7 @@
                   icon="delete"
                   no-caps
                   @click="onDelete(props.row)"
-                  v-if="props.row.btnDelete"
+                  v-if="props.row.btnDelete && actions.borrar"
                 >
                   <q-tooltip> Eliminar </q-tooltip>
                 </q-btn>
@@ -258,6 +258,8 @@
 <script lang="ts">
 import { useQuasar, QTableColumn } from 'quasar';
 import { onMounted, PropType, ref, toRefs, watch } from 'vue';
+import { Actions, Modulo } from 'src/models/generals.models';
+import { useRouter } from 'vue-router';
 
 export default {
   props: {
@@ -296,6 +298,14 @@ export default {
       // rowsNumber: xx if getting data from a server
     });
     const isGrid = ref(false);
+    const permisos = $q.localStorage.getItem('permisos') as Modulo[];
+    const { currentRoute } = useRouter();
+    const actions = ref<Actions>({
+      borrar: false,
+      insert: false,
+      leer: false,
+      update: false,
+    });
 
     watch(
       () => $q.screen.name,
@@ -358,12 +368,21 @@ export default {
 
     onMounted(() => {
       isGrid.value = grid.value;
+      // Validamos las acciones del usuario, permisos que tiene asignado
+      const currentPath = currentRoute.value.path;
+      permisos.forEach((p) => {
+        const path = p.items.find((i) => i.route == currentPath);
+        if (path) {
+          actions.value = { ...path.actions };
+        }
+      });
     });
 
     return {
       filter,
       pagination,
       isGrid,
+      actions,
       onDelete,
       upDateVmodel,
       onEdit,

@@ -8,6 +8,7 @@
           icon="add"
           label="agregar rol"
           @click="dialogRol = true"
+          v-if="actions.insert"
         />
         <q-dialog v-model="dialogRol" persistent>
           <q-card style="width: 450px; max-width: 90vw">
@@ -67,11 +68,12 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue';
-import { Rols } from 'src/models/generals.models';
+import { Actions, Modulo, Rols } from 'src/models/generals.models';
 import GeneralTableComponent from 'src/components/general/GeneralTableComponent.vue';
 import { get, post } from 'src/requests';
 import { controlError } from 'src/helpers/controlError';
 import { QTableColumn, useQuasar } from 'quasar';
+import { useRouter } from 'vue-router';
 
 const columns: QTableColumn[] = [
   {
@@ -103,6 +105,14 @@ export default defineComponent({
     const rol = ref({
       idRol: 0,
       nombreRol: '',
+    });
+    const permisos = $q.localStorage.getItem('permisos') as Modulo[];
+    const { currentRoute } = useRouter();
+    const actions = ref<Actions>({
+      borrar: false,
+      insert: false,
+      leer: false,
+      update: false,
     });
 
     const getData = async () => {
@@ -162,7 +172,18 @@ export default defineComponent({
       dialogRol.value = true;
     };
 
-    onMounted(() => getData());
+    onMounted(() => {
+      getData();
+
+      // Validamos las acciones del usuario, permisos que tiene asignado
+      const currentPath = currentRoute.value.path;
+      permisos.forEach((p) => {
+        const path = p.items.find((i) => i.route == currentPath);
+        if (path) {
+          actions.value = { ...path.actions };
+        }
+      });
+    });
 
     return {
       columns,
@@ -170,6 +191,7 @@ export default defineComponent({
       dialogRol,
       rol,
       myForm,
+      actions,
       onSubmit,
       onReset,
       onEdit,

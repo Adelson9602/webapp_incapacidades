@@ -8,6 +8,7 @@
           icon="add"
           label="agregar tipo documento"
           @click="dialog = true"
+          v-if="actions.insert"
         />
         <q-dialog v-model="dialog" persistent>
           <q-card style="width: 450px; max-width: 90vw">
@@ -70,11 +71,12 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue';
-import { DocumentType } from 'src/models/generals.models';
+import { Actions, DocumentType, Modulo } from 'src/models/generals.models';
 import GeneralTableComponent from 'src/components/general/GeneralTableComponent.vue';
 import { get, post } from 'src/requests';
 import { controlError } from 'src/helpers/controlError';
 import { QTableColumn, useQuasar } from 'quasar';
+import { useRouter } from 'vue-router';
 
 const columns: QTableColumn[] = [
   {
@@ -106,6 +108,14 @@ export default defineComponent({
     const documentType = ref({
       idTipoDocumento: 0,
       nombreTipoDocumento: '',
+    });
+    const permisos = $q.localStorage.getItem('permisos') as Modulo[];
+    const { currentRoute } = useRouter();
+    const actions = ref<Actions>({
+      borrar: false,
+      insert: false,
+      leer: false,
+      update: false,
     });
 
     const getData = async () => {
@@ -167,7 +177,18 @@ export default defineComponent({
       dialog.value = true;
     };
 
-    onMounted(() => getData());
+    onMounted(() => {
+      getData();
+
+      // Validamos las acciones del usuario, permisos que tiene asignado
+      const currentPath = currentRoute.value.path;
+      permisos.forEach((p) => {
+        const path = p.items.find((i) => i.route == currentPath);
+        if (path) {
+          actions.value = { ...path.actions };
+        }
+      });
+    });
 
     return {
       columns,
@@ -175,6 +196,7 @@ export default defineComponent({
       dialog,
       documentType,
       myForm,
+      actions,
       onSubmit,
       onReset,
       onEdit,

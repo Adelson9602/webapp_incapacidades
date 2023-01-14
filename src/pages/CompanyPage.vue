@@ -11,8 +11,12 @@
         align="justify"
         narrow-indicator
       >
-        <q-tab name="companies" label="Empresas" />
-        <q-tab name="add_company" label="Agregar empresa" />
+        <q-tab name="companies" label="Empresas" v-if="actions.leer" />
+        <q-tab
+          name="add_company"
+          label="Agregar empresa"
+          v-if="actions.leer || tab == 'add_company'"
+        />
       </q-tabs>
 
       <q-separator />
@@ -82,11 +86,16 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
 import { get } from 'src/requests';
-import { InformationCompany } from 'src/models/generals.models';
+import {
+  Actions,
+  InformationCompany,
+  Modulo,
+} from 'src/models/generals.models';
 import { controlError } from 'src/helpers/controlError';
 import GeneralTableComponent from 'src/components/general/GeneralTableComponent.vue';
 import CreateCompanyComponent from 'src/components/company/CreateCompanyComponent.vue';
-import { QTableColumn } from 'quasar';
+import { QTableColumn, useQuasar } from 'quasar';
+import { useRouter } from 'vue-router';
 
 const columns: QTableColumn[] = [
   {
@@ -147,11 +156,20 @@ export default defineComponent({
     CreateCompanyComponent,
   },
   setup() {
+    const $q = useQuasar();
     const tab = ref('companies');
     const rows = ref<InformationCompany[]>();
     const company = ref<InformationCompany>();
     const companyDetail = ref<any>();
     const dialogDetail = ref(false);
+    const permisos = $q.localStorage.getItem('permisos') as Modulo[];
+    const { currentRoute } = useRouter();
+    const actions = ref<Actions>({
+      borrar: false,
+      insert: false,
+      leer: false,
+      update: false,
+    });
 
     const getData = async () => {
       try {
@@ -199,7 +217,18 @@ export default defineComponent({
       dialogDetail.value = true;
     };
 
-    onMounted(() => getData());
+    onMounted(() => {
+      getData();
+
+      // Validamos las acciones del usuario, permisos que tiene asignado
+      const currentPath = currentRoute.value.path;
+      permisos.forEach((p) => {
+        const path = p.items.find((i) => i.route == currentPath);
+        if (path) {
+          actions.value = { ...path.actions };
+        }
+      });
+    });
 
     return {
       tab,
@@ -208,6 +237,7 @@ export default defineComponent({
       company,
       dialogDetail,
       companyDetail,
+      actions,
       onReload,
       onEdit,
       onDetail,

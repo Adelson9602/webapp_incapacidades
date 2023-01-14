@@ -25,6 +25,7 @@
               icon="add"
               label="agregar depatamento"
               @click="dialogDepartment = true"
+              v-if="actions.insert"
             />
             <q-dialog v-model="dialogDepartment" persistent>
               <q-card style="width: 450px; max-width: 90vw">
@@ -87,6 +88,7 @@
               icon="add"
               label="agregar ciudad"
               @click="dialogCity = true"
+              v-if="actions.insert"
             />
             <q-dialog v-model="dialogCity" persistent>
               <q-card style="width: 450px; max-width: 90vw">
@@ -169,11 +171,12 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue';
-import { City, Department } from 'src/models/generals.models';
+import { Actions, City, Department, Modulo } from 'src/models/generals.models';
 import GeneralTableComponent from 'src/components/general/GeneralTableComponent.vue';
 import { get, post } from 'src/requests';
 import { controlError } from 'src/helpers/controlError';
 import { QTableColumn, useQuasar } from 'quasar';
+import { useRouter } from 'vue-router';
 
 const columns: QTableColumn[] = [
   {
@@ -234,11 +237,19 @@ export default defineComponent({
       nombreDepartamento: '',
     });
     const optionDepartment = ref(rows);
-
     const city = ref({
       idCiudad: 0,
       nombreCiudad: '',
       fkIdDepartamento: 0,
+    });
+
+    const permisos = $q.localStorage.getItem('permisos') as Modulo[];
+    const { currentRoute } = useRouter();
+    const actions = ref<Actions>({
+      borrar: false,
+      insert: false,
+      leer: false,
+      update: false,
     });
 
     const getData = async () => {
@@ -366,7 +377,18 @@ export default defineComponent({
       });
     };
 
-    onMounted(() => getData());
+    onMounted(() => {
+      getData();
+
+      // Validamos las acciones del usuario, permisos que tiene asignado
+      const currentPath = currentRoute.value.path;
+      permisos.forEach((p) => {
+        const path = p.items.find((i) => i.route == currentPath);
+        if (path) {
+          actions.value = { ...path.actions };
+        }
+      });
+    });
 
     return {
       columns,
@@ -380,6 +402,7 @@ export default defineComponent({
       tab,
       city,
       optionDepartment,
+      actions,
       onSubmit,
       onSubmitCity,
       onReset,

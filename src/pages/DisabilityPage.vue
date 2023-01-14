@@ -11,10 +11,11 @@
         align="justify"
         narrow-indicator
       >
-        <q-tab name="disabilities" label="Incapacidades" />
+        <q-tab name="disabilities" label="Incapacidades" v-if="actions.leer" />
         <q-tab
           name="add_disability"
           :label="disability ? 'Editar incapacidad' : 'Agregar incapacidad'"
+          v-if="actions.insert || tab == 'add_disability'"
         />
       </q-tabs>
 
@@ -41,6 +42,7 @@
                 dense
                 outline
                 @click="dialogReport = true"
+                v-if="actions.leer"
               >
                 <q-tooltip> Generar reportes </q-tooltip>
               </q-btn>
@@ -53,6 +55,7 @@
                 dense
                 outline
                 @click="viewDeleteDisability"
+                v-if="actions.borrar"
               >
                 <q-tooltip> Ver incapacidades eliminadas </q-tooltip>
               </q-btn>
@@ -474,11 +477,13 @@
 import { defineComponent, ref, onMounted, watch } from 'vue';
 import { delet, get, post, put } from 'src/requests';
 import {
+  Actions,
   Adjunto,
   CompanyLogged,
   DisabilityExtension,
   HistoricalDisability,
   InformationDisability,
+  Modulo,
   NewState,
   StateDisability,
 } from 'src/models/generals.models';
@@ -489,6 +494,7 @@ import { QTableColumn, openURL, useQuasar, date } from 'quasar';
 import { decryptJSON } from 'src/helpers/encrypt';
 import { calculateDisabilityCost } from 'src/helpers/globalFunctions';
 import DeleteDialogComponent from 'src/components/general/DeleteDialogComponent.vue';
+import { useRouter } from 'vue-router';
 
 const columns: QTableColumn[] = [
   {
@@ -698,6 +704,14 @@ export default defineComponent({
       idIncapacidad: 0,
       estado: 0,
       observacion: '',
+    });
+    const permisos = $q.localStorage.getItem('permisos') as Modulo[];
+    const { currentRoute } = useRouter();
+    const actions = ref<Actions>({
+      borrar: false,
+      insert: false,
+      leer: false,
+      update: false,
     });
 
     const getData = async () => {
@@ -1077,7 +1091,18 @@ export default defineComponent({
       }
     );
 
-    onMounted(() => getData());
+    onMounted(() => {
+      getData();
+
+      // Validamos las acciones del usuario, permisos que tiene asignado
+      const currentPath = currentRoute.value.path;
+      permisos.forEach((p) => {
+        const path = p.items.find((i) => i.route == currentPath);
+        if (path) {
+          actions.value = { ...path.actions };
+        }
+      });
+    });
 
     return {
       tab,
@@ -1102,6 +1127,7 @@ export default defineComponent({
       optionsStatus,
       newStateInability,
       columnsHistory,
+      actions,
       onSubmit,
       genreReport,
       addExtension,
