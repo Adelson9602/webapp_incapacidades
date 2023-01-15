@@ -213,6 +213,28 @@
                   emit-value
                 />
               </div>
+              <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
+                <q-toggle
+                  v-model="person.isNotified"
+                  checked-icon="check"
+                  color="positive"
+                  label="Recibir notificaciones del sistema"
+                  size="lg"
+                  unchecked-icon="clear"
+                />
+              </div>
+              <div
+                class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm"
+                v-if="person.isNotified"
+              >
+                <q-input
+                  v-model="person.email"
+                  type="email"
+                  label="Email"
+                  :rules="[(val) => !!val || 'Email es requerido']"
+                  filled
+                />
+              </div>
             </div>
           </q-step>
 
@@ -355,6 +377,8 @@ export default defineComponent({
       estadoUsuario: 1,
       fkIdRol: null,
       fotoPerfil: '',
+      isNotified: false,
+      email: '',
     });
     const step = ref(1);
     const stepper = ref<any>();
@@ -444,9 +468,21 @@ export default defineComponent({
         estadoUsuario: data.estadoUsuario,
         fkIdRol: data.fkIdRol,
         fotoPerfil: data.fotoPerfil,
+        isNotified: data.isNotified ? true : false,
+        email: data.email,
+        idUsuarioNotificar: data.idUsuarioNotificar,
       };
       confirmPassword.value = decryptedAES(data.password);
     };
+
+    // watch(
+    //   () => person.value.isNotified,
+    //   (value) => {
+    //     if (!value) {
+    //       person.value.email = '';
+    //     }
+    //   }
+    // );
 
     watch(
       () => person.value.fkIdRol,

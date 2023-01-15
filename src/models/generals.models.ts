@@ -19,6 +19,13 @@ export interface Persona {
   completeName?: string;
 }
 
+export interface UserToNotification {
+  idUsuarioNotificar: number;
+  usuario: number;
+  email: string;
+  estado: boolean;
+}
+
 export interface UserData extends Persona, ActionsUser {
   password: string;
   usuario: number | null;
@@ -29,6 +36,9 @@ export interface UserData extends Persona, ActionsUser {
   rowKey?: number; // Idenfiticador único en la tabla
   avatar?: string; // Avatar en la tabla
   permisos?: Permisos | Modulo[];
+  isNotified: boolean;
+  email?: string;
+  idUsuarioNotificar?: number;
 }
 
 export interface Rols extends ActionsUser {
