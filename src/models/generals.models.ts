@@ -199,10 +199,16 @@ export interface InformationCompany extends ActionsUser {
 }
 
 export interface NewState {
-  idIncapacidad: number,
-  estado: number,
-  observacion: string
+  idIncapacidad: number;
+  estado: number;
+  observacion: string;
 }
+
+export interface StateNotification {
+  idNotificacion: number;
+  estado: number;
+}
+
 export interface Disability {
   radicado?: number | null;
   fkIdTipoIncapacidad: number;
@@ -359,7 +365,7 @@ export interface DisabilityExtension {
 }
 
 export interface HistoricalDisability {
-  idHistorico?: number | null,
+  idHistorico?: number | null;
   idIncapacidad?: number;
   usuario: number;
   nombres?: string;
@@ -462,4 +468,10 @@ export interface Permisos {
 
 export interface ResDocumentsAttach {
   documento: string;
+}
+export interface Notifications {
+  idNotificacion: number;
+  usuario: number;
+  mensaje: string;
+  estado: number;
 }

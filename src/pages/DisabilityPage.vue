@@ -498,11 +498,11 @@ import { useRouter } from 'vue-router';
 
 const columns: QTableColumn[] = [
   {
-    name: 'radicado',
+    name: 'idIncapacidad',
     align: 'center',
-    label: '# INCAPACIDAD',
+    label: 'ID INCAPACIDAD',
     sortable: true,
-    field: 'radicado',
+    field: 'idIncapacidad',
   },
   {
     name: 'fechaInicio',

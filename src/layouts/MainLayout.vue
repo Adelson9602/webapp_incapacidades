@@ -42,33 +42,16 @@
 
         <div class="q-gutter-sm row items-center no-wrap">
           <q-btn round dense flat color="grey-8" icon="notifications">
-            <q-badge color="red" text-color="white" floating> 2 </q-badge>
-            <q-tooltip>Notifications</q-tooltip>
-            <q-menu>
-              <q-list style="min-width: 100px">
-                <q-item clickable v-close-popup>
-                  <q-item-section>New tab</q-item-section>
-                </q-item>
-                <q-item clickable v-close-popup>
-                  <q-item-section>New incognito tab</q-item-section>
-                </q-item>
-                <q-separator />
-                <q-item clickable v-close-popup>
-                  <q-item-section>Recent tabs</q-item-section>
-                </q-item>
-                <q-item clickable v-close-popup>
-                  <q-item-section>History</q-item-section>
-                </q-item>
-                <q-item clickable v-close-popup>
-                  <q-item-section>Downloads</q-item-section>
-                </q-item>
-                <q-separator />
-                <q-item clickable v-close-popup>
-                  <q-item-section>Settings</q-item-section>
-                </q-item>
-                <q-separator />
-                <q-item clickable v-close-popup>
-                  <q-item-section>Help &amp; Feedback</q-item-section>
+            <q-badge color="red" text-color="white" floating>
+              {{ notifications.filter((i) => i.estado).length }}
+            </q-badge>
+            <!-- <q-tooltip>Notificaciones</q-tooltip> -->
+            <q-menu anchor="top middle" self="bottom middle">
+              <q-list style="min-width: 350px; max-width: 90vw">
+                <q-item>
+                  <q-item-section>
+                    <NotificationsComponent :notifications="notifications" />
+                  </q-item-section>
                 </q-item>
               </q-list>
             </q-menu>
@@ -77,7 +60,7 @@
             <q-avatar size="26px">
               <img :src="dataUser.fotoPerfil" />
             </q-avatar>
-            <q-tooltip>Account</q-tooltip>
+            <!-- <q-tooltip>Cuenta</q-tooltip> -->
           </q-btn>
         </div>
       </q-toolbar>
@@ -150,11 +133,19 @@ import { useQuasar, LocalStorage } from 'quasar';
 import { useRouter } from 'vue-router';
 import { controlError } from 'src/helpers/controlError';
 import { decryptJSON } from 'src/helpers/encrypt';
-import { CompanyLogged, Modulo } from 'src/models/generals.models';
+import {
+  CompanyLogged,
+  Modulo,
+  Notifications,
+} from 'src/models/generals.models';
 import { get } from 'src/requests';
+import NotificationsComponent from 'src/components/general/NotificationsComponent.vue';
 
 export default {
   name: 'MyLayout',
+  components: {
+    NotificationsComponent,
+  },
   setup() {
     const $q = useQuasar();
     const router = useRouter();
@@ -166,6 +157,7 @@ export default {
     ) as unknown as CompanyLogged;
     const menu = ref<Modulo[]>([]);
     const isAvaiable = ref(false);
+    const notifications = ref<Notifications[]>([]);
 
     const getData = async () => {
       isLoading.value = true;
@@ -174,6 +166,11 @@ export default {
         const { data } = await get.getPermissions(dataUser.documentoPersona);
         menu.value = [...data];
         LocalStorage.set('permisos', data);
+        const resNotification = await get
+          .getNotifications(dataUser.usuario)
+          .then(({ data }) => data);
+
+        notifications.value = [...resNotification];
         isAvaiable.value = true;
       } catch (error) {
         controlError(error);
@@ -215,6 +212,7 @@ export default {
       isLoading,
       isAvaiable,
       dataUser,
+      notifications,
       toggleLeftDrawer,
       logout,
     };
