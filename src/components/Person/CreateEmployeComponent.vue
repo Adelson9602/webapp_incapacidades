@@ -64,6 +64,31 @@
             </template>
           </q-select>
         </div>
+        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
+          <q-input
+            outlined
+            v-model="workStartDate"
+            mask="date"
+            :rules="['date']"
+            label="Fecha inicio laboral"
+          >
+            <template v-slot:append>
+              <q-icon name="event" class="cursor-pointer">
+                <q-popup-proxy
+                  cover
+                  transition-show="scale"
+                  transition-hide="scale"
+                >
+                  <q-date v-model="workStartDate">
+                    <div class="row items-center justify-end">
+                      <q-btn v-close-popup label="Close" color="primary" flat />
+                    </div>
+                  </q-date>
+                </q-popup-proxy>
+              </q-icon>
+            </template>
+          </q-input>
+        </div>
       </div>
       <div class="row justify-end">
         <q-btn icon="save" label="Guardar" type="submit" color="primary" />
@@ -91,6 +116,7 @@ import { controlError } from 'src/helpers/controlError';
 import { useQuasar } from 'quasar';
 import { employeStore } from 'stores/employe';
 import { storeToRefs } from 'pinia';
+import { date } from 'quasar';
 
 export default defineComponent({
   name: 'ComponentCreateEmploye',
@@ -106,7 +132,7 @@ export default defineComponent({
     const $q = useQuasar();
     const myForm = ref<any>(null);
     const fkIdCargo = ref<number>();
-    const fkIdEmpresa = ref<number>();
+    const fkIdEmpresa = ref<number>(0);
     const isLoading = ref(false);
     const positions = ref<Position[]>();
     const optionsPositions = ref<Position[]>();
@@ -114,6 +140,7 @@ export default defineComponent({
     const optionsCompanies = ref<Company[]>([]);
     const { employeEdit } = toRefs(props);
     const { person, contact } = storeToRefs(employeStore());
+    const workStartDate = ref('');
 
     const getData = async () => {
       isLoading.value = true;
@@ -143,6 +170,9 @@ export default defineComponent({
     const onSubmit = async () => {
       isLoading.value = true;
       try {
+        const timeStamp = new Date(workStartDate.value);
+        const formattedString = date.formatDate(timeStamp, 'YYYY-MM-DD');
+
         const dataSend: InformationEmploye = {
           ...person.value,
           ...contact.value,
@@ -150,7 +180,8 @@ export default defineComponent({
           fkIdContacto: contact.value.idContacto,
           isEmploye: true,
           fkDocumentoPersona: person.value.documentoPersona,
-          fkIdEmpresa: fkIdEmpresa.value || 0,
+          fkIdEmpresa: fkIdEmpresa.value,
+          fechaInicioLaboral: formattedString,
         };
         const resCreate = await post
           .createPerson(dataSend)
@@ -216,6 +247,7 @@ export default defineComponent({
       isLoading,
       optionsCompanies,
       fkIdEmpresa,
+      workStartDate,
       onSubmit,
       onReset,
       filterPosition,

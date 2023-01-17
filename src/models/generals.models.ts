@@ -119,6 +119,7 @@ export interface InformationEmploye extends ActionsUser {
   nombreTipoDocumento?: string;
   title?: string;
   isEmploye: boolean;
+  fechaInicioLaboral: string;
 }
 
 export interface DisabilityType extends ActionsUser {
