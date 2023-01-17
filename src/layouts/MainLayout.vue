@@ -166,17 +166,22 @@ export default {
         const { data } = await get.getPermissions(dataUser.documentoPersona);
         menu.value = [...data];
         LocalStorage.set('permisos', data);
-        const resNotification = await get
-          .getNotifications(dataUser.usuario)
-          .then(({ data }) => data);
 
-        notifications.value = [...resNotification];
+        await notitifactions();
         isAvaiable.value = true;
       } catch (error) {
         controlError(error);
       } finally {
         isLoading.value = false;
       }
+    };
+
+    const notitifactions = async () => {
+      const resNotification = await get
+        .getNotifications(dataUser.usuario)
+        .then(({ data }) => data);
+
+      notifications.value = [...resNotification];
     };
 
     const toggleLeftDrawer = () => {
@@ -194,7 +199,11 @@ export default {
       }, 1000);
     };
 
-    onMounted(() => getData());
+    onMounted(() => {
+      getData();
+
+      setInterval(() => notitifactions(), 5000);
+    });
 
     return {
       leftDrawerOpen,
