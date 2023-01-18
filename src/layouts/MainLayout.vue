@@ -202,7 +202,7 @@ export default {
     onMounted(() => {
       getData();
 
-      setInterval(() => notitifactions(), 5000);
+      setInterval(() => notitifactions(), 10000);
     });
 
     return {
