@@ -420,6 +420,7 @@ export default defineComponent({
       nombreCargo: '',
       nombreTipoDocumento: '',
       isEmploye: false,
+      fechaInicioLaboral: '',
     });
     const isLoading = ref<boolean>(false);
     const companies = ref<Company[]>([]);
