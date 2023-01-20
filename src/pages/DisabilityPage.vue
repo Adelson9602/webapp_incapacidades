@@ -60,6 +60,36 @@
                 <q-tooltip> Ver incapacidades eliminadas </q-tooltip>
               </q-btn>
             </template>
+            <template v-slot:btn-3>
+              <q-btn
+                icon="event"
+                class="q-ml-sm"
+                outline
+                dense
+                color="secondary"
+              >
+                <q-tooltip>
+                  Consultar incapacidades por rango de fecha
+                </q-tooltip>
+                <q-popup-proxy
+                  cover
+                  transition-show="scale"
+                  transition-hide="scale"
+                >
+                  <q-date v-model="range" range>
+                    <div class="row items-center justify-end q-gutter-sm">
+                      <q-btn
+                        label="Cancel"
+                        color="primary"
+                        flat
+                        v-close-popup
+                      />
+                      <q-btn label="OK" color="primary" flat v-close-popup />
+                    </div>
+                  </q-date>
+                </q-popup-proxy>
+              </q-btn>
+            </template>
           </general-table-component>
           <!-- Dialogo para el detalle de incapacidad -->
           <q-dialog v-model="dialogDetail" persistent full-width>
@@ -713,6 +743,7 @@ export default defineComponent({
       leer: false,
       update: false,
     });
+    const range = ref({ from: '', to: '' });
 
     const getData = async () => {
       isLoading.value = true;
@@ -1128,6 +1159,7 @@ export default defineComponent({
       newStateInability,
       columnsHistory,
       actions,
+      range,
       onSubmit,
       genreReport,
       addExtension,

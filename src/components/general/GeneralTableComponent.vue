@@ -16,12 +16,16 @@
         :pagination="pagination"
         style="min-height: 70vh"
       >
-        <template v-slot:top-left>
-          <div class="row">
-            <div class="text-h6">{{ title }}</div>
-            <div class="q-ml-sm">
+        <template v-slot:top>
+          <div class="row full-width">
+            <div class="col-xs-12 text-h6 title-table">
+              {{ title }}
+            </div>
+            <div
+              class="col-xs-12 col-sm-6 col-md-10 container-buttons row justify-around items-center"
+            >
               <q-btn
-                color="primary"
+                color="warning"
                 :icon="isGrid ? 'fa-solid fa-table-list' : 'mdi-grid'"
                 dense
                 outline
@@ -31,22 +35,23 @@
               </q-btn>
               <slot name="btn-1"> </slot>
               <slot name="btn-2"> </slot>
+              <slot name="btn-3"> </slot>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-2">
+              <q-input
+                borderless
+                dense
+                filled
+                debounce="300"
+                v-model="filter"
+                placeholder="Buscar"
+              >
+                <template v-slot:append>
+                  <q-icon name="search" />
+                </template>
+              </q-input>
             </div>
           </div>
-        </template>
-        <template v-slot:top-right>
-          <q-input
-            borderless
-            dense
-            filled
-            debounce="300"
-            v-model="filter"
-            placeholder="Buscar"
-          >
-            <template v-slot:append>
-              <q-icon name="search" />
-            </template>
-          </q-input>
         </template>
 
         <!-- Modo grid -->
@@ -428,4 +433,21 @@ export default {
       flex: 1 0 100% !important
       width: 0 !important
       order: 2
+
+.title-table
+  body.screen--xs &
+    text-align: center
+
+.container-buttons
+  body.screen--xs &
+    padding: 10px
+
+.container-input
+  body.screen--xs &
+    width: 100% !important
+    display: block
+
+@media (min-width: $breakpoint-sm-min)
+  .container-buttons
+    justify-content: flex-start !important
 </style>
