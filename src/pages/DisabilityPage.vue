@@ -23,6 +23,19 @@
 
       <q-tab-panels v-model="tab" animated>
         <q-tab-panel name="disabilities">
+          <q-banner
+            inline-actions
+            rounded
+            class="bg-orange-3 text-balck text-bold"
+            v-if="isFilterByDate"
+          >
+            Viendo incapaciades en un rago de fecha desde {{ range.from }} hasta
+            {{ range.to }}
+
+            <template v-slot:action>
+              <q-btn flat label="Ver todos" @click="getData" />
+            </template>
+          </q-banner>
           <general-table-component
             :columns="columns"
             :rows="rows"
@@ -76,15 +89,23 @@
                   transition-show="scale"
                   transition-hide="scale"
                 >
-                  <q-date v-model="range" range>
+                  <q-date v-model="range" range mask="YYYY-MM-DD">
                     <div class="row items-center justify-end q-gutter-sm">
                       <q-btn
-                        label="Cancel"
+                        label="Cancelar"
+                        color="primary"
+                        flat
+                        @click="onReset"
+                        v-close-popup
+                      />
+                      <q-btn
+                        label="OK"
                         color="primary"
                         flat
                         v-close-popup
+                        :disable="range.from || range ? false : true"
+                        @click="filterDisability"
                       />
-                      <q-btn label="OK" color="primary" flat v-close-popup />
                     </div>
                   </q-date>
                 </q-popup-proxy>
@@ -744,6 +765,7 @@ export default defineComponent({
       update: false,
     });
     const range = ref({ from: '', to: '' });
+    const isFilterByDate = ref(false);
 
     const getData = async () => {
       isLoading.value = true;
@@ -767,6 +789,8 @@ export default defineComponent({
           .getSalary()
           .then((response) => response.data);
         minimumSalary.value = resSalary.salarioMinimo;
+
+        isFilterByDate.value = false;
       } catch (error) {
         controlError(error);
       } finally {
@@ -1043,6 +1067,46 @@ export default defineComponent({
       }
     };
 
+    const filterDisability = async () => {
+      isLoading.value = true;
+      try {
+        let from = '';
+        let to = '';
+
+        if (typeof range.value === 'string') {
+          from = range.value;
+        } else {
+          from = range.value.from;
+          to = range.value.to;
+        }
+        const { data } = await get.disabilityByRange(from, to);
+
+        rows.value = [
+          ...data.map((c) => {
+            c.btnDetail = true;
+            c.btnEdit = true;
+            c.btnAddExtension = true;
+            c.btnDelete = true;
+            c.title = `${c.primerNombre} ${c.primerApellido}`;
+            return c;
+          }),
+        ];
+        isFilterByDate.value = true;
+      } catch (error) {
+        controlError(error);
+      } finally {
+        isLoading.value = false;
+      }
+    };
+
+    const onReset = () => {
+      if (range.value.from && range.value.to) {
+        range.value.from = '';
+        range.value.to = '';
+        getData();
+      }
+    };
+
     watch(dialogStatus, (value) => {
       if (!value) {
         newStateInability.value = {
@@ -1160,6 +1224,8 @@ export default defineComponent({
       columnsHistory,
       actions,
       range,
+      isFilterByDate,
+      getData,
       onSubmit,
       genreReport,
       addExtension,
@@ -1171,6 +1237,8 @@ export default defineComponent({
       viewDeleteDisability,
       changeStatus,
       openDialogchangeStatus,
+      filterDisability,
+      onReset,
     };
   },
 });
