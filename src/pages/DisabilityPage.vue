@@ -744,7 +744,7 @@ export default defineComponent({
         });
 
         dialogExtension.value = false;
-        disability.value = undefined;
+        disability.value = { ...informationDisability };
         DisabilityExtension.value = {
           idProrrogaIncapacidad: null,
           fkIdIncapacidad: 0,
@@ -823,7 +823,7 @@ export default defineComponent({
     const openDialogchangeStatus = async (row: InformationDisability) => {
       isLoading.value = true;
       try {
-        disabilityDetail.value = row;
+        disability.value = row;
         const estado = row.fkIdEstadoIncapacidad;
         const { data } = await get.getStateDisability();
         optionsStatus.value = [
@@ -956,7 +956,7 @@ export default defineComponent({
 
     watch(tab, (value) => {
       if (value == 'disabilities') {
-        disability.value = undefined;
+        disability.value = { ...informationDisability };
       }
     });
 
