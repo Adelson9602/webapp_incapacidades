@@ -135,6 +135,10 @@ const disabilityByRange = async (from: string, to: string) => {
   return await api.get<InformationDisability[]>(`disability_by_range?from=${from}&to=${to}`);
 };
 
+const getDisabilitiesByDocument = async (document: string) => {
+  return await api.get<InformationDisability[]>(`disability_by_range/${document}`);
+};
+
 const getReport = async (typeReport: string, queryParameter?: string) => {
   let parameter = ''
   if(typeReport === 'cliente'){
@@ -175,5 +179,6 @@ export default {
   getDisabilityDelete,
   getReport,
   getNotifications,
-  disabilityByRange
+  disabilityByRange,
+  getDisabilitiesByDocument
 };

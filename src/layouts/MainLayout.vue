@@ -20,22 +20,55 @@
 
         <q-space />
 
-        <div class="YL__toolbar-input-container row no-wrap">
-          <q-input
-            dense
-            outlined
-            square
-            v-model="search"
-            placeholder="Buscar incapacidad por número de documento"
-            class="bg-white col"
-          />
-          <q-btn
-            class="YL__toolbar-input-btn"
-            color="grey-3"
-            text-color="grey-8"
-            icon="search"
-            unelevated
-          />
+        <div class="YL__toolbar-input-container row" id="container-search">
+          <div class="col-xs-12 row no-wrap">
+            <q-input
+              dense
+              outlined
+              square
+              v-model="search"
+              placeholder="Buscar incapacidad por número de documento"
+              class="bg-white col"
+            />
+            <q-btn
+              class="YL__toolbar-input-btn"
+              color="grey-3"
+              text-color="grey-8"
+              icon="search"
+              unelevated
+              @click="searchDisability"
+            />
+          </div>
+
+          <div class="row col-xs-12 full-width">
+            <q-menu v-model="isResult" fit>
+              <q-list id="list-result">
+                <q-item
+                  clickable
+                  v-close-popup
+                  v-for="(item, key) in resultSearch"
+                  :key="key"
+                >
+                  <q-item-section>
+                    {{ item.primerNombre }} {{ item.primerApellido }}
+                    {{ item.segundoApellido }}
+                  </q-item-section>
+                  <q-item-section>
+                    {{ item.nombreTipoIncapacidad }}
+                  </q-item-section>
+                  <q-item-section>
+                    {{ item.nombreEstadoIncapacidad }}
+                  </q-item-section>
+                  <q-item-section side top>
+                    <q-item-label caption>
+                      {{ item.fechaRegistro }}
+                    </q-item-label>
+                    <q-icon name="history" color="grey" />
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </q-menu>
+          </div>
         </div>
 
         <q-space />
@@ -135,11 +168,13 @@ import { controlError } from 'src/helpers/controlError';
 import { decryptJSON } from 'src/helpers/encrypt';
 import {
   CompanyLogged,
+  InformationDisability,
   Modulo,
   Notifications,
 } from 'src/models/generals.models';
 import { get } from 'src/requests';
 import NotificationsComponent from 'src/components/general/NotificationsComponent.vue';
+import { date } from 'quasar';
 
 export default {
   name: 'MyLayout',
@@ -158,6 +193,8 @@ export default {
     const menu = ref<Modulo[]>([]);
     const isAvaiable = ref(false);
     const notifications = ref<Notifications[]>([]);
+    const isResult = ref(false);
+    const resultSearch = ref<InformationDisability[]>([]);
 
     const getData = async () => {
       isLoading.value = true;
@@ -173,6 +210,29 @@ export default {
         controlError(error);
       } finally {
         isLoading.value = false;
+      }
+    };
+
+    const searchDisability = async () => {
+      // $q.loading.show({
+      //   message: 'Buscando incapacidades, por favor espere...',
+      // });
+      $q.loadingBar.start();
+      try {
+        const { data } = await get.getDisabilitiesByDocument(search.value);
+        resultSearch.value = [
+          ...data.map((i) => {
+            const timeStamp = new Date(i.fechaRegistro);
+            i.fechaRegistro = date.formatDate(timeStamp, 'YYYY-MM-DD');
+            return i;
+          }),
+        ];
+        isResult.value = true;
+      } catch (error) {
+        controlError(error);
+      } finally {
+        $q.loadingBar.stop();
+        $q.loading.hide();
       }
     };
 
@@ -208,22 +268,16 @@ export default {
     return {
       leftDrawerOpen,
       search,
-      buttons1: [
-        { text: 'About', route: '' },
-        { text: 'Press', route: '' },
-        { text: 'Copyright', route: '' },
-        { text: 'Contact us', route: '' },
-        { text: 'Creators', route: '' },
-        { text: 'Advertise', route: '' },
-        { text: 'Developers', route: '' },
-      ],
       menu,
       isLoading,
       isAvaiable,
       dataUser,
       notifications,
+      isResult,
+      resultSearch,
       toggleLeftDrawer,
       logout,
+      searchDisability,
     };
   },
 };
@@ -235,7 +289,8 @@ export default {
 .YL
   &__toolbar-input-container
     min-width: 100px
-    width: 55%
+    // width: 55%
+    width: 33%
   &__toolbar-input-btn
     border-radius: 0
     border-style: solid

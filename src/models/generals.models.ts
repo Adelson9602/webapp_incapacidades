@@ -265,6 +265,7 @@ export interface InformationDisability extends ActionsUser {
   nitEps: string;
   razonSocialEps: string;
   nombreEstadoIncapacidad: string;
+  fechaRegistro: string;
   title?: string;
   files: Adjunto[];
 }

@@ -91,6 +91,11 @@ module.exports = configure(function (/* ctx */) {
         screen: {
           bodyClasses: true,
         },
+        loadingBar: {
+          color: 'primary',
+          size: '8px',
+          position: 'top',
+        },
       },
 
       // iconSet: 'material-icons', // Quasar icon set
@@ -104,7 +109,14 @@ module.exports = configure(function (/* ctx */) {
       // directives: [],
 
       // Quasar plugins
-      plugins: ['Loading', 'Dialog', 'Notify', 'LocalStorage', 'BottomSheet'],
+      plugins: [
+        'Loading',
+        'Dialog',
+        'Notify',
+        'LocalStorage',
+        'BottomSheet',
+        'LoadingBar',
+      ],
     },
 
     // animations: 'all', // --- includes all animations
