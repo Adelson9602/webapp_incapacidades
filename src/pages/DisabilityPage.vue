@@ -114,96 +114,13 @@
           </general-table-component>
           <!-- Dialogo para el detalle de incapacidad -->
           <q-dialog v-model="dialogDetail" persistent full-width>
-            <q-card>
-              <q-bar dark class="bg-primary text-white">
-                <q-icon dense round name="list" color="white" />
-                <div class="col text-center text-weight-bold">
-                  Detalle de incapacidad No. {{ disability?.radicado }}
-                </div>
-                <q-btn
-                  dense
-                  flat
-                  round
-                  icon="close"
-                  color="white"
-                  v-close-popup
-                />
-              </q-bar>
-              <q-card-section
-                class="row q-pb-none"
-                v-for="(item, key) in disabilityDetail"
-                :key="key"
-              >
-                <div class="col-xs-12 text-h6 text-grey-8 text-weight-light">
-                  {{
-                    `${key}` == 'employe'
-                      ? 'Datos de empleado'
-                      : 'Datos empresa'
-                  }}
-                </div>
-                <div
-                  class="col-xs-12 col-sm-6 col-md-3 col-lg-2 q-pa-xs"
-                  v-for="(sbItem, key) in item"
-                  :key="key"
-                >
-                  <q-field :label="`${key}`" stack-label dense>
-                    <template v-slot:control>
-                      <div
-                        class="self-center full-width no-outline"
-                        tabindex="0"
-                      >
-                        {{ sbItem }}
-                      </div>
-                    </template>
-                  </q-field>
-                </div>
-              </q-card-section>
-              <q-card-section v-if="prorroga.length > 0">
-                <div class="text-h6 text-grey-8 text-weight-light q-mb-md">
-                  Prorrogas
-                </div>
-                <q-table
-                  :rows="prorroga"
-                  flat
-                  :columns="columnsProrroga"
-                  row-key="name"
-                />
-              </q-card-section>
-              <q-card-section v-if="files.length > 0">
-                <div class="text-h6 text-grey-8 text-weight-light q-mb-md">
-                  Archivos adjuntos
-                </div>
-                <q-list bordered separator>
-                  <q-item v-for="(file, index) in files" :key="index">
-                    <q-item-section>
-                      {{ file.nombreArchivo }}
-                    </q-item-section>
-                    <q-item-section avatar>
-                      <q-icon
-                        class="cursor-pointer"
-                        color="primary"
-                        name="download_for_offline"
-                        @click="openURL(`//${file.url}`)"
-                      />
-                    </q-item-section>
-                  </q-item>
-                </q-list>
-              </q-card-section>
-              <q-card-section>
-                <div class="text-h6 text-grey-8 text-weight-light q-mb-md">
-                  Histórico de incapacidad
-                </div>
-                <q-table
-                  :rows="history"
-                  flat
-                  :columns="columnsHistory"
-                  row-key="name"
-                />
-              </q-card-section>
-              <q-card-actions vertical align="right">
-                <q-btn flat label="Ok" color="primary" v-close-popup />
-              </q-card-actions>
-            </q-card>
+            <DetailDisabilityComponent
+              :disability="disability"
+              :disabilityDetail="disabilityDetail"
+              :prorroga="prorroga"
+              :history="history"
+              :files="files"
+            />
           </q-dialog>
 
           <!-- Dialogo para la prorroga de la incapacidad -->
@@ -531,6 +448,7 @@ import {
   Actions,
   Adjunto,
   CompanyLogged,
+  DesabilityDetail,
   DisabilityExtension,
   HistoricalDisability,
   InformationDisability,
@@ -539,13 +457,19 @@ import {
   StateDisability,
 } from 'src/models/generals.models';
 import { controlError } from 'src/helpers/controlError';
-import GeneralTableComponent from 'src/components/general/GeneralTableComponent.vue';
-import CreateDisabilityComponent from 'src/components/disability/CreateDisabilityComponent.vue';
 import { QTableColumn, openURL, useQuasar, date } from 'quasar';
 import { decryptJSON } from 'src/helpers/encrypt';
 import { calculateDisabilityCost } from 'src/helpers/globalFunctions';
-import DeleteDialogComponent from 'src/components/general/DeleteDialogComponent.vue';
 import { useRouter } from 'vue-router';
+import {
+  informationDisability,
+  disabilityDetailDefinition,
+} from 'src/helpers/globalDefinitions';
+// Components
+import GeneralTableComponent from 'src/components/general/GeneralTableComponent.vue';
+import CreateDisabilityComponent from 'src/components/disability/CreateDisabilityComponent.vue';
+import DetailDisabilityComponent from 'src/components/disability/DetailDisabilityComponent.vue';
+import DeleteDialogComponent from 'src/components/general/DeleteDialogComponent.vue';
 
 const columns: QTableColumn[] = [
   {
@@ -620,101 +544,12 @@ const columns: QTableColumn[] = [
   },
 ];
 
-const columnsProrroga: QTableColumn[] = [
-  {
-    name: 'idProrrogaIncapacidad',
-    align: 'center',
-    label: '#',
-    sortable: true,
-    field: 'idProrrogaIncapacidad',
-  },
-  {
-    name: 'fechaIniciaProrroga',
-    align: 'center',
-    label: 'FECHA PRORROGA',
-    sortable: true,
-    field: 'fechaIniciaProrroga',
-  },
-  {
-    name: 'fechaFinProrroga',
-    align: 'center',
-    label: 'FECHA FIN PRORROGA',
-    sortable: true,
-    field: 'fechaFinProrroga',
-  },
-  {
-    name: 'diasProrroga',
-    align: 'center',
-    label: 'DÍAS PRORROGA',
-    sortable: true,
-    field: 'diasProrroga',
-  },
-  {
-    name: 'ibc',
-    align: 'center',
-    label: 'IBC',
-    sortable: true,
-    field: 'ibc',
-  },
-  {
-    name: 'valor',
-    align: 'center',
-    label: 'VALOR',
-    sortable: true,
-    field: 'valor',
-  },
-  {
-    name: 'observacion',
-    align: 'center',
-    label: 'OBSERVACIÓN',
-    sortable: true,
-    field: 'observacion',
-  },
-  {
-    name: 'usuario',
-    align: 'center',
-    label: 'USUARIO',
-    sortable: true,
-    field: 'usuario',
-  },
-];
-
-const columnsHistory: QTableColumn[] = [
-  {
-    name: 'idHistorico',
-    align: 'center',
-    label: 'ID',
-    sortable: true,
-    field: 'idHistorico',
-  },
-  {
-    name: 'usuario',
-    align: 'center',
-    label: 'USUARIO',
-    sortable: true,
-    field: 'usuario',
-  },
-  {
-    name: 'nombres',
-    align: 'center',
-    label: 'NOMBRES',
-    sortable: true,
-    field: 'nombres',
-  },
-  {
-    name: 'observaciones',
-    align: 'center',
-    label: 'OBSERVACIONES',
-    sortable: true,
-    field: 'observaciones',
-  },
-];
-
 export default defineComponent({
   name: 'CompanyPage',
   components: {
     GeneralTableComponent,
     CreateDisabilityComponent,
+    DetailDisabilityComponent,
   },
   setup() {
     const $q = useQuasar();
@@ -724,8 +559,10 @@ export default defineComponent({
     ) as unknown as CompanyLogged;
     const rows = ref<InformationDisability[]>();
     const rowsDisabilityDelete = ref<InformationDisability[]>();
-    const disability = ref<InformationDisability>();
-    const disabilityDetail = ref<any>();
+    const disability = ref<InformationDisability>({ ...informationDisability });
+    const disabilityDetail = ref<DesabilityDetail>({
+      ...disabilityDetailDefinition,
+    });
     const dialogDetail = ref(false);
     const isLoading = ref(false);
     const dialogExtension = ref(false);
@@ -822,7 +659,7 @@ export default defineComponent({
             'FECHA INICIO': data.disability.fechaInicio,
             'FECHA FIN': data.disability.fechaFin,
             'TOTAL DÍAS': data.disability.totalDias,
-            IBC: data.disability.ibc,
+            IBC: +data.disability.ibc,
             VALOR: data.disability.valor,
             'ESTADO INCAPACIDAD': data.disability.nombreEstadoIncapacidad,
             'TIPO INCAPACIDAD': data.disability.nombreTipoIncapacidad,
@@ -836,26 +673,26 @@ export default defineComponent({
             'FECHA REGIRSTRO': data.disability.fechaRegistro,
           },
           employe: {
-            DOCUMENTO: data.employe.documentoPersona,
+            DOCUMENTO: data.employe.documentoPersona || 0,
             'PRIMER NOMBRE': data.employe.primerNombre,
             'SEGUNDO NOMBRE': data.employe.segundoNombre,
             'PRIMERA PELLIDO': data.employe.primerApellido,
             'SEGUNDO APELLIDO': data.employe.segundoApellido,
             GÉNERO: data.employe.genero,
             'FECHA NACIMIENTO': data.employe.fechaNacimiento,
-            'DOCUMENTO EMPLEADO': data.employe.fkDocumentoPersona,
+            'DOCUMENTO EMPLEADO': data.employe.fkDocumentoPersona || 0,
             DIRECCIÓN: data.employe.direccion,
             BARRIO: data.employe.barrio,
             CORREO: data.employe.correo,
             CELULAR: data.employe.celular,
             TELEFONO: data.employe.telefonoFijo,
-            'CIUDAD RESIDENCIA': data.employe.nombreCiudad,
-            'DEPARTAMENTO RESIDENCIA': data.employe.nombreDepartamento,
-            CARGO: data.employe.nombreCargo,
-            'TIPO DOCUMENTO': data.employe.nombreTipoDocumento,
+            'CIUDAD RESIDENCIA': `${data.employe.nombreCiudad}`,
+            'DEPARTAMENTO RESIDENCIA': `${data.employe.nombreDepartamento}`,
+            CARGO: `${data.employe.nombreCargo}`,
+            'TIPO DOCUMENTO': `${data.employe.nombreTipoDocumento}`,
           },
         };
-        console.log(data);
+
         files.value = [...data.files];
 
         if (data.prorroga) {
@@ -1212,7 +1049,6 @@ export default defineComponent({
       DisabilityExtension,
       prorroga,
       history,
-      columnsProrroga,
       dialogReport,
       typeReport,
       document,
@@ -1221,7 +1057,6 @@ export default defineComponent({
       dialogStatus,
       optionsStatus,
       newStateInability,
-      columnsHistory,
       actions,
       range,
       isFilterByDate,

@@ -270,6 +270,53 @@ export interface InformationDisability extends ActionsUser {
   files: Adjunto[];
 }
 
+// Interfaces para mostrar información en un dialog de manera ordenada
+export interface DesabilityDetail {
+  disability: DisabilityDetail;
+  employe: EmployeDetail;
+}
+
+export interface DisabilityDetail {
+  'NIT EMPRESA': string;
+  'EMPRESA EMPLEADO': string;
+  'NÚMERO INCAPACIDAD': number;
+  'FECHA INICIO': string;
+  'FECHA FIN': string;
+  'TOTAL DÍAS': number;
+  IBC: number;
+  VALOR: number;
+  'ESTADO INCAPACIDAD': string;
+  'TIPO INCAPACIDAD': string;
+  'NIT ENTIDAD': string;
+  ENTIDAD: string;
+  'TIPO ENTIDAD': string;
+  CIE: string;
+  CÓDIGO: string;
+  DESCRIPCIÓN: string;
+  'CÓDIGO GRUPO': string;
+  'FECHA REGIRSTRO': string;
+}
+
+export interface EmployeDetail {
+  DOCUMENTO: number;
+  'PRIMER NOMBRE': string;
+  'SEGUNDO NOMBRE': string;
+  'PRIMERA PELLIDO': string;
+  'SEGUNDO APELLIDO': string;
+  GÉNERO: string;
+  'FECHA NACIMIENTO': string;
+  'DOCUMENTO EMPLEADO': number;
+  DIRECCIÓN: string;
+  BARRIO: string;
+  CORREO: string;
+  CELULAR: string;
+  TELEFONO: string;
+  'CIUDAD RESIDENCIA': string;
+  'DEPARTAMENTO RESIDENCIA': string;
+  CARGO: string;
+  'TIPO DOCUMENTO': string;
+}
+
 export interface ResponseDashboard {
   totalDisabilities: TotalDisabilities;
   totalDisabilitiesByEps: TotalDisabilitiesByEps[];
