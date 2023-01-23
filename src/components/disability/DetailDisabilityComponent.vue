@@ -58,7 +58,7 @@
         </q-item>
       </q-list>
     </q-card-section>
-    <q-card-section>
+    <q-card-section v-if="history.length > 0">
       <div class="text-h6 text-grey-8 text-weight-light q-mb-md">
         Histórico de incapacidad
       </div>

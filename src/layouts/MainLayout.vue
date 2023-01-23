@@ -19,8 +19,11 @@
         </q-btn>
 
         <q-space />
-
-        <div class="YL__toolbar-input-container row" id="container-search">
+        <q-form
+          @submit="searchDisability"
+          class="YL__toolbar-input-container row"
+          id="container-search"
+        >
           <div class="col-xs-12 row no-wrap">
             <q-input
               dense
@@ -37,6 +40,7 @@
               icon="search"
               unelevated
               @click="searchDisability"
+              type="submit"
             />
           </div>
 
@@ -48,6 +52,7 @@
                   v-close-popup
                   v-for="(item, key) in resultSearch"
                   :key="key"
+                  @click="onDetail(item)"
                 >
                   <q-item-section>
                     {{ item.primerNombre }} {{ item.primerApellido }}
@@ -69,7 +74,7 @@
               </q-list>
             </q-menu>
           </div>
-        </div>
+        </q-form>
 
         <q-space />
 
@@ -154,6 +159,18 @@
       </q-inner-loading>
     </q-drawer>
 
+    <!-- Dialogo para el detalle de incapacidad -->
+    <q-dialog v-model="dialogDetail" persistent full-width>
+      <DetailDisabilityComponent
+        :disability="disability"
+        :disabilityDetail="disabilityDetail"
+        :prorroga="prorroga"
+        :history="history"
+        :files="files"
+      />
+    </q-dialog>
+
+    <!-- Router -->
     <q-page-container>
       <router-view v-if="isAvaiable" />
     </q-page-container>
@@ -167,19 +184,29 @@ import { useRouter } from 'vue-router';
 import { controlError } from 'src/helpers/controlError';
 import { decryptJSON } from 'src/helpers/encrypt';
 import {
+  Adjunto,
   CompanyLogged,
+  DesabilityDetail,
+  DisabilityExtension,
+  HistoricalDisability,
   InformationDisability,
   Modulo,
   Notifications,
 } from 'src/models/generals.models';
 import { get } from 'src/requests';
-import NotificationsComponent from 'src/components/general/NotificationsComponent.vue';
 import { date } from 'quasar';
+import NotificationsComponent from 'src/components/general/NotificationsComponent.vue';
+import DetailDisabilityComponent from 'src/components/disability/DetailDisabilityComponent.vue';
+import {
+  disabilityDetailDefinition,
+  informationDisability,
+} from 'src/helpers/globalDefinitions';
 
 export default {
   name: 'MyLayout',
   components: {
     NotificationsComponent,
+    DetailDisabilityComponent,
   },
   setup() {
     const $q = useQuasar();
@@ -195,6 +222,14 @@ export default {
     const notifications = ref<Notifications[]>([]);
     const isResult = ref(false);
     const resultSearch = ref<InformationDisability[]>([]);
+    const disability = ref<InformationDisability>({ ...informationDisability });
+    const disabilityDetail = ref<DesabilityDetail>({
+      ...disabilityDetailDefinition,
+    });
+    const dialogDetail = ref(false);
+    const prorroga = ref<DisabilityExtension[]>([]);
+    const history = ref<HistoricalDisability[]>([]);
+    const files = ref<Adjunto[]>([]);
 
     const getData = async () => {
       isLoading.value = true;
@@ -214,9 +249,6 @@ export default {
     };
 
     const searchDisability = async () => {
-      // $q.loading.show({
-      //   message: 'Buscando incapacidades, por favor espere...',
-      // });
       $q.loadingBar.start();
       try {
         const { data } = await get.getDisabilitiesByDocument(search.value);
@@ -232,6 +264,74 @@ export default {
         controlError(error);
       } finally {
         $q.loadingBar.stop();
+        $q.loading.hide();
+      }
+    };
+
+    const onDetail = async (row: InformationDisability) => {
+      $q.loading.show({
+        message: 'Por favor espere...',
+      });
+      try {
+        const { data } = await get.getDisabilityById(+row.idIncapacidad);
+        disabilityDetail.value = {
+          disability: {
+            'NIT EMPRESA': data.disability.fkNitEmpresa,
+            'EMPRESA EMPLEADO': data.disability.empresaEmpleado,
+            'NÚMERO INCAPACIDAD': data.disability.numeroIncapacidad,
+            'FECHA INICIO': data.disability.fechaInicio,
+            'FECHA FIN': data.disability.fechaFin,
+            'TOTAL DÍAS': data.disability.totalDias,
+            IBC: +data.disability.ibc,
+            VALOR: data.disability.valor,
+            'ESTADO INCAPACIDAD': data.disability.nombreEstadoIncapacidad,
+            'TIPO INCAPACIDAD': data.disability.nombreTipoIncapacidad,
+            'NIT ENTIDAD': data.disability.fkEntidad,
+            ENTIDAD: data.disability.razonSocialEntidad,
+            'TIPO ENTIDAD': data.disability.tipoEntidad,
+            CIE: data.disability.cie,
+            CÓDIGO: data.disability.codigo,
+            DESCRIPCIÓN: data.disability.descripcion,
+            'CÓDIGO GRUPO': data.disability.grupoSubgrupo,
+            'FECHA REGIRSTRO': data.disability.fechaRegistro,
+          },
+          employe: {
+            DOCUMENTO: data.employe.documentoPersona || 0,
+            'PRIMER NOMBRE': data.employe.primerNombre,
+            'SEGUNDO NOMBRE': data.employe.segundoNombre,
+            'PRIMERA PELLIDO': data.employe.primerApellido,
+            'SEGUNDO APELLIDO': data.employe.segundoApellido,
+            GÉNERO: data.employe.genero,
+            'FECHA NACIMIENTO': data.employe.fechaNacimiento,
+            'DOCUMENTO EMPLEADO': data.employe.fkDocumentoPersona || 0,
+            DIRECCIÓN: data.employe.direccion,
+            BARRIO: data.employe.barrio,
+            CORREO: data.employe.correo,
+            CELULAR: data.employe.celular,
+            TELEFONO: data.employe.telefonoFijo,
+            'CIUDAD RESIDENCIA': `${data.employe.nombreCiudad}`,
+            'DEPARTAMENTO RESIDENCIA': `${data.employe.nombreDepartamento}`,
+            CARGO: `${data.employe.nombreCargo}`,
+            'TIPO DOCUMENTO': `${data.employe.nombreTipoDocumento}`,
+          },
+        };
+
+        files.value = [...data.files];
+
+        if (data.prorroga) {
+          prorroga.value = [...data.prorroga];
+        }
+
+        if (data.history) {
+          history.value = [...data.history];
+        }
+
+        disability.value = row;
+        search.value = '';
+        dialogDetail.value = true;
+      } catch (error) {
+        controlError(error);
+      } finally {
         $q.loading.hide();
       }
     };
@@ -275,9 +375,16 @@ export default {
       notifications,
       isResult,
       resultSearch,
+      disability,
+      disabilityDetail,
+      dialogDetail,
+      prorroga,
+      history,
+      files,
       toggleLeftDrawer,
       logout,
       searchDisability,
+      onDetail,
     };
   },
 };
