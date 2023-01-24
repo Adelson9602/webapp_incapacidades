@@ -524,3 +524,11 @@ export interface Notifications {
   mensaje: string;
   estado: number;
 }
+
+export interface DocumentsAttach extends ActionsUser {
+  documento: string;
+  idDocumentoAdjuntar?: number | null;
+  descripcion?: string;
+  title?: string;
+
+}

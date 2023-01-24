@@ -95,6 +95,7 @@ module.exports = configure(function (/* ctx */) {
           color: 'primary',
           size: '8px',
           position: 'top',
+          skipHijack: true,
         },
       },
 

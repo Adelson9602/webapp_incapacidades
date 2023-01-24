@@ -23,6 +23,7 @@ import {
   Modulo,
   ResDocumentsAttach,
   Notifications,
+  DocumentsAttach,
 } from 'src/models/generals.models';
 
 const getRols = async () => {
@@ -139,6 +140,10 @@ const getDisabilitiesByDocument = async (document: string) => {
   return await api.get<InformationDisability[]>(`disability_by_range/${document}`);
 };
 
+const getTypeOfDocumentToAttach = async () => {
+  return await api.get<DocumentsAttach[]>('type_of_document_to_attach');
+};
+
 const getReport = async (typeReport: string, queryParameter?: string) => {
   let parameter = ''
   if(typeReport === 'cliente'){
@@ -180,5 +185,6 @@ export default {
   getReport,
   getNotifications,
   disabilityByRange,
-  getDisabilitiesByDocument
+  getDisabilitiesByDocument,
+  getTypeOfDocumentToAttach
 };
