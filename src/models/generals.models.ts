@@ -517,6 +517,7 @@ export interface Permisos {
 
 export interface ResDocumentsAttach {
   documento: string;
+  idTipoDocumentoAdjuntar: number;
 }
 export interface Notifications {
   idNotificacion: number;
@@ -525,10 +526,22 @@ export interface Notifications {
   estado: number;
 }
 
-export interface DocumentsAttach extends ActionsUser {
+export interface TypeDocumentsAttach extends ActionsUser{
   documento: string;
   idDocumentoAdjuntar?: number | null;
   descripcion?: string;
   title?: string;
+}
 
+export interface DocumentsAttach {
+  idDocumentoAdjuntar: number | null;
+  idTipoDocumentoAdjuntar: number;
+  idTipoIncapacidad: number;
+}
+
+export interface DocumentsAttachSave {
+  label: string;
+  idTipoDocumentoAdjuntar: number;
+  idTipoIncapacidad: number;
+  selected: boolean;
 }

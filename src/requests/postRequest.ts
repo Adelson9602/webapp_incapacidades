@@ -14,7 +14,8 @@ import {
   ResponseFile,
   DisabilityExtension,
   HistoricalDisability,
-  DocumentsAttach,
+  TypeDocumentsAttach,
+  DocumentsAttachSave,
 } from '../models/generals.models'
 import { User } from '../models/auth.models'
 
@@ -74,8 +75,15 @@ const createHistoricalDisability = async (data: HistoricalDisability) => {
   return await api.post('/history_disability', data);
 }
 
-const createTypeOfDocumentToAttach = async (data: DocumentsAttach) => {
+const createTypeOfDocumentToAttach = async (data: TypeDocumentsAttach) => {
   return await api.post('/type_of_document_to_attach', data);
+}
+
+const createDocumentToAttach = async (data: DocumentsAttachSave[]) => {
+  return await api.post('/document_to_attach', {
+    idTipoIncapacidad: data[0].idTipoIncapacidad,
+    documents: data
+  });
 }
 
 const uploadFiles = async (data: FormData) => {
@@ -98,5 +106,6 @@ export default {
   uploadFiles,
   createDisabilityExtension,
   createHistoricalDisability,
-  createTypeOfDocumentToAttach
+  createTypeOfDocumentToAttach,
+  createDocumentToAttach
 };

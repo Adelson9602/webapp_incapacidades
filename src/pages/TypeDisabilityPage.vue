@@ -35,6 +35,7 @@
               @click="dialog = true"
               v-if="actions.insert"
             />
+            <!-- Dialogo para crear o editar  -->
             <q-dialog v-model="dialog" persistent>
               <q-card style="width: 450px; max-width: 90vw">
                 <q-bar dark class="bg-primary text-white">
@@ -106,6 +107,42 @@
                 </q-card-section>
               </q-card>
             </q-dialog>
+
+            <!-- Dialogo para ver los tipos de documentos asociados -->
+            <q-dialog v-model="dialogAssociatedDocuments" persistent>
+              <q-card style="width: 480px; max-width: 90vw">
+                <q-bar dark class="bg-primary text-white">
+                  <q-icon name="list" />
+                  <div class="col text-center text-weight-bold">
+                    Tipos de documentos asociados
+                  </div>
+                  <q-btn flat round icon="close" v-close-popup />
+                </q-bar>
+                <q-card-section>
+                  <q-list bordered separator>
+                    <q-item v-for="(item, key) in typeDocuments" :key="key">
+                      <q-item-section>{{ item.label }}</q-item-section>
+                      <q-item-section side>
+                        <q-toggle
+                          color="positive"
+                          v-model="item.selected"
+                          val="battery"
+                        />
+                      </q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-card-section>
+                <q-card-actions align="right">
+                  <q-btn flat label="Cancelar" color="primary" v-close-popup />
+                  <q-btn
+                    label="Guardar"
+                    color="primary"
+                    @click="onRelations"
+                    :loading="isLoading"
+                  />
+                </q-card-actions>
+              </q-card>
+            </q-dialog>
           </q-card-section>
           <general-table-component
             :columns="columns"
@@ -113,6 +150,7 @@
             :rows="rows"
             :grid="true"
             @on-edit="onEdit"
+            @on-detail="onDetail"
           />
         </q-card>
       </q-tab-panel>
@@ -192,6 +230,7 @@
           :rows="rowsDocuments"
           :grid="true"
           @on-edit="onEditDocument"
+          @on-detail="onDetailDocument"
         />
       </q-tab-panel>
     </q-tab-panels>
@@ -203,8 +242,9 @@ import { defineComponent, onMounted, ref, watch } from 'vue';
 import {
   Actions,
   DisabilityType,
-  DocumentsAttach,
+  TypeDocumentsAttach,
   Modulo,
+  DocumentsAttachSave,
 } from 'src/models/generals.models';
 import GeneralTableComponent from 'src/components/general/GeneralTableComponent.vue';
 import { get, post } from 'src/requests';
@@ -267,9 +307,10 @@ export default defineComponent({
   setup() {
     const $q = useQuasar();
     const rows = ref<DisabilityType[]>([]);
-    const rowsDocuments = ref<DocumentsAttach[]>([]);
+    const rowsDocuments = ref<TypeDocumentsAttach[]>([]);
     const isLoading = ref(false);
     const dialog = ref(false);
+    const dialogAssociatedDocuments = ref(false);
     const dialogDocumentAttach = ref(false);
     const myForm = ref<any>(null);
     const disabilityType = ref<DisabilityType>({
@@ -286,11 +327,12 @@ export default defineComponent({
       update: false,
     });
     const tab = ref('disabilities');
-    const documentAttach = ref<DocumentsAttach>({
+    const documentAttach = ref<TypeDocumentsAttach>({
       documento: '',
       descripcion: '',
       idDocumentoAdjuntar: null,
     });
+    const typeDocuments = ref<DocumentsAttachSave[]>([]);
 
     const getData = async () => {
       isLoading.value = true;
@@ -302,6 +344,7 @@ export default defineComponent({
           ...resDisabilityType.map((disabilityType) => {
             disabilityType.title = disabilityType.nombreTipoIncapacidad;
             disabilityType.btnEdit = true;
+            disabilityType.btnDetail = true;
             return disabilityType;
           }),
         ];
@@ -313,6 +356,7 @@ export default defineComponent({
           ...resTypeDocuments.map((disabilityType) => {
             disabilityType.title = disabilityType.documento;
             disabilityType.btnEdit = true;
+            disabilityType.btnDetail = true;
             return disabilityType;
           }),
         ];
@@ -390,9 +434,58 @@ export default defineComponent({
       dialog.value = true;
     };
 
-    const onEditDocument = (row: DocumentsAttach) => {
+    const onEditDocument = (row: TypeDocumentsAttach) => {
       documentAttach.value = row;
       dialogDocumentAttach.value = true;
+    };
+
+    const onDetailDocument = (row: TypeDocumentsAttach) => {
+      documentAttach.value = row;
+      dialogDocumentAttach.value = true;
+    };
+
+    const onDetail = async (row: DisabilityType) => {
+      try {
+        const id = row.idTipoIncapacidad ? row.idTipoIncapacidad : 0;
+        const { data } = await get.getDocumentsAttachByDisabilityType(id);
+
+        typeDocuments.value = [
+          ...rowsDocuments.value.map((e) => {
+            const res = data.find(
+              (i) => i.idTipoDocumentoAdjuntar == e.idDocumentoAdjuntar
+            );
+            return {
+              label: e.documento,
+              idTipoDocumentoAdjuntar: e.idDocumentoAdjuntar || 0,
+              idTipoIncapacidad: id,
+              selected: res ? true : false,
+            };
+          }),
+        ];
+
+        dialogAssociatedDocuments.value = true;
+      } catch (error) {
+        controlError(error);
+      } finally {
+      }
+    };
+
+    const onRelations = async () => {
+      isLoading.value = true;
+      try {
+        const dataSelected = typeDocuments.value.filter((e) => e.selected);
+        const { data } = await post.createDocumentToAttach(dataSelected);
+
+        $q.notify({
+          message: data.message,
+          type: 'positive',
+          position: 'bottom-right',
+        });
+      } catch (error) {
+        controlError(error);
+      } finally {
+        isLoading.value = false;
+      }
     };
 
     watch(dialog, (value) => {
@@ -440,11 +533,17 @@ export default defineComponent({
       tab,
       dialogDocumentAttach,
       documentAttach,
+      dialogAssociatedDocuments,
+      typeDocuments,
+      isLoading,
       onSubmit,
       onReset,
       onEdit,
       onCreateDocument,
       onEditDocument,
+      onDetailDocument,
+      onDetail,
+      onRelations,
     };
   },
 });

@@ -23,7 +23,7 @@ import {
   Modulo,
   ResDocumentsAttach,
   Notifications,
-  DocumentsAttach,
+  TypeDocumentsAttach,
 } from 'src/models/generals.models';
 
 const getRols = async () => {
@@ -141,7 +141,7 @@ const getDisabilitiesByDocument = async (document: string) => {
 };
 
 const getTypeOfDocumentToAttach = async () => {
-  return await api.get<DocumentsAttach[]>('type_of_document_to_attach');
+  return await api.get<TypeDocumentsAttach[]>('type_of_document_to_attach');
 };
 
 const getReport = async (typeReport: string, queryParameter?: string) => {
