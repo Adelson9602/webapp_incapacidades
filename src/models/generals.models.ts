@@ -557,6 +557,8 @@ export interface Cliente extends ActionsUser {
   direccion: string;
   telefono: string;
   email: string;
+  salarioMinimo: number;
+  idSetting?: number;
   title?: string;
   avatar?: string;
 }

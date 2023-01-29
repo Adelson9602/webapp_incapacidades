@@ -104,6 +104,14 @@
                     :rules="[(val) => !!val || 'Email es requerido']"
                   />
                 </div>
+                <div class="col-xs-12 col-sm-6 q-pa-sm">
+                  <q-input
+                    v-model="client.salarioMinimo"
+                    type="text"
+                    label="SALARIO"
+                    :rules="[(val) => !!val || 'Salario es requerido']"
+                  />
+                </div>
               </q-card-section>
               <q-card-actions align="right" class="q-gutter-x-md">
                 <q-btn flat label="Cancelar" color="primary" v-close-popup />
@@ -211,6 +219,7 @@ export default defineComponent({
       direccion: '',
       telefono: '',
       email: '',
+      salarioMinimo: 0,
     });
     const dialog = ref(false);
     const permisos = $q.localStorage.getItem('permisos') as Modulo[];
@@ -262,7 +271,7 @@ export default defineComponent({
           const [resFile] = await post
             .uploadOtherFiles(formDataInd, 'clientes', 'images')
             .then((res) => res.data);
-          console.log(resFile);
+
           client.value.urlLogo = resFile.url;
         }
 
@@ -305,6 +314,7 @@ export default defineComponent({
           direccion: '',
           telefono: '',
           email: '',
+          salarioMinimo: 0,
         };
         isEdit.value = false;
       }
