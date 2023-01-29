@@ -18,6 +18,7 @@ import {
   DocumentsAttachSave,
 } from '../models/generals.models'
 import { User } from '../models/auth.models'
+import { Cliente } from '../models/generals.models';
 
 const createUser = async (data: UserData) => {
   return await api.post('/user', data);
@@ -86,8 +87,16 @@ const createDocumentToAttach = async (data: DocumentsAttachSave[]) => {
   });
 }
 
+const createClient = async (data: Cliente) => {
+  return await api.post('/create_client', data);
+}
+
 const uploadFiles = async (data: FormData) => {
   return await api.post<ResponseFile[]>(`/upload_file/${api.defaults.headers.common.base}/documents`, data);
+}
+
+const uploadOtherFiles = async (data: FormData, folder: string, sub_folder: string) => {
+  return await api.post<ResponseFile[]>(`/upload_file/${folder}/${sub_folder}`, data);
 }
 
 export default {
@@ -107,5 +116,7 @@ export default {
   createDisabilityExtension,
   createHistoricalDisability,
   createTypeOfDocumentToAttach,
-  createDocumentToAttach
+  createDocumentToAttach,
+  createClient,
+  uploadOtherFiles
 };

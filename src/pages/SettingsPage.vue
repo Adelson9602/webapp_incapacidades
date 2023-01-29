@@ -17,85 +17,49 @@
               <q-item>
                 <q-item-section>
                   <q-item-label> Nit de la empresa</q-item-label>
-                  <q-item-label caption lines="2" v-if="!isEdit">
+                  <q-item-label caption lines="2">
                     {{ accountData?.nitEmpresa }}
                   </q-item-label>
-                  <q-input
-                    v-model="accountData.nitEmpresa"
-                    type="text"
-                    v-else
-                    dense
-                  />
                 </q-item-section>
               </q-item>
               <q-item>
                 <q-item-section>
                   <q-item-label>Razón social</q-item-label>
-                  <q-item-label caption lines="2" v-if="!isEdit">
+                  <q-item-label caption lines="2">
                     {{ accountData?.razonSocial }}
                   </q-item-label>
-                  <q-input
-                    v-model="accountData.razonSocial"
-                    type="text"
-                    v-else
-                    dense
-                  />
                 </q-item-section>
               </q-item>
               <q-item>
                 <q-item-section>
                   <q-item-label>Nombre sistema</q-item-label>
-                  <q-item-label caption lines="2" v-if="!isEdit">
+                  <q-item-label caption lines="2">
                     {{ accountData?.nombreSistema }}
                   </q-item-label>
-                  <q-input
-                    v-model="accountData.nombreSistema"
-                    type="text"
-                    v-else
-                    dense
-                  />
                 </q-item-section>
               </q-item>
               <q-item>
                 <q-item-section>
                   <q-item-label>Dirección</q-item-label>
-                  <q-item-label caption lines="2" v-if="!isEdit">
+                  <q-item-label caption lines="2">
                     {{ accountData?.direccion }}
                   </q-item-label>
-                  <q-input
-                    v-model="accountData.direccion"
-                    type="text"
-                    v-else
-                    dense
-                  />
                 </q-item-section>
               </q-item>
               <q-item>
                 <q-item-section>
                   <q-item-label>Email</q-item-label>
-                  <q-item-label caption lines="2" v-if="!isEdit">
+                  <q-item-label caption lines="2">
                     {{ accountData?.email }}
                   </q-item-label>
-                  <q-input
-                    v-model="accountData.email"
-                    type="text"
-                    v-else
-                    dense
-                  />
                 </q-item-section>
               </q-item>
               <q-item>
                 <q-item-section>
                   <q-item-label>Teléfono</q-item-label>
-                  <q-item-label caption lines="2" v-if="!isEdit">
+                  <q-item-label caption lines="2">
                     {{ accountData?.telefono }}
                   </q-item-label>
-                  <q-input
-                    v-model="accountData.telefono"
-                    type="text"
-                    v-else
-                    dense
-                  />
                 </q-item-section>
               </q-item>
               <q-item>
@@ -106,172 +70,155 @@
                   </q-item-label>
                 </q-item-section>
               </q-item>
-              <q-separator />
-              <q-item>
-                <q-item-section>
-                  <q-item-label>Salario mínimo para este sistema</q-item-label>
-                  <q-item-label caption lines="2" v-if="!isEdit">
-                    {{ minimumSalary }}
-                  </q-item-label>
-                  <q-input v-model="minimumSalary" type="number" v-else dense />
-                </q-item-section>
-              </q-item>
-              <q-item class="row justify-end q-gutter-md">
-                <q-btn
-                  color="secondary"
-                  :icon="isEdit ? 'cancel' : 'edit'"
-                  :label="isEdit ? 'Cancelar' : 'Editar'"
-                  unelevated
-                  @click="isEdit = !isEdit"
-                  v-if="actions.update"
-                />
-                <q-btn
-                  v-if="isEdit"
-                  color="primary"
-                  icon="check"
-                  label="Guardar cambios"
-                  unelevated
-                />
-              </q-item>
             </q-list>
           </q-card-section>
         </q-card>
       </div>
       <div class="col-xs-12 col-sm-6 col-md-8 q-pa-md">
         <!-- content -->
-        <q-card class="card-profile shadow-1">
-          <q-bar dark class="bg-white text-black">
-            <div class="col text-center text-weight-bold">Datos de usuario</div>
-          </q-bar>
-          <q-separator />
-          <q-card-section class="row justify-center">
-            <div class="container-photo">
-              <img :src="dataUser.fotoPerfil" />
-            </div>
-          </q-card-section>
-          <q-card-section>
-            <q-list>
-              <q-item>
-                <q-item-section>
-                  <q-item-label>Primer nombre</q-item-label>
-                  <q-item-label caption lines="2" v-if="!isEdit">
-                    {{ dataUser?.primerNombre }}
-                  </q-item-label>
+        <transition
+          appear
+          enter-active-class="animated fadeIn"
+          leave-active-class="animated fadeOut"
+        >
+          <q-card class="card-profile shadow-1">
+            <q-form @submit="onSubmit">
+              <q-bar dark class="bg-white text-black">
+                <div class="col text-center text-weight-bold">
+                  Datos de usuario
+                </div>
+              </q-bar>
+              <q-separator />
+              <q-card-section class="row justify-center">
+                <div class="container-photo">
+                  <img :src="dataUser.fotoPerfil" />
+                </div>
+              </q-card-section>
+              <q-card-section class="row">
+                <div class="col-xs-12 col-sm-6 q-pa-md">
                   <q-input
+                    label="Primer nombre"
                     v-model="dataUser.primerNombre"
                     type="text"
-                    v-else
                     dense
+                    :disable="isEdit ? false : true"
+                    :rules="[(val) => !!val || 'Primer nombre es requerido']"
+                    hide-bottom-space
                   />
-                </q-item-section>
-              </q-item>
-              <q-item>
-                <q-item-section>
-                  <q-item-label>Segundo nombre</q-item-label>
-                  <q-item-label caption lines="2" v-if="!isEdit">
-                    {{ dataUser?.segundoNombre }}
-                  </q-item-label>
+                </div>
+                <div class="col-xs-12 col-sm-6 q-pa-md">
                   <q-input
+                    label="Segundo nombre"
                     v-model="dataUser.segundoNombre"
                     type="text"
-                    v-else
                     dense
+                    :disable="isEdit ? false : true"
                   />
-                </q-item-section>
-              </q-item>
-              <q-item>
-                <q-item-section>
-                  <q-item-label>Primer apellido</q-item-label>
-                  <q-item-label caption lines="2" v-if="!isEdit">
-                    {{ dataUser?.primerApellido }}
-                  </q-item-label>
+                </div>
+                <div class="col-xs-12 col-sm-6 q-pa-md">
                   <q-input
+                    label="Primer apellido"
                     v-model="dataUser.primerApellido"
                     type="text"
-                    v-else
                     dense
+                    :disable="isEdit ? false : true"
+                    :rules="[(val) => !!val || 'Primer apellido es requerido']"
+                    hide-bottom-space
                   />
-                </q-item-section>
-              </q-item>
-              <q-item>
-                <q-item-section>
-                  <q-item-label>Segundo apellido</q-item-label>
-                  <q-item-label caption lines="2" v-if="!isEdit">
-                    {{ dataUser?.segundoApellido }}
-                  </q-item-label>
+                </div>
+                <div class="col-xs-12 col-sm-6 q-pa-md">
                   <q-input
+                    label="Segundo apellido"
                     v-model="dataUser.segundoApellido"
                     type="text"
-                    v-else
                     dense
+                    :disable="isEdit ? false : true"
                   />
-                </q-item-section>
-              </q-item>
-              <q-item>
-                <q-item-section>
-                  <q-item-label>Tipo documento</q-item-label>
-                  <q-item-label caption lines="2" v-if="!isEdit">
-                    {{ dataUser?.fkIdTipoDocumento }}
-                  </q-item-label>
+                </div>
+                <div class="col-xs-12 col-sm-6 q-pa-md">
                   <q-input
-                    v-model="dataUser.fkIdTipoDocumento"
-                    type="text"
-                    v-else
-                    dense
-                  />
-                </q-item-section>
-              </q-item>
-              <q-item>
-                <q-item-section>
-                  <q-item-label>Número documento</q-item-label>
-                  <q-item-label caption lines="2" v-if="!isEdit">
-                    {{ dataUser?.documentoPersona }}
-                  </q-item-label>
-                  <q-input
+                    label="Número documento"
                     v-model="dataUser.documentoPersona"
                     type="text"
-                    v-else
                     dense
+                    :disable="isEdit ? false : true"
+                    :rules="[(val) => !!val || 'Documento es requerido']"
+                    hide-bottom-space
                   />
-                </q-item-section>
-              </q-item>
-              <q-item>
-                <q-item-section>
-                  <q-item-label>Género</q-item-label>
-                  <q-item-label caption lines="2" v-if="!isEdit">
-                    {{ dataUser?.genero }}
-                  </q-item-label>
-                  <q-input v-model="dataUser.genero" type="text" v-else dense />
-                </q-item-section>
-              </q-item>
-              <q-item>
-                <q-item-section>
-                  <q-item-label>Estado</q-item-label>
-                  <q-item-label caption lines="2">
-                    {{ dataUser?.estadoUsuario ? 'Activo' : 'Inactivo' }}
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-              <q-item class="row justify-end q-gutter-md">
-                <q-btn
-                  color="secondary"
-                  :icon="isEdit ? 'cancel' : 'edit'"
-                  :label="isEdit ? 'Cancelar' : 'Editar'"
-                  unelevated
-                  @click="isEdit = !isEdit"
-                  v-if="actions.update"
-                />
-                <q-btn
-                  v-if="isEdit"
-                  color="primary"
-                  icon="check"
-                  label="Guardar cambios"
-                  unelevated
-                />
-              </q-item>
-            </q-list>
-          </q-card-section>
-        </q-card>
+                </div>
+                <div class="col-xs-12 col-sm-6 q-pa-md">
+                  <q-input
+                    label="Género"
+                    v-model="dataUser.genero"
+                    type="text"
+                    dense
+                    :disable="isEdit ? false : true"
+                    :rules="[(val) => !!val || 'Género es requerido']"
+                    hide-bottom-space
+                  />
+                </div>
+                <div class="col-xs-12 col-sm-6 q-pa-md">
+                  <q-input
+                    label="Contraseña"
+                    v-model="dataUser.password"
+                    type="text"
+                    dense
+                    :disable="isEdit ? false : true"
+                    :rules="[(val) => !!val || 'Contraseña es requerido']"
+                    hide-bottom-space
+                  />
+                </div>
+                <div class="col-xs-12 col-sm-6 q-pa-md">
+                  <q-input
+                    label="Repetir contraseña"
+                    v-model="repeatPassowrd"
+                    type="text"
+                    dense
+                    :disable="isEdit ? false : true"
+                    :rules="[
+                      (val) => !!val || 'Contraseña es requerido',
+                      (val) =>
+                        val === dataUser.password ||
+                        'Las contraseñas no coinciden',
+                    ]"
+                    hide-bottom-space
+                  />
+                </div>
+                <!-- <div class="col-xs-12 col-sm-6 q-pa-sm">
+                <q-field label="Estado" stack-label dense>
+                  <template v-slot:control>
+                    <div class="self-center full-width no-outline" tabindex="0">
+                      {{ dataUser?.estadoUsuario ? 'Activo' : 'Inactivo' }}
+                    </div>
+                  </template>
+                </q-field>
+              </div> -->
+                <div class="col-xs-12 q-pa-md row justify-end q-gutter-x-md">
+                  <q-btn
+                    color="secondary"
+                    :icon="isEdit ? 'cancel' : 'edit'"
+                    :label="isEdit ? 'Cancelar' : 'Editar'"
+                    unelevated
+                    @click="isEdit = !isEdit"
+                    v-if="actions.update"
+                  />
+                  <q-btn
+                    v-if="isEdit"
+                    color="primary"
+                    icon="check"
+                    label="Guardar cambios"
+                    unelevated
+                    type="submit"
+                  />
+                </div>
+              </q-card-section>
+            </q-form>
+          </q-card>
+        </transition>
+        <q-inner-loading :showing="isLoading" class="full-height full-width">
+          <q-spinner-gears size="100px" color="primary" />
+          <p class="text-grey-6 text-body1">Por favor espere....</p>
+        </q-inner-loading>
       </div>
     </div>
   </q-page>
@@ -279,7 +226,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue';
-import { decryptJSON } from '../helpers/encrypt';
+import { decryptJSON, encryptJSON } from '../helpers/encrypt';
 import { useQuasar, LocalStorage } from 'quasar';
 import {
   Actions,
@@ -288,12 +235,14 @@ import {
   Modulo,
 } from 'src/models/generals.models';
 import { useRouter } from 'vue-router';
-import { controlError } from 'src/helpers/controlError';
-import { get } from 'src/requests';
+import { controlError } from '../helpers/controlError';
+import { decryptedAES } from '../helpers/encrypt';
+import { get, put } from 'src/requests';
 export default defineComponent({
   name: 'PageSetting',
   setup() {
     const $q = useQuasar();
+    const isEdit = ref(false);
     const accountData = ref<CompanyLogged>({
       idEmpresa: 0,
       razonSocial: '',
@@ -345,6 +294,7 @@ export default defineComponent({
       fkIdTipoDocumento: 0,
     });
     const minimumSalary = ref(0);
+    const isLoading = ref(false);
 
     const getData = async () => {
       $q.loading.show({
@@ -354,7 +304,11 @@ export default defineComponent({
         accountData.value = decryptJSON(
           `${LocalStorage.getItem('dataUsuario')}`
         ) as unknown as CompanyLogged;
-        dataUser.value = accountData.value.dataUser;
+
+        dataUser.value = {
+          ...accountData.value.dataUser,
+          password: decryptedAES(accountData.value.dataUser.password),
+        };
 
         const resSalary = await get
           .getSalary()
@@ -364,6 +318,33 @@ export default defineComponent({
         controlError(error);
       } finally {
         $q.loading.hide();
+      }
+    };
+
+    const onSubmit = async () => {
+      isLoading.value = true;
+      try {
+        // Edita información del usuario
+        dataUser.value.fotoPerfil = `https://ui-avatars.com/api/?name=${dataUser.value.primerNombre}&background=00ab55&color=fff&rounded=true`;
+
+        const { data } = await put.updateUser(dataUser.value);
+        accountData.value.dataUser = { ...data.data };
+        LocalStorage.set(
+          'dataUsuario',
+          encryptJSON(JSON.parse(JSON.stringify(accountData.value)))
+        );
+
+        $q.notify({
+          message: data.message,
+          type: 'positive',
+          position: 'bottom-right',
+        });
+        isEdit.value = false;
+        location.reload();
+      } catch (error) {
+        controlError(error);
+      } finally {
+        isLoading.value = false;
       }
     };
 
@@ -382,11 +363,14 @@ export default defineComponent({
 
     return {
       accountData,
-      text: ref(''),
-      isEdit: ref(false),
+      isEdit,
       actions,
       dataUser,
       minimumSalary,
+      isPassword: ref(false),
+      repeatPassowrd: ref(''),
+      isLoading,
+      onSubmit,
     };
   },
 });
@@ -407,3 +391,4 @@ img
   height: 176px
   width: 176px
 </style>
+\

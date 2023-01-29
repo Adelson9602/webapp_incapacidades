@@ -545,3 +545,18 @@ export interface DocumentsAttachSave {
   idTipoIncapacidad: number;
   selected: boolean;
 }
+
+export interface Cliente extends ActionsUser {
+  idEmpresa: number | null;
+  razonSocial: string;
+  nitEmpresa: string;
+  nombreSistema: string;
+  urlLogo: string;
+  nombreBase: string;
+  estado: number;
+  direccion: string;
+  telefono: string;
+  email: string;
+  title?: string;
+  avatar?: string;
+}

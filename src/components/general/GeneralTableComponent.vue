@@ -85,10 +85,26 @@
                         :key="key"
                       >
                         <q-item-section>
-                          <q-item-label class="text-black">
-                            {{ col.label }}
-                          </q-item-label>
-                          <q-item-label>{{ col.value }}</q-item-label>
+                          <div v-if="col.label != 'ESTADO'">
+                            <q-item-label class="cursor-pointer text-black">
+                              {{ col.label }}
+                            </q-item-label>
+                            <q-item-label>{{ col.value }}</q-item-label>
+                          </div>
+                          <div v-else>
+                            <!-- acción para estado incapacidad -->
+                            <q-item-label class="cursor-pointer text-black">
+                              {{ col.label }}
+                            </q-item-label>
+                            <!-- Muesta valor de la celda normal sin ningua acción -->
+                            <q-item-label>
+                              <q-badge
+                                :color="assingColor(props.row)"
+                                :label="col.value == 1 ? 'ACTIVO' : 'INACTIVO'"
+                                class="q-pa-sm text-center"
+                              />
+                            </q-item-label>
+                          </div>
                         </q-item-section>
                       </q-item>
                     </q-list>
@@ -364,7 +380,7 @@ export default {
     };
 
     const assingColor = (data: any) => {
-      if (data.estadoUsuario == 1) {
+      if (data.estadoUsuario || data.estado) {
         return 'green';
       } else {
         return 'negative';

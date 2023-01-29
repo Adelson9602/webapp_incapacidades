@@ -24,6 +24,7 @@ import {
   ResDocumentsAttach,
   Notifications,
   TypeDocumentsAttach,
+  Cliente,
 } from 'src/models/generals.models';
 
 const getRols = async () => {
@@ -144,6 +145,10 @@ const getTypeOfDocumentToAttach = async () => {
   return await api.get<TypeDocumentsAttach[]>('type_of_document_to_attach');
 };
 
+const getClients = async () => {
+  return await api.get<Cliente[]>('clients');
+};
+
 const getReport = async (typeReport: string, queryParameter?: string) => {
   let parameter = ''
   if(typeReport === 'cliente'){
@@ -186,5 +191,6 @@ export default {
   getNotifications,
   disabilityByRange,
   getDisabilitiesByDocument,
-  getTypeOfDocumentToAttach
+  getTypeOfDocumentToAttach,
+  getClients
 };
