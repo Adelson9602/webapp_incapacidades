@@ -14,7 +14,11 @@
         <q-tab name="disabilities" label="Incapacidades" v-if="actions.leer" />
         <q-tab
           name="add_disability"
-          :label="disability ? 'Editar incapacidad' : 'Agregar incapacidad'"
+          :label="
+            disability.idIncapacidad
+              ? 'Editar incapacidad'
+              : 'Agregar incapacidad'
+          "
           v-if="actions.insert || tab == 'add_disability'"
         />
       </q-tabs>
@@ -886,33 +890,9 @@ export default defineComponent({
       isLoading.value = true;
       try {
         disability.value = row;
-        const estado = row.fkIdEstadoIncapacidad;
         const { data } = await get.getStateDisability();
         optionsStatus.value = [
-          ...data.filter((e) => {
-            const idEstado = e.idEstadoIncapacidad;
-            if (estado == 1 && idEstado == 2) {
-              return e;
-            } else if (
-              (estado == 2 && idEstado == 3) ||
-              (estado == 2 && idEstado == 5)
-            ) {
-              return e;
-            } else if (
-              (estado == 3 && idEstado == 4) ||
-              (estado == 3 && idEstado == 5) ||
-              (estado == 3 && idEstado == 6)
-            ) {
-              return e;
-            } else if (estado == 4 && idEstado == 5) {
-              return e;
-            } else if (
-              (estado == 5 && idEstado == 6) ||
-              (estado == 5 && idEstado == 3)
-            ) {
-              return e;
-            }
-          }),
+          ...data.filter((e) => e.idEstadoIncapacidad != 7),
         ];
         newStateInability.value.idIncapacidad = row.numeroIncapacidad;
         dialogStatus.value = true;

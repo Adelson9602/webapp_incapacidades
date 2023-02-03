@@ -77,7 +77,7 @@
                         }
                       "
                     />
-                    <q-input
+                    <!-- <q-input
                       v-model="disabilityType.codigoDianostico"
                       outlined
                       type="text"
@@ -91,7 +91,7 @@
                             `${val}`.toUpperCase();
                         }
                       "
-                    />
+                    /> -->
                     <div class="row justify-end">
                       <q-btn label="Guardar" type="submit" color="primary" />
                       <q-btn
@@ -267,13 +267,13 @@ const columns: QTableColumn[] = [
     sortable: true,
     field: 'nombreTipoIncapacidad',
   },
-  {
-    name: 'codigoDianostico',
-    label: 'CÓDIGO DIAGNÓSTICO',
-    align: 'center',
-    sortable: true,
-    field: 'codigoDianostico',
-  },
+  // {
+  //   name: 'codigoDianostico',
+  //   label: 'CÓDIGO DIAGNÓSTICO',
+  //   align: 'center',
+  //   sortable: true,
+  //   field: 'codigoDianostico',
+  // },
 ];
 
 const columnsDocuments: QTableColumn[] = [

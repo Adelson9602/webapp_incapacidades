@@ -23,7 +23,9 @@
             outlined
             v-model="disability.numeroIncapacidad"
             type="text"
+            mask="M####################################"
             label="NÚMERO INCAPACIDAD"
+            placeholder="123456"
           />
         </div>
         <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
@@ -59,10 +61,10 @@
             hide-selected
             fill-input
             input-debounce="0"
-            label="EMPLEADO"
+            label="DOCUMENTO"
             :options="optionsEmployes"
             @filter="filterEmployes"
-            option-label="completeName"
+            option-label="documentoPersona"
             option-value="documentoPersona"
             map-options
             emit-value
@@ -75,10 +77,11 @@
           </q-select>
         </div>
         <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
-          <q-field outlined label="DOCUMENTO" stack-label>
+          <q-field outlined label="NOMBRES" stack-label>
             <template v-slot:control>
               <div class="self-center full-width no-outline" tabindex="0">
-                {{ employe.documentoPersona }}
+                {{ employe.primerNombre }} {{ employe.segundoNombre }}
+                {{ employe.primerApellido }} {{ employe.segundoApellido }}
               </div>
             </template>
           </q-field>
@@ -297,7 +300,6 @@
             v-model="item.file"
             :label="item.label"
             counter
-            accept=".pdf"
             use-chips
             outlined
           >
@@ -687,11 +689,7 @@ export default defineComponent({
       update(() => {
         const needle = val.toLowerCase();
         optionsEmployes.value = employes.value.filter(
-          (v) =>
-            `${v.primerApellido} ${v.segundoApellido} ${v.primerNombre} ${v.segundoNombre}`
-              .toLowerCase()
-              .indexOf(needle) > -1 ||
-            `${v.documentoPersona}`.toLowerCase().indexOf(needle) > -1
+          (v) => `${v.documentoPersona}`.toLowerCase().indexOf(needle) > -1
         );
       });
     };
@@ -862,6 +860,7 @@ export default defineComponent({
           isLoading.value = true;
           try {
             const { data } = await get.getEmploye(+value);
+            disability.value.fkNitEmpresa = `${data.fkIdEmpresa}`;
             employe.value = { ...data };
           } catch (error) {
             controlError(error);
