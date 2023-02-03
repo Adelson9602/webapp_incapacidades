@@ -14,7 +14,7 @@
         <q-tab name="users" label="Usuarios" v-if="actions.leer" />
         <q-tab
           name="createUser"
-          label="Crear usuario"
+          :label="dataUserEdit ? 'Editar usuario' : 'Crear usuario'"
           v-if="actions.insert || tab == 'createUser'"
         />
       </q-tabs>
@@ -43,7 +43,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue';
+import { defineComponent, onMounted, ref, watch } from 'vue';
 import GeneralTableComponent from 'components/general/GeneralTableComponent.vue';
 import CreateUserComponent from 'components/users/CreateUserComponent.vue';
 import { Actions, Modulo, UserData } from 'src/models/generals.models';
@@ -210,6 +210,12 @@ export default defineComponent({
         }
       });
     };
+
+    watch(tab, (value) => {
+      if (value === 'users') {
+        dataUserEdit.value = undefined;
+      }
+    });
 
     onMounted(() => {
       getData();

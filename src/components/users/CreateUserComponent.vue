@@ -324,7 +324,13 @@
                 />
 
                 <q-btn
-                  :label="step == 1 ? 'Continuar' : 'Crear usuario'"
+                  :label="
+                    step == 1
+                      ? 'Continuar'
+                      : isEdit
+                      ? 'Guardar'
+                      : 'Crear usuario'
+                  "
                   type="submit"
                   color="primary"
                 />
@@ -380,6 +386,7 @@ export default defineComponent({
       isNotified: false,
       email: '',
     });
+    const isEdit = ref(false);
     const step = ref(1);
     const stepper = ref<any>();
     const formUser = ref();
@@ -473,6 +480,7 @@ export default defineComponent({
         idUsuarioNotificar: data.idUsuarioNotificar,
       };
       confirmPassword.value = decryptedAES(data.password);
+      isEdit.value = true;
     };
 
     // watch(
@@ -560,6 +568,7 @@ export default defineComponent({
       value: ref(false),
       value1: ref(false),
       permissionsByRol,
+      isEdit,
       onSubmit,
     };
   },

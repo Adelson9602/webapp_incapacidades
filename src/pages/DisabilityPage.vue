@@ -370,8 +370,45 @@
                   flat
                   :rows="rowsDisabilityDelete"
                   :columns="columns"
-                  row-key="name"
-                />
+                  :loading="isLoading"
+                >
+                  <template v-slot:header="props">
+                    <q-tr :props="props">
+                      <q-th auto-width />
+                      <q-th
+                        v-for="col in props.cols"
+                        :key="col.name"
+                        :props="props"
+                      >
+                        {{ col.label }}
+                      </q-th>
+                    </q-tr>
+                  </template>
+
+                  <template v-slot:body="props">
+                    <q-tr :props="props">
+                      <q-td auto-width>
+                        <q-btn
+                          size="sm"
+                          color="positive"
+                          round
+                          dense
+                          icon="replay"
+                          @click="restoreDisability(props.row)"
+                        >
+                          <q-tooltip> Restaurar incapacidad </q-tooltip>
+                        </q-btn>
+                      </q-td>
+                      <q-td
+                        v-for="col in props.cols"
+                        :key="col.name"
+                        :props="props"
+                      >
+                        {{ col.value }}
+                      </q-td>
+                    </q-tr>
+                  </template>
+                </q-table>
               </q-card-section>
             </q-card>
           </q-dialog>
@@ -805,6 +842,7 @@ export default defineComponent({
         componentProps: {
           title: 'Eliminar incapacidad',
           message: 'Esta seguro de eliminar esta incapacidad?',
+          labelBtn: 'Eliminar',
         },
       }).onOk(async () => {
         try {
@@ -813,6 +851,30 @@ export default defineComponent({
             message: data.message,
             type: 'positive',
           });
+        } catch (error) {
+          controlError(error);
+        } finally {
+        }
+      });
+    };
+
+    const restoreDisability = (row: InformationDisability) => {
+      $q.dialog({
+        component: DeleteDialogComponent,
+        componentProps: {
+          title: 'Restaurar incapacidad',
+          message: 'Esta seguro de restaurar esta incapacidad?',
+          labelBtn: 'Restaurar',
+        },
+      }).onOk(async () => {
+        try {
+          const { data } = await put.restoreDisability(row.numeroIncapacidad);
+          $q.notify({
+            message: data.message,
+            type: 'positive',
+          });
+          dialogDeleteDisability.value = false;
+          setTimeout(() => getData(), 300);
         } catch (error) {
           controlError(error);
         } finally {
@@ -1074,6 +1136,7 @@ export default defineComponent({
       openDialogchangeStatus,
       filterDisability,
       onReset,
+      restoreDisability,
     };
   },
 });

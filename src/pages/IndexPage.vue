@@ -10,25 +10,27 @@
         <q-card class="card" :class="item.color" flat>
           <q-card-section horizontal>
             <q-card-section class="col-9 q-pt-xs text-white">
-              <div class="text-h6 text-weight-light q-mt-sm q-mb-xs">
+              <div
+                class="card-title q-pr-none text-weight-light q-mt-sm q-mb-xs"
+              >
                 {{ item.title }}
               </div>
               <div class="text-h6">{{ item.value }}</div>
             </q-card-section>
 
-            <q-card-section class="col-3 flex flex-center">
+            <q-card-section class="col-3 q-pa-none flex flex-center">
               <q-btn color="white" :icon="item.icon" size="md" round outline />
             </q-card-section>
           </q-card-section>
 
           <q-separator color="white" />
 
-          <q-card-actions>
+          <!-- <q-card-actions>
             <p class="text-overline text-white q-ma-none">
               <q-icon name="history" color="white" size="24px" />
               Actualizado 7:30PM
             </p>
-          </q-card-actions>
+          </q-card-actions> -->
         </q-card>
       </div>
     </div>
@@ -366,7 +368,15 @@ export default defineComponent({
 </script>
 <style lang="sass" scoped>
 .card
-  height: 150px
+  // height: 150px
+  height: 110px
+.card-title
+  font-size: 14px
+
+@media (min-width: $breakpoint-lg-min)
+  .card-title
+    font-size: 16px
+
 .bg-c-yellow
   background: linear-gradient(to right,#0ac282,#0df3a3)
 .bg-c-green
