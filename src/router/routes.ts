@@ -23,6 +23,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'disability_type', component: () => import('src/pages/TypeDisabilityPage.vue'), meta: { requiresAuth: true }, },
       { path: 'settings', component: () => import('src/pages/SettingsPage.vue'), meta: { requiresAuth: true }, },
       { path: 'clients', component: () => import('src/pages/ClientsPage.vue'), meta: { requiresAuth: true }, },
+      { path: 'entities', component: () => import('src/pages/EntitiesPage.vue'), meta: { requiresAuth: true }, },
     ],
   },
 

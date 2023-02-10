@@ -174,7 +174,7 @@ export default defineComponent({
     const getData = async () => {
       try {
         const resCompnaies = await get
-          .getCompanies(5)
+          .getCompanies(1)
           .then((response) => response.data);
 
         rows.value = [

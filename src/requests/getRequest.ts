@@ -55,8 +55,8 @@ const getPosition = async () => {
   return await api.get<Position[]>('position');
 };
 
-const getCompanies = async () => {
-  return await api.get<InformationCompany[]>('company');
+const getCompanies = async (condition?: number) => {
+  return await api.get<InformationCompany[]>(`company${condition ? `?typeCompany=${condition}` : ''}`);
 };
 
 const getCompanyType = async () => {

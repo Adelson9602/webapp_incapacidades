@@ -340,7 +340,6 @@ export default {
       const resNotification = await get
         .getNotifications(dataUser.usuario)
         .then(({ data }) => data);
-
       notifications.value = [...resNotification];
     };
 
