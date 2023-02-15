@@ -514,7 +514,7 @@ export default defineComponent({
         disability.value.fechaFin = today.value;
 
         // Validamos si el prop disabilityEdit tiene algun valor, si tiene valor significa que se esta editando alguna incapacidad, entonces procedemos a asignar los datos a editar a los inputs
-        if (disabilityEdit.value) {
+        if (disabilityEdit.value?.idIncapacidad) {
           assignDataEdit();
         }
       } catch (error) {
@@ -616,7 +616,7 @@ export default defineComponent({
             const fileUpdate = files.value.find((e) =>
               e.nombreArchivo.includes(file.nameFile)
             );
-            console.log(fileUpdate);
+
             filesSend.push({
               idFiles: fileUpdate?.idFiles,
               fkIdTipoFile: 1,
@@ -627,6 +627,7 @@ export default defineComponent({
           });
           disability.value.files = [...filesSend];
         }
+        disability.value.usuario = dataUser.usuario;
         const response = await post.createDisability(disability.value);
         $q.notify({
           message: response.data.message,
