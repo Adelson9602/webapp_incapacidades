@@ -514,11 +514,11 @@ import DeleteDialogComponent from 'src/components/general/DeleteDialogComponent.
 
 const columns: QTableColumn[] = [
   {
-    name: 'idIncapacidad',
+    name: 'numeroIncapacidad',
     align: 'center',
-    label: 'ID INCAPACIDAD',
+    label: '# INCAPACIDAD',
     sortable: true,
-    field: 'idIncapacidad',
+    field: 'numeroIncapacidad',
   },
   {
     name: 'fechaInicio',

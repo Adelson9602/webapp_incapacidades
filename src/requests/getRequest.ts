@@ -18,13 +18,13 @@ import {
   LatestDisabilities,
   ResponseDashboard,
   Salary,
-  Cie,
   DetailDisability,
   Modulo,
   ResDocumentsAttach,
   Notifications,
   TypeDocumentsAttach,
   Cliente,
+  CieCode,
 } from 'src/models/generals.models';
 
 const getRols = async () => {
@@ -106,7 +106,7 @@ const getSalary = async () => {
 };
 
 const getCie = async () => {
-  return await api.get<Cie[]>('cie');
+  return await api.get<CieCode[]>('cie');
 };
 
 const getDisabilityById = async (radicado: number) => {

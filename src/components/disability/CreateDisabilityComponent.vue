@@ -174,28 +174,22 @@
         <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 q-pa-sm">
           <q-select
             outlined
-            v-model="cieCategorySelected"
+            v-model="disability.cie"
             clearable
             use-input
             hide-selected
             fill-input
             input-debounce="0"
-            label="GRUPO CIE"
-            :options="optionsCieCategory"
-            @filter="filterCieCategory"
-            option-label="descripcion"
+            label="CÓDIGO CIE"
+            :options="optionsCieCode"
+            @filter="filterCieDescription"
+            option-label="codigo"
+            option-value="codigo"
             :disable="disability.fkIdTipoIncapacidad ? false : true"
           >
             <template v-slot:no-option>
               <q-item>
                 <q-item-section class="text-grey"> No results </q-item-section>
-              </q-item>
-            </template>
-            <template v-slot:option="scope">
-              <q-item v-bind="scope.itemProps" style="max-width: 500px">
-                <q-item-section>
-                  <q-item-label>{{ scope.opt.descripcion }}</q-item-label>
-                </q-item-section>
               </q-item>
             </template>
           </q-select>
@@ -209,14 +203,19 @@
             hide-selected
             fill-input
             input-debounce="0"
-            label="CÓDIGO CIE"
-            :options="optionsCieCode"
+            label="DESCRIPCIÓN CIE"
+            :options="optionsCieDescription"
             @filter="filterCieCode"
             option-label="descripcion"
             option-value="codigo"
             map-options
             emit-value
-            :disable="cieCategorySelected ? false : true"
+            :disable="
+              disability.fkIdTipoIncapacidad && optionsCieDescription.length > 0
+                ? false
+                : true
+            "
+            :loading="optionsCieDescription.length === 0 ? true : false"
           >
             <template v-slot:no-option>
               <q-item>
@@ -456,9 +455,8 @@ export default defineComponent({
     });
     const files = ref<Adjunto[]>([]);
     // const filesUploade = ref<Adjunto[]>([]); // contiene los archivos que se han adjuntado a la incapacidad, se visualiza cuando se edite la incapacidad
-    const optionsCieCategory = ref<Cie[]>([]);
-    const cieCategory = ref<Cie[]>([]);
     const optionsCieCode = ref<CieCode[]>([]);
+    const optionsCieDescription = ref<CieCode[]>([]);
     const cieCode = ref<CieCode[]>([]);
     const cieCategorySelected = ref<Cie>();
     const isHaveFile = ref(0); // Permite validar si hay archivos para editar
@@ -471,8 +469,8 @@ export default defineComponent({
       isLoading.value = true;
       try {
         const resCie = await get.getCie().then((response) => response.data);
-        cieCategory.value = [...resCie];
-        optionsCieCategory.value = [...resCie];
+        cieCode.value = [...resCie];
+        optionsCieDescription.value = [...resCie];
 
         const resCompany = await get
           .getCompanyByType(5)
@@ -525,11 +523,6 @@ export default defineComponent({
     };
 
     const assignDataEdit = () => {
-      const tempCategory = cieCategory.value.find(
-        (e) => e.idGrupoCie == disabilityEdit.value?.idGrupoCie
-      );
-
-      cieCategorySelected.value = tempCategory;
       idTipoIncapacidad.value = disabilityEdit.value?.fkIdTipoIncapacidad || 0;
       disability.value = {
         radicado: disabilityEdit.value?.radicado,
@@ -711,25 +704,7 @@ export default defineComponent({
       });
     };
 
-    const filterCieCategory = (val: string, update: any) => {
-      if (val === '') {
-        update(() => {
-          optionsCieCategory.value = cieCategory.value;
-        });
-        return;
-      }
-
-      update(() => {
-        const needle = val.toLowerCase();
-        optionsCieCategory.value = cieCategory.value.filter(
-          (v) =>
-            v.descripcion.toLowerCase().indexOf(needle) > -1 ||
-            v.grupoSubgrupo.toLowerCase().indexOf(needle) > -1
-        );
-      });
-    };
-
-    const filterCieCode = (val: string, update: any) => {
+    const filterCieDescription = (val: string, update: any) => {
       if (val === '') {
         update(() => {
           optionsCieCode.value = cieCode.value;
@@ -740,6 +715,22 @@ export default defineComponent({
       update(() => {
         const needle = val.toLowerCase();
         optionsCieCode.value = cieCode.value.filter(
+          (v) => v.descripcion.toLowerCase().indexOf(needle) > -1
+        );
+      });
+    };
+
+    const filterCieCode = (val: string, update: any) => {
+      if (val === '') {
+        update(() => {
+          optionsCieDescription.value = cieCode.value;
+        });
+        return;
+      }
+
+      update(() => {
+        const needle = val.toLowerCase();
+        optionsCieDescription.value = cieCode.value.filter(
           (v) =>
             v.descripcion.toLowerCase().indexOf(needle) > -1 ||
             v.codigo.toLowerCase().indexOf(needle) > -1
@@ -804,11 +795,18 @@ export default defineComponent({
         // Cálculo para enfermedad general y
         if (
           (disability.value.fkIdTipoIncapacidad == 2 && numberDays.value > 2) ||
-          (disability.value.fkIdTipoIncapacidad == 6 && numberDays.value > 2) ||
-          (disability.value.fkIdTipoIncapacidad == 5 && numberDays.value > 2)
+          (disability.value.fkIdTipoIncapacidad == 6 && numberDays.value > 2)
         ) {
           const value = Math.round(
             (minimumSalary.value / 30) * (numberDays.value - 2)
+          );
+          disability.value.valor = value;
+        }
+
+        // (5, 'ACCIDENTE LABORAL', ''),
+        if (disability.value.fkIdTipoIncapacidad == 5 && numberDays.value > 1) {
+          const value = Math.round(
+            (minimumSalary.value / 30) * (numberDays.value - 1)
           );
           disability.value.valor = value;
         }
@@ -845,14 +843,6 @@ export default defineComponent({
         }
       }
     );
-
-    watch(cieCategorySelected, (value) => {
-      if (value) {
-        disability.value.cie = '';
-        cieCode.value = [...value.cieCodes];
-        // optionsCieCode.value = [...value.cieCodes];
-      }
-    });
 
     watch(
       () => disability.value.fkDocumentoPersona,
@@ -949,15 +939,15 @@ export default defineComponent({
       numberDays,
       employe,
       cieCategorySelected,
-      optionsCieCategory,
       optionsCieCode,
+      optionsCieDescription,
       isHaveFile,
       onSubmit,
       filterCompany,
       filterEntyties,
       filterEmployes,
       filterDisabilityType,
-      filterCieCategory,
+      filterCieDescription,
       filterCieCode,
       openURL,
     };
