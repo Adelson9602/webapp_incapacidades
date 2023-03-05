@@ -447,14 +447,33 @@
                       newStateInability.estado == 6
                     "
                   >
-                    <q-input
+                    <q-select
+                      outlined
                       v-model="newStateInability.observacion"
-                      filled
-                      label="Observaciones"
-                      :rules="[(val) => !!val || 'Observaciones es requerido']"
-                      row="3"
-                      type="textarea"
-                    />
+                      clearable
+                      use-input
+                      hide-selected
+                      fill-input
+                      input-debounce="0"
+                      label="CAUSAL DE RECHAZO"
+                      :options="optionsGroundsForRejection"
+                      @filter="filterGroundsForRejection"
+                      option-label="causalRechazo"
+                      option-value="idCausalRechazo"
+                      map-options
+                      emit-value
+                      :loading="
+                        optionsGroundsForRejection.length === 0 ? true : false
+                      "
+                    >
+                      <template v-slot:no-option>
+                        <q-item>
+                          <q-item-section class="text-grey">
+                            No results
+                          </q-item-section>
+                        </q-item>
+                      </template>
+                    </q-select>
                   </div>
                 </q-card-section>
                 <q-card-actions align="right">
@@ -488,6 +507,7 @@ import { delet, get, post, put } from 'src/requests';
 import {
   Actions,
   Adjunto,
+  GroundsForRejection,
   CompanyLogged,
   DesabilityDetail,
   DisabilityExtension,
@@ -629,6 +649,8 @@ export default defineComponent({
     const typeReport = ref('');
     const document = ref('');
     const optionsStatus = ref<StateDisability[]>([]);
+    const optionsGroundsForRejection = ref<GroundsForRejection[]>([]);
+    const groundsForRejection = ref<GroundsForRejection[]>([]);
     const newStateInability = ref<NewState>({
       idIncapacidad: 0,
       estado: 0,
@@ -668,7 +690,12 @@ export default defineComponent({
           .then((response) => response.data);
         minimumSalary.value = resSalary.salarioMinimo;
 
-        isFilterByDate.value = false;
+        const res = await get
+          .getGroundsForRejection()
+          .then((response) => response.data);
+
+        optionsGroundsForRejection.value = [...res];
+        groundsForRejection.value = [...res];
       } catch (error) {
         controlError(error);
       } finally {
@@ -894,7 +921,7 @@ export default defineComponent({
         optionsStatus.value = [
           ...data.filter((e) => e.idEstadoIncapacidad != 7),
         ];
-        newStateInability.value.idIncapacidad = row.numeroIncapacidad;
+        newStateInability.value.idIncapacidad = row.idIncapacidad;
         dialogStatus.value = true;
       } catch (error) {
         controlError(error);
@@ -984,6 +1011,22 @@ export default defineComponent({
         range.value.to = '';
         getData();
       }
+    };
+
+    const filterGroundsForRejection = (val: string, update: any) => {
+      if (val === '') {
+        update(() => {
+          optionsGroundsForRejection.value = groundsForRejection.value;
+        });
+        return;
+      }
+
+      update(() => {
+        const needle = val.toLowerCase();
+        optionsGroundsForRejection.value = groundsForRejection.value.filter(
+          (v) => v.causalRechazo.toLowerCase().indexOf(needle) > -1
+        );
+      });
     };
 
     watch(dialogStatus, (value) => {
@@ -1102,6 +1145,7 @@ export default defineComponent({
       actions,
       range,
       isFilterByDate,
+      optionsGroundsForRejection,
       getData,
       onSubmit,
       genreReport,
@@ -1117,6 +1161,7 @@ export default defineComponent({
       filterDisability,
       onReset,
       restoreDisability,
+      filterGroundsForRejection,
     };
   },
 });

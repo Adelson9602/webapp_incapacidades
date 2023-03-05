@@ -526,7 +526,7 @@ export interface Notifications {
   estado: number;
 }
 
-export interface TypeDocumentsAttach extends ActionsUser{
+export interface TypeDocumentsAttach extends ActionsUser {
   documento: string;
   idDocumentoAdjuntar?: number | null;
   descripcion?: string;
@@ -561,4 +561,10 @@ export interface Cliente extends ActionsUser {
   idSetting?: number;
   title?: string;
   avatar?: string;
+}
+
+export interface GroundsForRejection {
+  idCausalRechazo: number;
+  causalRechazo: string;
+  estado: number;
 }

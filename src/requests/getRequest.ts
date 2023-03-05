@@ -25,6 +25,7 @@ import {
   TypeDocumentsAttach,
   Cliente,
   CieCode,
+  GroundsForRejection
 } from 'src/models/generals.models';
 
 const getRols = async () => {
@@ -149,6 +150,10 @@ const getClients = async () => {
   return await api.get<Cliente[]>('clients');
 };
 
+const getGroundsForRejection = async () => {
+  return await api.get<GroundsForRejection[]>('get_grounds_for_rejection');
+};
+
 const getReport = async (typeReport: string, queryParameter?: string) => {
   let parameter = ''
   if(typeReport === 'cliente'){
@@ -192,5 +197,6 @@ export default {
   disabilityByRange,
   getDisabilitiesByDocument,
   getTypeOfDocumentToAttach,
-  getClients
+  getClients,
+  getGroundsForRejection
 };
