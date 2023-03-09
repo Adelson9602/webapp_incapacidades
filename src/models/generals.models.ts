@@ -268,6 +268,8 @@ export interface InformationDisability extends ActionsUser {
   fechaRegistro: string;
   title?: string;
   files: Adjunto[];
+  idCausalRechazo?: number;
+  idIncapacidadRechazada?: number;
 }
 
 // Interfaces para mostrar información en un dialog de manera ordenada
@@ -567,4 +569,10 @@ export interface GroundsForRejection {
   idCausalRechazo: number;
   causalRechazo: string;
   estado: number;
+}
+
+export interface DisabilityRejected {
+  idIncapacidadRechazada: number | null;
+  idIncapacidad: number;
+  idCausalRechazo: number;
 }

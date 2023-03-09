@@ -449,7 +449,7 @@
                   >
                     <q-select
                       outlined
-                      v-model="newStateInability.observacion"
+                      v-model="validationReason"
                       clearable
                       use-input
                       hide-selected
@@ -460,8 +460,6 @@
                       @filter="filterGroundsForRejection"
                       option-label="causalRechazo"
                       option-value="idCausalRechazo"
-                      map-options
-                      emit-value
                       :loading="
                         optionsGroundsForRejection.length === 0 ? true : false
                       "
@@ -666,6 +664,10 @@ export default defineComponent({
     });
     const range = ref({ from: '', to: '' });
     const isFilterByDate = ref(false);
+    const validationReason = ref({
+      causalRechazo: null,
+      idCausalRechazo: null,
+    });
 
     const getData = async () => {
       isLoading.value = true;
@@ -937,16 +939,26 @@ export default defineComponent({
           newStateInability.value
         );
         const observaciones = `[CAMBIO ESTADO] - ${
-          newStateInability.value.observacion
-            ? newStateInability.value.observacion
+          validationReason.value.causalRechazo
+            ? validationReason.value.causalRechazo
             : 'N/A'
         }`;
+
         const resHistory = await post.createHistoricalDisability({
           idHistorico: null,
           observaciones,
           usuario: dataUser.usuario,
           idIncapacidad: newStateInability.value.idIncapacidad,
         });
+
+        if (validationReason.value.idCausalRechazo) {
+          await post.createDisabilityRejected({
+            idCausalRechazo: validationReason.value.idCausalRechazo,
+            idIncapacidadRechazada:
+              disability.value.idIncapacidadRechazada || null,
+            idIncapacidad: newStateInability.value.idIncapacidad,
+          });
+        }
 
         dialogStatus.value = false;
         newStateInability.value = {
@@ -1146,6 +1158,7 @@ export default defineComponent({
       range,
       isFilterByDate,
       optionsGroundsForRejection,
+      validationReason,
       getData,
       onSubmit,
       genreReport,
